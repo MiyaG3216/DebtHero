@@ -104,3 +104,9 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+/[Aa]ssete/WIP/
+/[Aa]ssets/WIP.meta
+Assets/00_WIP
+Build/
+ProjectSettings/Packages/com.unity.probuilder/Settings.json
