@@ -5,12 +5,13 @@ public class Dice
 {
     // ===== フィールド =====
     // ===== プロパティ =====
-    public int Value { get; private set; } = 1;
-    public bool IsKept { get; set; } = false;
+    public int Value { get; private set; } = 1; // 出目
+    public bool IsKept { get; set; } = false;   // キープ状態
 
     // ===== Unityメッセージ =====
 
     // ===== メソッド =====
+    // ダイスロール
     public void Roll()
     {
         if (IsKept) return;
@@ -18,6 +19,7 @@ public class Dice
         Value = Random.Range(1, 7);
     }
 
+    // キープ状態変更
     public void ToggleKeep()
     {
         IsKept = !IsKept;
@@ -28,5 +30,4 @@ public class Dice
         Value = 1;
         IsKept = false;
     }
-
 }
