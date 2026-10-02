@@ -15,6 +15,17 @@ public class DiceManager : MonoBehaviour
     [Header("設定")]
     [SerializeField] private int _maxRerollCount = 2;   // 最大リロール可能回数
 
+    [Header("ダイスタイプ")]
+    [SerializeField]
+    private List<DiceType> _initialDiceTypes = new List<DiceType>()
+    {
+        DiceType.Nomal,
+        DiceType.Nomal,
+        DiceType.Nomal,
+        DiceType.Nomal,
+        DiceType.Nomal
+    };
+
     [Header("確認用")]
     public List<Dice> _diceList = new List<Dice>();
     public int _remainingRerolls;   // 残リロール
@@ -29,7 +40,8 @@ public class DiceManager : MonoBehaviour
         _diceList.Clear();
         for (int i = 0; i < 5; i++)
         {
-            _diceList.Add(new Dice());
+            DiceType type = (1 < _initialDiceTypes.Count) ? _initialDiceTypes[i] : DiceType.Nomal;
+            _diceList.Add(new Dice(type));
         }
     }
 
@@ -100,10 +112,25 @@ public class DiceManager : MonoBehaviour
 
         for (int i = 0; i < _diceList.Count; i++)
         {
-            string keepMark = _diceList[i].IsKept ? "[K]" : "";
-            result += $"({i + 1}番目：{_diceList[i].Value}{keepMark})";
+            string keepMark = _diceList[i].IsKept ? "[LOCK]" : "";
+            string typeName = GetDiceTypeName(_diceList[i].Type);
+            result += $"({i + 1}番目：{_diceList[i].Value}({typeName}){keepMark})";
         }
         Debug.Log(result);
+    }
+
+    // ダイス種類の日本語名を取得
+    private string GetDiceTypeName(DiceType type)
+    {
+        switch (type)
+        {
+            case DiceType.Odd: return "奇数";
+            case DiceType.Even: return "偶数";
+            case DiceType.HighRoller: return "高目";
+            case DiceType.Pinzoro: return "ピンゾロ";
+            case DiceType.Straight: return "連番";
+            default: return "ノーマル";
+        }
     }
 
     // 現在の出目で役を確定する
@@ -136,7 +163,7 @@ public class DiceManager : MonoBehaviour
         // ターン終了
         _isTurnActive = false;
 
-        if(_battleManager != null)
+        if (_battleManager != null)
         {
             _battleManager.OnHandSubmitted(result);
         }
