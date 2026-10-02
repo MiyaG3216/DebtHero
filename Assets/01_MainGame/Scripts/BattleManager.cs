@@ -5,6 +5,7 @@ public class BattleManager : MonoBehaviour
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private DiceManager _diceManager;
+    [SerializeField] private BattleUIManager _battleUIManager;
 
     [Header("ステージ設定")]
     [SerializeField] private int _targetQuota = 300;    // 目標スコア
@@ -16,6 +17,8 @@ public class BattleManager : MonoBehaviour
     public bool _isBattleActive = false;    // バトル中かどうか
 
     // ===== プロパティ =====
+    public int TargetQuota => _targetQuota;
+    public int MaxTurn => _maxTurn;
 
     // ===== Unityメッセージ =====
     private void Start()
@@ -56,23 +59,25 @@ public class BattleManager : MonoBehaviour
         Debug.Log("--------------------");
 
         // 勝敗判定
-        if(_currentScore >= _targetQuota)
+        if (_currentScore >= _targetQuota)
         {
             // ノルマ達成
-            _isBattleActive =false;
-            Debug.Log("$$$$$$$$$$$$$$$$$$$$");
-            Debug.Log($"【完済成功！！STAGE CLEAR】");
-            Debug.Log($"取り立て屋を追い返した！(Spaceキーで次の挑戦を開始)");
-            Debug.Log("$$$$$$$$$$$$$$$$$$$$");
+            _isBattleActive = false;
+            if (_battleUIManager != null) _battleUIManager.ShowBattleResult(true);
+            //Debug.Log("$$$$$$$$$$$$$$$$$$$$");
+            //Debug.Log($"【完済成功！！STAGE CLEAR】");
+            //Debug.Log($"取り立て屋を追い返した！(Spaceキーで次の挑戦を開始)");
+            //Debug.Log("$$$$$$$$$$$$$$$$$$$$");
         }
         else if (_remainingTurns <= 0)
         {
             // 残りターン無し
             _isBattleActive = false;
-            Debug.Log("XXXXXXXXXXXXXXXXXXXX");
-            Debug.Log($"【完済失敗... GAME OVER】");
-            Debug.Log($"借金を返せなかった...(Spaceキーでリトライ)");
-            Debug.Log("XXXXXXXXXXXXXXXXXXXX");
+            if (_battleUIManager != null) _battleUIManager.ShowBattleResult(false);
+            //Debug.Log("XXXXXXXXXXXXXXXXXXXX");
+            //Debug.Log($"【完済失敗... GAME OVER】");
+            //Debug.Log($"借金を返せなかった...(Spaceキーでリトライ)");
+            //Debug.Log("XXXXXXXXXXXXXXXXXXXX");
         }
         else
         {
