@@ -35,11 +35,6 @@ public class BattleManager : MonoBehaviour
         _remainingTurns = _maxTurn;
         _isBattleActive = true;
 
-        Debug.Log("====================");
-        Debug.Log($"【取り立て屋 出現！】");
-        Debug.Log($"【返済ノルマ】：{_targetQuota} G  | 制限ターン：{_remainingTurns} 回");
-        Debug.Log("====================");
-
         _diceManager.StartNewTurn();
     }
 
@@ -47,16 +42,16 @@ public class BattleManager : MonoBehaviour
     {
         if (!_isBattleActive || handResult == null) return;
 
+        // シール効果を含めた最終スコアと獲得コインを計算
+        var calcResult = SealCalculator.Calculate(handResult, _diceManager._diceList);
+
         // 獲得スコア
-        int earnedScore = handResult.BaseScore + handResult.UnusedDiceSum;
+        int earnedScore = calcResult.FinalScore;
 
         _currentScore += earnedScore;
         _remainingTurns--;
 
-        Debug.Log("--------------------");
-        Debug.Log($"【提出結果】 役：{handResult.HandName} → 獲得金額：+{earnedScore}G");
-        Debug.Log($"【返済状況】：{_currentScore} / {_targetQuota} G  | 残りターン：{_remainingTurns} 回");
-        Debug.Log("--------------------");
+        Debug.Log($"提出：役[{handResult.HandName}] → {calcResult.SummaryText}");
 
         // 勝敗判定
         if (_currentScore >= _targetQuota)
@@ -64,24 +59,15 @@ public class BattleManager : MonoBehaviour
             // ノルマ達成
             _isBattleActive = false;
             if (_battleUIManager != null) _battleUIManager.ShowBattleResult(true);
-            //Debug.Log("$$$$$$$$$$$$$$$$$$$$");
-            //Debug.Log($"【完済成功！！STAGE CLEAR】");
-            //Debug.Log($"取り立て屋を追い返した！(Spaceキーで次の挑戦を開始)");
-            //Debug.Log("$$$$$$$$$$$$$$$$$$$$");
         }
         else if (_remainingTurns <= 0)
         {
             // 残りターン無し
             _isBattleActive = false;
             if (_battleUIManager != null) _battleUIManager.ShowBattleResult(false);
-            //Debug.Log("XXXXXXXXXXXXXXXXXXXX");
-            //Debug.Log($"【完済失敗... GAME OVER】");
-            //Debug.Log($"借金を返せなかった...(Spaceキーでリトライ)");
-            //Debug.Log("XXXXXXXXXXXXXXXXXXXX");
         }
         else
         {
-            Debug.Log(">> ノルマ未達成！次のターンを開始します。");
             _diceManager.StartNewTurn();
         }
     }

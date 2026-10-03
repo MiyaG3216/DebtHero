@@ -16,6 +16,13 @@ public class Dice
 {
     // ===== フィールド =====
     [SerializeField] private DiceType _dicetype = DiceType.Nomal;
+    [SerializeField]
+    private SealType[] _faceSeals = new SealType[6]
+    {
+        SealType.None,SealType.None,SealType.None,
+        SealType.None,SealType.None,SealType.None,
+    };
+
     // ===== プロパティ =====
     public DiceType Type => _dicetype;
     public int Value { get; private set; } = 1; // 出目
@@ -85,7 +92,7 @@ public class Dice
         for (int i = 0; i < weights.Length; i++)
         {
             currentWeightSum += weights[i];
-            if(randomValue < currentWeightSum)
+            if (randomValue < currentWeightSum)
             {
                 return i + 1;
             }
@@ -98,6 +105,37 @@ public class Dice
     public void ToggleKeep()
     {
         IsKept = !IsKept;
+    }
+
+    // 指定した出目の面に貼られているシールを取得
+    public SealType GetSealOnFace(int faceValue)
+    {
+        int index = faceValue - 1;
+        if(index >= 0 && index < _faceSeals.Length)
+        {
+            return _faceSeals[index];
+        }
+
+        return SealType.None;
+    }
+
+    // 指定した面にシールを張り付ける
+    public void AttachSeal(int faceValue,SealType seal)
+    {
+        int index = faceValue - 1;
+        if(index >= 0 && index < _faceSeals.Length)
+        {
+            _faceSeals[index] = seal;
+        }
+    }
+
+    // すでに貼ってあるシールを新しいダイスに引き継ぐ
+    public void CopySealsFrom(Dice sourceDice)
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            _faceSeals[i] = sourceDice._faceSeals[i];
+        }
     }
 
     public void Reset()

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 public class BattleUIManager : MonoBehaviour
 {
@@ -36,10 +37,10 @@ public class BattleUIManager : MonoBehaviour
         _submitButton.onClick.AddListener(OnSubmitClicked);
         _restartButton.onClick.AddListener(OnRestartClicked);
 
-        for (int i = 0;i < _diceButtons.Count;i++)
+        for (int i = 0; i < _diceButtons.Count; i++)
         {
             int index = i;
-            _diceButtons[i].onClick.AddListener(()=>OnDiceClicked(index));
+            _diceButtons[i].onClick.AddListener(() => OnDiceClicked(index));
         }
 
         // 初期ＵＩの更新
@@ -70,7 +71,7 @@ public class BattleUIManager : MonoBehaviour
             {
                 var dice = _diceManager._diceList[i];
                 string keepStatus = dice.IsKept ? "\n<color=red>[Lock]</color>" : "";
-                _diceTexts[i].text = $"<b>{dice.Value}</b>\n<size=18>({GetDiceTypeName(dice.Type)})</size>{keepStatus}";
+                _diceTexts[i].text = $"<b>{dice.Value}</b>\n<size=18>({GetDiceTypeName(dice.Type)})\n({GetSealTypeName(dice.GetSealOnFace(dice.Value))})</size>{keepStatus}";
             }
         }
 
@@ -131,7 +132,7 @@ public class BattleUIManager : MonoBehaviour
         }
         else
         {
-            _messageText.text = "<color=red>☠ 完済失敗... GAME OVER ☠</color>";
+            _messageText.text = "<color=red>× 完済失敗... GAME OVER ×</color>";
         }
     }
 
@@ -145,6 +146,23 @@ public class BattleUIManager : MonoBehaviour
             case DiceType.Pinzoro: return "ピンゾロ";
             case DiceType.Straight: return "連番";
             default: return "ノーマル";
+        }
+    }
+
+    private string GetSealTypeName(SealType type)
+    {
+        switch (type)
+        {
+            case SealType.Fire: return "炎";
+            case SealType.Ice: return "氷";
+            case SealType.Iron: return "鉄";
+            case SealType.Gold: return "金箔";
+            case SealType.Lightning: return "雷";
+            case SealType.Solo: return "孤高";
+            case SealType.Odd: return "偶数";
+            case SealType.Even: return "奇数";
+            case SealType.Gamble: return "博打";
+            default: return "";
         }
     }
 
