@@ -43,6 +43,10 @@ public class DiceManager : MonoBehaviour
             DiceType type = (1 < _initialDiceTypes.Count) ? _initialDiceTypes[i] : DiceType.Nomal;
             _diceList.Add(new Dice(type));
         }
+
+        // テスト用
+        _diceList[0].AttachSeal(1, SealType.Fire);
+        _diceList[1].AttachSeal(1,SealType.Gamble);
     }
 
     private void Start()
@@ -54,7 +58,7 @@ public class DiceManager : MonoBehaviour
     // ===== メソッド =====
     public void StartNewTurn()
     {
-        ClearConsole();
+        //ClearConsole();
 
         _remainingRerolls = _maxRerollCount;
         _isTurnActive = true;
@@ -66,8 +70,7 @@ public class DiceManager : MonoBehaviour
             dice.Roll();
         }
 
-        Debug.Log("【新しいターン開始】");
-        LogDiceStatus();
+        //LogDiceStatus();
     }
 
     // リロール（キープされていないダイスだけ振り直す）
@@ -75,13 +78,13 @@ public class DiceManager : MonoBehaviour
     {
         if (!_isTurnActive)
         {
-            Debug.LogWarning("ターンが開始されていません。");
+            //Debug.LogWarning("ターンが開始されていません。");
             return;
         }
 
         if (_remainingRerolls <= 0)
         {
-            Debug.LogWarning("リロール回数が残っていません。役を確定してください。");
+            //Debug.LogWarning("リロール回数が残っていません。役を確定してください。");
             return;
         }
 
@@ -92,8 +95,8 @@ public class DiceManager : MonoBehaviour
             dice.Roll();
         }
 
-        Debug.Log($"【リロール実行】残り回数：{_remainingRerolls}");
-        LogDiceStatus();
+        //Debug.Log($"【リロール実行】残り回数：{_remainingRerolls}");
+        //LogDiceStatus();
     }
 
     // ダイスのキープ状態切り替え
@@ -102,36 +105,36 @@ public class DiceManager : MonoBehaviour
         if (index < 0 || index >= _diceList.Count) return;
 
         _diceList[index].ToggleKeep();
-        Debug.Log($"ダイス[{index + 1}]のキープ状態：{(_diceList[index].IsKept ? "キープ中[Lock]" : "フリー")}");
+        //Debug.Log($"ダイス[{index + 1}]のキープ状態：{(_diceList[index].IsKept ? "キープ中[Lock]" : "フリー")}");
     }
 
     // 現在のダイスの状態をコンソールに出力
-    public void LogDiceStatus()
-    {
-        string result = "出目：";
+    //public void LogDiceStatus()
+    //{
+    //    string result = "出目：";
 
-        for (int i = 0; i < _diceList.Count; i++)
-        {
-            string keepMark = _diceList[i].IsKept ? "[LOCK]" : "";
-            string typeName = GetDiceTypeName(_diceList[i].Type);
-            result += $"({i + 1}番目：{_diceList[i].Value}({typeName}){keepMark})";
-        }
-        Debug.Log(result);
-    }
+    //    for (int i = 0; i < _diceList.Count; i++)
+    //    {
+    //        string keepMark = _diceList[i].IsKept ? "[LOCK]" : "";
+    //        string typeName = GetDiceTypeName(_diceList[i].Type);
+    //        result += $"({i + 1}番目：{_diceList[i].Value}({typeName}){keepMark})";
+    //    }
+    //    Debug.Log(result);
+    //}
 
     // ダイス種類の日本語名を取得
-    private string GetDiceTypeName(DiceType type)
-    {
-        switch (type)
-        {
-            case DiceType.Odd: return "奇数";
-            case DiceType.Even: return "偶数";
-            case DiceType.HighRoller: return "高目";
-            case DiceType.Pinzoro: return "ピンゾロ";
-            case DiceType.Straight: return "連番";
-            default: return "ノーマル";
-        }
-    }
+    //private string GetDiceTypeName(DiceType type)
+    //{
+    //    switch (type)
+    //    {
+    //        case DiceType.Odd: return "奇数";
+    //        case DiceType.Even: return "偶数";
+    //        case DiceType.HighRoller: return "高目";
+    //        case DiceType.Pinzoro: return "ピンゾロ";
+    //        case DiceType.Straight: return "連番";
+    //        default: return "ノーマル";
+    //    }
+    //}
 
     // 現在の出目で役を確定する
     public HandEvaluationResult SubmitHand()
@@ -152,14 +155,6 @@ public class DiceManager : MonoBehaviour
         // 役判定
         HandEvaluationResult result = HandEvaluator.Evaluate(currentValues);
 
-        // 判定結果をコンソールに出力
-        //Debug.Log("====================");
-        //Debug.Log($"【役判定】：{result.HandName}");
-        //Debug.Log($"【役基本スコア】：{result.BaseScore}点");
-        //Debug.Log($"【役以外の出目合計】：{result.UnusedDiceSum}点（内訳：[{string.Join(",", result.UnusedDice)}]）");
-        //Debug.Log($"【暫定スコア】：{result.BaseScore + result.UnusedDiceSum}点");
-        //Debug.Log("====================");
-
         // ターン終了
         _isTurnActive = false;
 
@@ -172,12 +167,12 @@ public class DiceManager : MonoBehaviour
     }
 
     // ★UnityEditorのログを削除
-    private void ClearConsole()
-    {
-#if UNITY_EDITOR
-        var logEntries = System.Type.GetType("UnityEditor.LogEntries,UnityEditor.dll");
-        var clearMethod = logEntries?.GetMethod("Clear", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-        clearMethod?.Invoke(null, null);
-#endif
-    }
+//    private void ClearConsole()
+//    {
+//#if UNITY_EDITOR
+//        var logEntries = System.Type.GetType("UnityEditor.LogEntries,UnityEditor.dll");
+//        var clearMethod = logEntries?.GetMethod("Clear", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+//        clearMethod?.Invoke(null, null);
+//#endif
+//    }
 }
