@@ -111,7 +111,7 @@ public class Dice
     public SealType GetSealOnFace(int faceValue)
     {
         int index = faceValue - 1;
-        if(index >= 0 && index < _faceSeals.Length)
+        if (index >= 0 && index < _faceSeals.Length)
         {
             return _faceSeals[index];
         }
@@ -120,10 +120,10 @@ public class Dice
     }
 
     // 指定した面にシールを張り付ける
-    public void AttachSeal(int faceValue,SealType seal)
+    public void AttachSeal(int faceValue, SealType seal)
     {
         int index = faceValue - 1;
-        if(index >= 0 && index < _faceSeals.Length)
+        if (index >= 0 && index < _faceSeals.Length)
         {
             _faceSeals[index] = seal;
         }
@@ -136,6 +136,12 @@ public class Dice
         {
             _faceSeals[i] = sourceDice._faceSeals[i];
         }
+    }
+
+    // 出目を直接書き換える（イカサマ用）
+    public void SetValueDirectly(int newValue)
+    {
+        Value = Mathf.Clamp(newValue, 1, 6);
     }
 
     public void Reset()
