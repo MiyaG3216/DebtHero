@@ -6,6 +6,8 @@ public class BattleManager : MonoBehaviour
     [Header("参照")]
     [SerializeField] private DiceManager _diceManager;
     [SerializeField] private BattleUIManager _battleUIManager;
+    [SerializeField] private RewardManager _rewardManager;
+    [SerializeField] private CheatingManager _cheatingManager;
 
     [Header("ステージ設定")]
     [SerializeField] private int _targetQuota = 300;    // 目標スコア
@@ -35,6 +37,8 @@ public class BattleManager : MonoBehaviour
         _remainingTurns = _maxTurn;
         _isBattleActive = true;
 
+        if(_cheatingManager != null) _cheatingManager.ResetCheating();
+
         _diceManager.StartNewTurn();
     }
 
@@ -59,6 +63,15 @@ public class BattleManager : MonoBehaviour
             // ノルマ達成
             _isBattleActive = false;
             if (_battleUIManager != null) _battleUIManager.ShowBattleResult(true);
+
+            // サブミッション判定(残りターン1以上で達成)
+            bool missinonCleared = _remainingTurns >= 1;
+
+            // 報酬フェーズを開始
+            if(_rewardManager != null)
+            {
+                _rewardManager.StartRewardPhase(missinonCleared);
+            }
         }
         else if (_remainingTurns <= 0)
         {
