@@ -44,7 +44,6 @@ public class BattleUIManager : MonoBehaviour
         }
 
         // 初期ＵＩの更新
-        _quotaText.text = $"目標スコア：{_battleManager.TargetQuota} G";
         _messageText.text = "バトル開始！";
         _restartButton.gameObject.SetActive(false);
         UpdateUI();
@@ -61,6 +60,7 @@ public class BattleUIManager : MonoBehaviour
         if (_battleManager == null || _diceManager == null) return;
 
         // バトル情報の更新
+        _quotaText.text = $"目標スコア：{_battleManager.TargetQuota} G";
         _scoreText.text = $"現在スコア：{_battleManager._currentScore} G";
         _turnsText.text = $"残りターン：{_battleManager._remainingTurns} / {_battleManager.MaxTurn}";
 

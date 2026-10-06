@@ -12,6 +12,7 @@ public class BattleManager : MonoBehaviour
     [Header("ステージ設定")]
     [SerializeField] private int _targetQuota = 300;    // 目標スコア
     [SerializeField] private int _maxTurn = 3;          // 制限ターン
+    [SerializeField] private BossTraitType _currentBossTrait = BossTraitType.None;  // 現在の敵の特性
 
     [Header("モニター用")]
     public int _currentScore = 0;           // 現在の合計スコア
@@ -29,10 +30,11 @@ public class BattleManager : MonoBehaviour
     }
 
     // ===== メソッド =====
-    public void StartChallange(int quota, int turns)
+    public void StartChallange(int quota, int turns,BossTraitType bossTrait = BossTraitType.None)
     {
         _targetQuota = quota;
         _maxTurn = turns;
+        _currentBossTrait = bossTrait;
         _currentScore = 0;
         _remainingTurns = _maxTurn;
         _isBattleActive = true;
@@ -49,10 +51,18 @@ public class BattleManager : MonoBehaviour
         // シール効果を含めた最終スコアと獲得コインを計算
         var calcResult = SealCalculator.Calculate(handResult, _diceManager._diceList);
 
-        // 獲得スコア
-        int earnedScore = calcResult.FinalScore;
+        if(calcResult.EarnedCoins > 0)
+        {
+            PlayerManager.Instance.AddCoins(calcResult.EarnedCoins);
+        }
 
-        _currentScore += earnedScore;
+        int finalScore = BossManager.Instance.ApplyBossTrait(
+            _currentBossTrait,
+            handResult,
+            calcResult.FinalScore,
+            calcResult.DisableBossPassive);
+
+        _currentScore += finalScore;
         _remainingTurns--;
 
         Debug.Log($"提出：役[{handResult.HandName}] → {calcResult.SummaryText}");
