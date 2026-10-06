@@ -64,6 +64,12 @@ public class RewardManager : MonoBehaviour
         RemainingPicks--;
 
         Debug.Log($"ダイス[{diceIndex + 1}]の[{faceValue}の面]に<{seal}>を貼りました。（残り選択数：{RemainingPicks}回）");
+        
+        if(RemainingPicks <= 0)
+        {
+            Debug.Log(">> シール貼り付け完了！次のステージへ進みます。（[Spaceキー]を押してください。）");
+        }
+        
         return true;
     }
 }

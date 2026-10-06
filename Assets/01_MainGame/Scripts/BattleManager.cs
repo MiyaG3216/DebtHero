@@ -24,13 +24,9 @@ public class BattleManager : MonoBehaviour
     public int MaxTurn => _maxTurn;
 
     // ===== Unityメッセージ =====
-    private void Start()
-    {
-        StartChallange(_targetQuota, _maxTurn);
-    }
 
     // ===== メソッド =====
-    public void StartChallange(int quota, int turns,BossTraitType bossTrait = BossTraitType.None)
+    public void StartBattle(int quota, int turns,BossTraitType bossTrait = BossTraitType.None)
     {
         _targetQuota = quota;
         _maxTurn = turns;
