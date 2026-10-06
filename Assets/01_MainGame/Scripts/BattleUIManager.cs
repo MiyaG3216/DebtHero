@@ -79,9 +79,6 @@ public class BattleUIManager : MonoBehaviour
         _rerollButtonText.text = $"リロール\n(あと{_diceManager._remainingRerolls}回)";
         _rerollButton.interactable = _battleManager._isBattleActive && _diceManager._remainingRerolls > 0;
         _submitButton.interactable = _battleManager._isBattleActive;
-
-        // リスタートボタンの更新(バトル終了時のみ有効)
-        _restartButton.gameObject.SetActive(!_battleManager._isBattleActive);
     }
 
     // ダイスボタンがクリックされたとき（キープ切り替え）
@@ -118,8 +115,18 @@ public class BattleUIManager : MonoBehaviour
     private void OnRestartClicked()
     {
         _messageText.text = "バトル開始！";
-        _battleManager.StartChallange(300, 3);
         _restartButton.gameObject.SetActive(false);
+
+        // 現在のステージをリトライする
+        if (GameProgressManager.Instance != null)
+        {
+            GameProgressManager.Instance.RetryCurrentStage();
+        }
+        else
+        {
+            _battleManager.StartBattle(300, 3); // フォールバック
+        }
+
         UpdateUI();
     }
 
@@ -129,10 +136,12 @@ public class BattleUIManager : MonoBehaviour
         if (isWin)
         {
             _messageText.text = "<color=green>★ 完済成功！ STAGE CLEAR ★</color>";
+            _restartButton.gameObject.SetActive(false);
         }
         else
         {
             _messageText.text = "<color=red>× 完済失敗... GAME OVER ×</color>";
+            _restartButton.gameObject.SetActive(true);
         }
     }
 
