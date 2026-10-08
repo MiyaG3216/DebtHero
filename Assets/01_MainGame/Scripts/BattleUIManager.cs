@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 public class BattleUIManager : MonoBehaviour
 {
