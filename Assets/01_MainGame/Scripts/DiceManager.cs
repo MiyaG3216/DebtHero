@@ -37,6 +37,14 @@ public class DiceManager : MonoBehaviour
     public bool _isTurnActive;
 
     // ===== プロパティ =====
+    public bool IsAnyDiceRolling
+    {
+        get
+        {
+            if (_diceViews == null) return false;
+            return _diceViews.Exists(v => v != null && v._isRolling);
+        }
+    }
 
     // ===== Unityメッセージ =====
     private void Awake()
@@ -149,5 +157,14 @@ public class DiceManager : MonoBehaviour
         }
 
         return result;
+    }
+
+    // イカサマ使用時のダイスの回転演出
+    public void AnimateDiceCheat(int diceIndex,int newValue)
+    {
+        if(diceIndex >= 0 && diceIndex < _diceViews.Count && _diceViews[diceIndex] != null)
+        {
+            _diceViews[diceIndex].AnimateCheatFaceChange(newValue);
+        }
     }
 }

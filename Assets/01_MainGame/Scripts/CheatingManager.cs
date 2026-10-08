@@ -81,6 +81,9 @@ public class CheatingManager : MonoBehaviour
         int flippedValue = 7 - originalValue;
         targetDice.SetValueDirectly(flippedValue);
 
+        // ダイス回転アニメーションを再生
+        _diceManager.AnimateDiceCheat(diceIndex, flippedValue);
+
         _hasUsedCheatThisBattle = true;
 
         Debug.Log("イカサマ発動:フリップ");
@@ -100,6 +103,9 @@ public class CheatingManager : MonoBehaviour
         int originalValue = targetDice.Value;
 
         targetDice.SetValueDirectly(targetValue);
+
+        // ダイス回転アニメーションを再生
+        _diceManager.AnimateDiceCheat(diceIndex, targetValue);
 
         _hasUsedCheatThisBattle = true;
 
