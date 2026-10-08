@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
 public class DiceView3D : MonoBehaviour
@@ -242,5 +241,55 @@ public class DiceView3D : MonoBehaviour
         }
 
         transform.position = targetPos;
+    }
+
+    public void AnimateCheatFaceChange(int newValue)
+    {
+        StartCoroutine(CheatAnimateRoutine(newValue));
+    }
+
+    private IEnumerator CheatAnimateRoutine(int newValue)
+    {
+        _isRolling = true;
+        _rb.isKinematic = true;
+
+        Vector3 startPos = transform.position;
+        Vector3 liftPos = startPos + Vector3.up * 2.0f;
+
+        // 浮かび上がる演出
+        float elapsed = 0f;
+        while (elapsed < 0.15f)
+        {
+            elapsed += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, liftPos, elapsed / 0.15f);
+            yield return null;
+        }
+
+        // 空中で回転
+        _targetValue = newValue;
+        Quaternion startRot = transform.rotation;
+        Quaternion targetRot = CalculateTargetRotationPreservingYaw(_targetValue);
+
+        elapsed = 0f;
+        while (elapsed < 0.3f)
+        {
+            elapsed += Time.deltaTime;
+            transform.rotation = Quaternion.Slerp(startRot, targetRot, Mathf.SmoothStep(0f, 1f, elapsed / 0.3f));
+            yield return null;
+        }
+        transform.rotation = targetRot;
+
+        // 床に着地する
+        elapsed = 0f;
+        while (elapsed < 0.15f)
+        {
+            elapsed += Time.deltaTime;
+            transform.position = Vector3.Lerp(liftPos, startPos, elapsed / 0.15f);
+            yield return null;
+        }
+        transform.position = startPos;
+
+        _landedPosition = startPos;
+        _isRolling = false;
     }
 }

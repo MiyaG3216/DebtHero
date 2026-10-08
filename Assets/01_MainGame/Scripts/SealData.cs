@@ -30,19 +30,23 @@ public static class SealCalculator
     // シール効果を反映した最終スコアと獲得コインを計算するクラス
     public class CalculationResult
     {
-        public int FinalScore;
-        public int EarnedCoins;
-        public bool DisableBossPassive;
-        public string SummaryText;
+        public int HandBaseScore = 0;           // 役の基本スコア
+        public int UnusedDiceScore = 0;         // 役に使わなかった目の合計
+        public int SealAddScore = 0;            // シールによる基礎点加算
+        public int TotalBaseScore = 0;          // 基礎点の小計
+        public float TotalMultiplier = 1.0f;    // シール倍率総計
+        public int FinalScore = 0;              // 最終スコア
+        public int EarnedCoins = 0;             // 獲得コイン
+        public bool DisableBossPassive = false; // 氷シール使用したかどうか
     }
 
     // ===== メソッド =====
     public static CalculationResult Calculate(HandEvaluationResult handResult, List<Dice> diceList)
     {
         var result = new CalculationResult();
+        result.HandBaseScore = handResult.BaseScore;
 
         // 今回の5つの出目に貼られていたシールを取得
-        var activeSeals = new List<SealType>();
         var sealCounts = new Dictionary<SealType, int>();
         foreach (SealType type in Enum.GetValues(typeof(SealType)))
         {
@@ -55,48 +59,51 @@ public static class SealCalculator
             SealType sealOnFace = dice.GetSealOnFace(dice.Value);
             if (sealOnFace != SealType.None)
             {
-                activeSeals.Add(sealOnFace);
                 sealCounts[sealOnFace]++;
             }
         }
 
-        // 基礎スコアの計算
-        int baseScore = handResult.BaseScore;
+        // 余りダイスの計算
         int unusedDiceSum = 0;
-
-        // 孤高と博打シールの適応
-        for (int i = 0; i < diceList.Count; i++)
+        if (handResult.UnusedDice != null)
         {
-            var dice = diceList[i];
-            SealType seal = dice.GetSealOnFace(dice.Value);
-
-            bool isUnused = handResult.UnusedDice.Contains(dice.Value);
-
-            if (isUnused)
+            foreach(int unusedVal in handResult.UnusedDice)
             {
-                int dicePoint = dice.Value;
-                if (seal == SealType.Solo)
-                {
-                    dicePoint += 10; // 孤高シール出目+10
-                }
-
-                unusedDiceSum += dicePoint;
+                unusedDiceSum += unusedVal;
             }
         }
 
-        int totalBaseScore = baseScore + unusedDiceSum;
+        // 孤高シールの適応
+        for (int i = 0; i < diceList.Count; i++)
+        {
+            var dice = diceList[i];
+
+            if (dice.GetSealOnFace(dice.Value) == SealType.Solo)            
+            {
+                if(handResult.UnusedDice != null && handResult.UnusedDice.Contains(dice.Value))
+                {
+                    unusedDiceSum += 10;
+                }
+            }
+        }
+        result.UnusedDiceScore = unusedDiceSum;
 
         // 加算系シール（鉄・雷）の適応
         int ironCount = Mathf.Min(sealCounts[SealType.Iron], 5);
-        totalBaseScore += IronAddScores[ironCount];
+        int sealAdd = IronAddScores[ironCount];
 
         int lightningCount = Mathf.Min(sealCounts[SealType.Lightning], 5);
         if (handResult.HandType == HandType.ThreeDice ||
             handResult.HandType == HandType.FourDice ||
             handResult.HandType == HandType.FiveDice)
         {
-            totalBaseScore += LightningAddScores[lightningCount];
+            sealAdd += LightningAddScores[lightningCount];
         }
+
+        result.SealAddScore = sealAdd;
+
+        // 基礎点の小計
+        result.TotalBaseScore = result.HandBaseScore + result.UnusedDiceScore + result.SealAddScore;
 
         // 乗算系シール（炎・奇数・偶数・博打）の適応
         float totalMultiplier = 1.0f;
@@ -130,14 +137,7 @@ public static class SealCalculator
         // 博打シール
         if (sealCounts[SealType.Gamble] > 0)
         {
-            if (handResult.HandType != HandType.NoHand)
-            {
-                totalMultiplier *= 1.5f;    // 役アリなら1.5倍
-            }
-            else
-            {
-                totalMultiplier = 0.0f;     // 役ナシなら0倍
-            }
+            totalMultiplier = (handResult.HandType != HandType.NoHand) ? totalMultiplier * 1.5f : 0.0f;
         }
 
         // その他シール（金箔・氷）の適応
@@ -146,11 +146,7 @@ public static class SealCalculator
         result.DisableBossPassive = sealCounts[SealType.Ice] > 0;
 
         // 最終スコア産出
-        result.FinalScore = Mathf.RoundToInt(totalBaseScore * totalMultiplier);
-
-        result.SummaryText = $"基礎スコア({totalBaseScore}) × 倍率({totalMultiplier:F1}) = {result.FinalScore} G";
-        if (result.EarnedCoins > 0) result.SummaryText += $"[+{result.EarnedCoins}コイン]";
-        if (result.DisableBossPassive) result.SummaryText += $"[ボス特性無効]";
+        result.FinalScore = Mathf.RoundToInt(result.TotalBaseScore * result.TotalMultiplier);
 
         return result;
     }
