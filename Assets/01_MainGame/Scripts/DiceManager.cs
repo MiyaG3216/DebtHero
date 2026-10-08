@@ -1,16 +1,21 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEditor.ShaderKeywordFilter;
-using System.Runtime.ExceptionServices;
-using Unity.Collections.LowLevel.Unsafe;
-using JetBrains.Annotations;
+using Unity.VisualScripting;
+
+
+#if UNITY_EDITOR
+using UnityEditor;
 using System.Reflection;
+#endif
 
 public class DiceManager : MonoBehaviour
 {
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private BattleManager _battleManager;
+
+    [Header("3Dダイスの表示オブジェクト")]
+    [SerializeField] private List<DiceView3D> _diceViews = new List<DiceView3D>();
 
     [Header("設定")]
     [SerializeField] private int _maxRerollCount = 2;   // 最大リロール可能回数
@@ -46,7 +51,7 @@ public class DiceManager : MonoBehaviour
 
         // テスト用
         _diceList[0].AttachSeal(1, SealType.Fire);
-        _diceList[1].AttachSeal(1,SealType.Gamble);
+        _diceList[1].AttachSeal(1, SealType.Gamble);
     }
 
     private void Start()
@@ -58,45 +63,48 @@ public class DiceManager : MonoBehaviour
     // ===== メソッド =====
     public void StartNewTurn()
     {
-        //ClearConsole();
-
         _remainingRerolls = _maxRerollCount;
         _isTurnActive = true;
 
         // 全ダイスをリセットして振る
-        foreach (var dice in _diceList)
+        for (int i = 0; i < _diceList.Count; i++)
         {
-            dice.Reset();
-            dice.Roll();
-        }
+            _diceList[i].Reset();
+            _diceList[i].Roll();
 
-        //LogDiceStatus();
+            if (i < _diceViews.Count && _diceViews[i] != null)
+            {
+                float zOffset = (i % 2 == 0) ? 0.6f : -0.6f;
+                Vector3 spawnPos = new Vector3((i - 2) * 1.8f, 4.5f, zOffset);
+                _diceViews[i].Roll(_diceList[i].Value, spawnPos);
+            }
+        }
     }
 
     // リロール（キープされていないダイスだけ振り直す）
     public void Reroll()
     {
-        if (!_isTurnActive)
-        {
-            //Debug.LogWarning("ターンが開始されていません。");
-            return;
-        }
+        if (!_isTurnActive) return;
 
-        if (_remainingRerolls <= 0)
-        {
-            //Debug.LogWarning("リロール回数が残っていません。役を確定してください。");
-            return;
-        }
+        if (_remainingRerolls <= 0) return;
 
         _remainingRerolls--;
 
-        foreach (var dice in _diceList)
+        for (int i = 0; i < _diceList.Count; i++)
         {
-            dice.Roll();
-        }
+            // キープされていないダイスだけ再計算＆リロール
+            if (!_diceList[i].IsKept)
+            {
+                _diceList[i].Roll();
 
-        //Debug.Log($"【リロール実行】残り回数：{_remainingRerolls}");
-        //LogDiceStatus();
+                if (i < _diceViews.Count && _diceViews[i] != null)
+                {
+                    float zOffset = (i % 2 == 0) ? 0.6f : -0.6f;
+                    Vector3 spawnPos = new Vector3((i - 2) * 2.2f, 4.5f, zOffset);
+                    _diceViews[i].Roll(_diceList[i].Value, spawnPos);
+                }
+            }
+        }
     }
 
     // ダイスのキープ状態切り替え
@@ -105,36 +113,13 @@ public class DiceManager : MonoBehaviour
         if (index < 0 || index >= _diceList.Count) return;
 
         _diceList[index].ToggleKeep();
-        //Debug.Log($"ダイス[{index + 1}]のキープ状態：{(_diceList[index].IsKept ? "キープ中[Lock]" : "フリー")}");
+
+        // キープ時物理ダイスも固定する
+        if (index < _diceViews.Count && _diceViews[index] != null)
+        {
+            _diceViews[index].SetKeepState(_diceList[index].IsKept);
+        }
     }
-
-    // 現在のダイスの状態をコンソールに出力
-    //public void LogDiceStatus()
-    //{
-    //    string result = "出目：";
-
-    //    for (int i = 0; i < _diceList.Count; i++)
-    //    {
-    //        string keepMark = _diceList[i].IsKept ? "[LOCK]" : "";
-    //        string typeName = GetDiceTypeName(_diceList[i].Type);
-    //        result += $"({i + 1}番目：{_diceList[i].Value}({typeName}){keepMark})";
-    //    }
-    //    Debug.Log(result);
-    //}
-
-    // ダイス種類の日本語名を取得
-    //private string GetDiceTypeName(DiceType type)
-    //{
-    //    switch (type)
-    //    {
-    //        case DiceType.Odd: return "奇数";
-    //        case DiceType.Even: return "偶数";
-    //        case DiceType.HighRoller: return "高目";
-    //        case DiceType.Pinzoro: return "ピンゾロ";
-    //        case DiceType.Straight: return "連番";
-    //        default: return "ノーマル";
-    //    }
-    //}
 
     // 現在の出目で役を確定する
     public HandEvaluationResult SubmitHand()
@@ -165,14 +150,4 @@ public class DiceManager : MonoBehaviour
 
         return result;
     }
-
-    // ★UnityEditorのログを削除
-//    private void ClearConsole()
-//    {
-//#if UNITY_EDITOR
-//        var logEntries = System.Type.GetType("UnityEditor.LogEntries,UnityEditor.dll");
-//        var clearMethod = logEntries?.GetMethod("Clear", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-//        clearMethod?.Invoke(null, null);
-//#endif
-//    }
 }

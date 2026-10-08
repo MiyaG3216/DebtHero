@@ -65,7 +65,8 @@ public class GameProgressManager : MonoBehaviour
         _stageList.Clear();
 
         // Stage 1
-        _stageList.Add(new StageData { StageName = "取り立て屋のしたっぱ", Type = StageType.Battle, TargetQuota = 200, MaxTurns = 3, BossTrait = BossTraitType.None });
+        //_stageList.Add(new StageData { StageName = "取り立て屋のしたっぱ", Type = StageType.Battle, TargetQuota = 200, MaxTurns = 3, BossTrait = BossTraitType.None });
+        _stageList.Add(new StageData { StageName = "取り立て屋のしたっぱ", Type = StageType.Battle, TargetQuota = 20000, MaxTurns = 300, BossTrait = BossTraitType.None });
 
         // Stage 2
         _stageList.Add(new StageData { StageName = "ベテラン取り立て屋", Type = StageType.Battle, TargetQuota = 400, MaxTurns = 3, BossTrait = BossTraitType.None });
