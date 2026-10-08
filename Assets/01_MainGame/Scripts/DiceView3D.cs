@@ -8,6 +8,7 @@ public class DiceView3D : MonoBehaviour
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private Rigidbody _rb;
+    [SerializeField] private DiceManager _diceManager;
 
     [Header("物理誘導パラメータ")]
     [SerializeField] private float _maxTorqueStrength = 30f;   // 目的面への最大誘導力
@@ -15,15 +16,21 @@ public class DiceView3D : MonoBehaviour
     [SerializeField] private float _bounceForce = 10f;
     [SerializeField] private float _diceRepelForce = 15f;  // ダイス同士の反発力
 
+    [Header("キープ演出用設定")]
+    [SerializeField] private float _keepLiftHight = 0.4f;
+
     [Header("状態")]
     [SerializeField] private int _diceIndex = 0;    // ダイススロットの何番目か(0~4)
 
     public bool _isRolling = false;
+    public bool _isKept = false;
 
     private int _targetValue = 1;
     private bool _isGuiding = false;
     private float _guideWeight = 0f;    // 誘導の強さ(0.0 ~ 1.0)
     private int _bounceCount = 0;
+
+    private Vector3 _landedPosition;    // 着地した位置
 
     // 各出目がダイスのローカル座標でどの方向を向いているか
     private static readonly Vector3[] LocalFaceDirections = new Vector3[6]
@@ -43,6 +50,18 @@ public class DiceView3D : MonoBehaviour
     {
         if (_rb == null) _rb = GetComponent<Rigidbody>();
         _rb.maxAngularVelocity = 40f;   // 高速回転を許可
+    }
+
+    private void OnMouseDown()
+    {
+        // 転がっている最中はクリック無効
+        if (_isRolling) return;
+
+        // DiceManaagerにキープ切り替えを通知
+        if (_diceManager != null)
+        {
+            _diceManager.ToggleKeepDice(_diceIndex);
+        }
     }
 
     private void FixedUpdate()
@@ -127,6 +146,7 @@ public class DiceView3D : MonoBehaviour
         _isGuiding = false;
         _guideWeight = 0f;
         _bounceCount = 0;
+        _isKept = false;
         _rb.isKinematic = false;
 
         // ダイスを上空に配置して物理をセット
@@ -158,7 +178,7 @@ public class DiceView3D : MonoBehaviour
 
         // 転がり待ち
         float timer = 0f;
-        while (timer < 3.0f)
+        while (timer < 2.0f)
         {
             timer += Time.deltaTime;
             yield return null;
@@ -169,6 +189,7 @@ public class DiceView3D : MonoBehaviour
         transform.rotation = CalculateTargetRotationPreservingYaw(_targetValue);
         _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
+        _landedPosition = transform.position;   // 着地位置を記録
         _isRolling = false;
     }
 
@@ -193,13 +214,33 @@ public class DiceView3D : MonoBehaviour
         if (isKept)
         {
             // キープ時固定してぶつかっても動かないようにする
-            _rb.isKinematic = true;
             _rb.linearVelocity = Vector3.zero;
             _rb.angularVelocity = Vector3.zero;
+            _rb.isKinematic = true;
+
+            StopCoroutine("AnimationLiftRoutine");
+            StartCoroutine(AnimationLiftRoutine(_landedPosition + Vector3.up * _keepLiftHight));
         }
         else
         {
-            _rb.isKinematic = false;
+            StopCoroutine("AnimationLiftRoutine");
+            StartCoroutine(AnimationLiftRoutine(_landedPosition));
         }
+    }
+
+    private IEnumerator AnimationLiftRoutine(Vector3 targetPos)
+    {
+        float t = 0f;
+
+        Vector3 startPos = transform.position;
+
+        while (t < 0.15f)
+        {
+            t += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, targetPos, t / 0.15f);
+            yield return null;
+        }
+
+        transform.position = targetPos;
     }
 }
