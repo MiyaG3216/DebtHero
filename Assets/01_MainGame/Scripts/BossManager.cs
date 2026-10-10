@@ -61,7 +61,7 @@ public class BossManager : MonoBehaviour
                 return "本社のボスは【奇数】が含まれる役を認めないらしい...";
 
             case BossTraitType.DisableHighHand:
-                return "本社のボスは【大技（フルハウス・ストレート・ファイブダイス）】を無効にしてくるぞ！";
+                return "本社のボスは【大技】を無効にしてくるぞ！";
 
             case BossTraitType.HalfPair:
                 return "本社のボスは【ペア系】の役を半減するらしい...";
