@@ -213,8 +213,12 @@ public class DiceView3D : MonoBehaviour
         if (isKept)
         {
             // キープ時固定してぶつかっても動かないようにする
-            _rb.linearVelocity = Vector3.zero;
-            _rb.angularVelocity = Vector3.zero;
+            // isKineticが無効の時だけ速度を0にする。
+            if (!_rb.isKinematic)
+            {
+                _rb.linearVelocity = Vector3.zero;
+                _rb.angularVelocity = Vector3.zero;
+            }
             _rb.isKinematic = true;
 
             StopCoroutine("AnimationLiftRoutine");

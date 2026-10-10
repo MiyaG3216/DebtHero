@@ -29,7 +29,7 @@ public class BattleManager : MonoBehaviour
     // ===== Unityメッセージ =====
 
     // ===== メソッド =====
-    public void StartBattle(int quota, int turns, BossTraitType bossTrait = BossTraitType.None)
+    public void StartBattle(string stageName, int quota, int turns, BossTraitType bossTrait = BossTraitType.None)
     {
         _targetQuota = quota;
         _maxTurn = turns;
@@ -43,7 +43,7 @@ public class BattleManager : MonoBehaviour
         // UIに適名と特性を反映
         if (_battleUIManager != null)
         {
-            string enemyName = (GameProgressManager.Instance != null) ? "取り立て屋" : "借金取り";
+            string enemyName = (GameProgressManager.Instance != null) ? $"{stageName}" : "借金取り";
             _battleUIManager.SetupStageInfo(enemyName, _currentBossTrait);
         }
 

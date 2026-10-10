@@ -8,6 +8,7 @@ public class RewardManager : MonoBehaviour
     [Header("参照")]
     [SerializeField] private DiceManager _diceManager;
     [SerializeField] private BattleManager _battleManager;
+    [SerializeField] private RewardUIManager _rewardUIManager;
 
     // 報酬でドロップするシール(6種類)
     private readonly List<SealType> _nomalSealPool = new List<SealType>()
@@ -44,18 +45,16 @@ public class RewardManager : MonoBehaviour
         CurrentOfferSeals = _nomalSealPool.OrderBy(x => Random.value).Take(4).ToList();
         RemainingPicks = 2;
 
-        Debug.Log($"[提示シール]：[{string.Join(",", CurrentOfferSeals)}]");
+        if (_rewardUIManager != null)
+        {
+            _rewardUIManager.OpenRewardUI();
+        }
     }
 
     // 報酬シールをダイスに貼り付ける
     public bool ApplySealToDice(SealType seal, int diceIndex, int faceValue)
     {
-        if (RemainingPicks <= 0)
-        {
-            Debug.LogWarning("これ以上選択できません");
-            return false;
-        }
-
+        if (RemainingPicks <= 0) return false;
         if (diceIndex < 0 || diceIndex >= _diceManager._diceList.Count) return false;
         if (faceValue < 1 || faceValue > 6) return false;
 
@@ -63,13 +62,8 @@ public class RewardManager : MonoBehaviour
         _diceManager._diceList[diceIndex].AttachSeal(faceValue, seal);
         RemainingPicks--;
 
-        Debug.Log($"ダイス[{diceIndex + 1}]の[{faceValue}の面]に<{seal}>を貼りました。（残り選択数：{RemainingPicks}回）");
-        
-        if(RemainingPicks <= 0)
-        {
-            Debug.Log(">> シール貼り付け完了！次のステージへ進みます。（[Spaceキー]を押してください。）");
-        }
-        
+        CurrentOfferSeals.Remove(seal);
+
         return true;
     }
 }

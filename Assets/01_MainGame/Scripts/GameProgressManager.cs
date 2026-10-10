@@ -115,19 +115,19 @@ public class GameProgressManager : MonoBehaviour
         Debug.Log($">>>>>>>>>> [STAGE {_currentStageIndex + 1} / {_stageList.Count} <<<<<<<<<<");
         Debug.Log($"進行先：【{currentStage.StageName}】");
 
-        if(currentStage.Type == StageType.Battle)
+        if (currentStage.Type == StageType.Battle)
         {
             BossTraitType trait = currentStage.BossTrait;
 
             // ラスボス戦の場合は抽選された特性をセットする
-            if(_currentStageIndex == _stageList.Count - 1) 
+            if (_currentStageIndex == _stageList.Count - 1)
             {
-               trait = BossManager.Instance._currentFinalBossTrait;
+                trait = BossManager.Instance._currentFinalBossTrait;
             }
 
-            _battleManager.StartBattle(currentStage.TargetQuota,currentStage.MaxTurns,trait);
+            _battleManager.StartBattle(currentStage.StageName, currentStage.TargetQuota, currentStage.MaxTurns, trait);
         }
-        else if(currentStage.Type == StageType.Shop)
+        else if (currentStage.Type == StageType.Shop)
         {
             _shopManager.OpenShop(BossManager.Instance.GetBossHintText());
             Debug.Log("買い物が終わったら、[Spaceキー]で次のステージへ進みます。");

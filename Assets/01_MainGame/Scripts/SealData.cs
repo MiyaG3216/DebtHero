@@ -67,7 +67,7 @@ public static class SealCalculator
         int unusedDiceSum = 0;
         if (handResult.UnusedDice != null)
         {
-            foreach(int unusedVal in handResult.UnusedDice)
+            foreach (int unusedVal in handResult.UnusedDice)
             {
                 unusedDiceSum += unusedVal;
             }
@@ -78,9 +78,9 @@ public static class SealCalculator
         {
             var dice = diceList[i];
 
-            if (dice.GetSealOnFace(dice.Value) == SealType.Solo)            
+            if (dice.GetSealOnFace(dice.Value) == SealType.Solo)
             {
-                if(handResult.UnusedDice != null && handResult.UnusedDice.Contains(dice.Value))
+                if (handResult.UnusedDice != null && handResult.UnusedDice.Contains(dice.Value))
                 {
                     unusedDiceSum += 10;
                 }
@@ -93,7 +93,10 @@ public static class SealCalculator
         int sealAdd = IronAddScores[ironCount];
 
         int lightningCount = Mathf.Min(sealCounts[SealType.Lightning], 5);
-        if (handResult.HandType == HandType.ThreeDice ||
+        if (handResult.HandType == HandType.OnePair ||
+            handResult.HandType == HandType.TwoPair ||
+            handResult.HandType == HandType.ThreeDice ||
+            handResult.HandType == HandType.FullHouse ||
             handResult.HandType == HandType.FourDice ||
             handResult.HandType == HandType.FiveDice)
         {
