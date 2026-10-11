@@ -31,19 +31,16 @@ public class CheatingManager : MonoBehaviour
     {
         if (!_battleManager._isBattleActive)
         {
-            Debug.LogWarning("バトル中にしかイカサマは使用できません");
             return false;
         }
 
         if (_hasUsedCheatThisBattle)
         {
-            Debug.LogWarning("この戦闘でイカサマを使用済みです！");
             return false;
         }
 
         if (PlayerManager.Instance.Coins < cost)
         {
-            Debug.LogWarning($"コインが足りません！ (必要:{cost} / 所持:{PlayerManager.Instance.Coins})");
             return false;
         }
 
@@ -61,7 +58,6 @@ public class CheatingManager : MonoBehaviour
         _diceManager._remainingRerolls++;
         _hasUsedCheatThisBattle = true;
 
-        Debug.Log("イカサマ発動:追加リロール");
         return true;
     }
 
@@ -86,7 +82,6 @@ public class CheatingManager : MonoBehaviour
 
         _hasUsedCheatThisBattle = true;
 
-        Debug.Log("イカサマ発動:フリップ");
         return true;
     }
 
@@ -110,7 +105,6 @@ public class CheatingManager : MonoBehaviour
         _hasUsedCheatThisBattle = true;
 
 
-        Debug.Log("イカサマ発動:目押し");
         return true;
     }
 }

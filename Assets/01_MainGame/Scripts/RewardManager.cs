@@ -36,7 +36,6 @@ public class RewardManager : MonoBehaviour
         if (missionCleared)
         {
             rewardCoins += 2;
-            Debug.Log("サブミッション達成！ ボーナスコイン + 2 C");
         }
 
         PlayerManager.Instance.AddCoins(rewardCoins);
@@ -63,6 +62,8 @@ public class RewardManager : MonoBehaviour
         RemainingPicks--;
 
         CurrentOfferSeals.Remove(seal);
+
+        _diceManager.UpdateAllDiceVisuals();
 
         return true;
     }

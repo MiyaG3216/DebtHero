@@ -18,7 +18,6 @@ public class StageData
     public BossTraitType BossTrait; // ボス特性（中ボス、ラスボス以外はNone）
 }
 
-
 public class GameProgressManager : MonoBehaviour
 {
     // ===== フィールド =====
@@ -97,8 +96,6 @@ public class GameProgressManager : MonoBehaviour
         // ラスボスの特性抽選
         BossManager.Instance.DecideFinalBossTrait();
 
-        Debug.Log("ゲームスタート");
-
         ExecuteCurrentStage();
     }
 
@@ -111,9 +108,6 @@ public class GameProgressManager : MonoBehaviour
         }
 
         var currentStage = _stageList[_currentStageIndex];
-
-        Debug.Log($">>>>>>>>>> [STAGE {_currentStageIndex + 1} / {_stageList.Count} <<<<<<<<<<");
-        Debug.Log($"進行先：【{currentStage.StageName}】");
 
         if (currentStage.Type == StageType.Battle)
         {
@@ -130,14 +124,12 @@ public class GameProgressManager : MonoBehaviour
         else if (currentStage.Type == StageType.Shop)
         {
             _shopManager.OpenShop(BossManager.Instance.GetBossHintText());
-            Debug.Log("買い物が終わったら、[Spaceキー]で次のステージへ進みます。");
         }
     }
 
     // 現在のステージをやり直す（リトライ）
     public void RetryCurrentStage()
     {
-        Debug.Log($"\n>>> [RETRY] ステージ{_currentStageIndex + 1}に再挑戦します。 <<<");
         ExecuteCurrentStage();
     }
 
@@ -156,6 +148,5 @@ public class GameProgressManager : MonoBehaviour
     private void OnGameClear()
     {
         _isGameCleared = true;
-        Debug.Log("GAME CLEAR！ [Spaceキー]で最初から再挑戦。");
     }
 }

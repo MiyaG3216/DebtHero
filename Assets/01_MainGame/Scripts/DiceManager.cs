@@ -74,6 +74,8 @@ public class DiceManager : MonoBehaviour
         _remainingRerolls = _maxRerollCount;
         _isTurnActive = true;
 
+        UpdateAllDiceVisuals();
+
         // 全ダイスをリセットして振る
         for (int i = 0; i < _diceList.Count; i++)
         {
@@ -134,7 +136,6 @@ public class DiceManager : MonoBehaviour
     {
         if (!_isTurnActive)
         {
-            Debug.LogWarning("ターンが終了しています");
             return null;
         }
 
@@ -165,6 +166,18 @@ public class DiceManager : MonoBehaviour
         if(diceIndex >= 0 && diceIndex < _diceViews.Count && _diceViews[diceIndex] != null)
         {
             _diceViews[diceIndex].AnimateCheatFaceChange(newValue);
+        }
+    }
+
+    // ダイスの色とシールの見た目をデータと同期する
+    public void UpdateAllDiceVisuals()
+    {
+        for (int i = 0; i < _diceList.Count; i++)
+        {
+            if(i < _diceViews.Count && _diceViews[i] != null)
+            {
+                _diceViews[i].UpdateVisuals(_diceList[i]);
+            }
         }
     }
 }

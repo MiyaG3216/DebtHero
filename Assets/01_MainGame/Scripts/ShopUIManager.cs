@@ -137,7 +137,7 @@ public class ShopUIManager : MonoBehaviour
         if (PlayerManager.Instance == null) return;
 
         int coins = PlayerManager.Instance.Coins;
-        _coinsText.text = $"所持金：<color=yellow><b>{coins}</b></color>";
+        _coinsText.text = $"所持金：<color=yellow><b>{coins} C</b></color>";
 
         // 価格テキストの更新
         _oddDiceText.text = $"奇数ダイス\n( {_shopManager.GetDicePrice(DiceType.Odd)} C )";

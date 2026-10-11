@@ -30,7 +30,6 @@ public class PlayerManager : MonoBehaviour
     public void AddCoins(int amount)
     {
         _coins += amount;
-        Debug.Log($"[コイン獲得] + {amount} C (所持コイン：{_coins} C)");
     }
 
     // コイン消費
@@ -39,11 +38,9 @@ public class PlayerManager : MonoBehaviour
         if(_coins >= amount)
         {
             _coins -= amount;
-            Debug.Log($"[コイン消費] - {amount} C (所持コイン：{_coins} C)");
             return true;
         }
 
-        Debug.Log("コインが足りません！");
         return false;
     }
 }

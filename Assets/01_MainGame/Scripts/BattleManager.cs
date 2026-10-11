@@ -84,8 +84,6 @@ public class BattleManager : MonoBehaviour
         {
             _battleUIManager.ShowScoreDetailPanel(_lastBreakdown);
         }
-
-        Debug.Log($"[内訳チェック] 役点:{calcResult.HandBaseScore} / 余り:{calcResult.UnusedDiceScore} / シール加算:{calcResult.SealAddScore} / 小計:{calcResult.TotalBaseScore}");
     }
 
     // プレイヤーがリザルトパネルの「次へ進む」ボタンを押したときに呼ばれる

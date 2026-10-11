@@ -1,5 +1,15 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
+
+// Colorのα値の変更を行う為の拡張クラス
+public static class ColorExtensions
+{
+    public static Color WhithAlpha(this Color color, float alpha)
+    {
+        return new Color(color.r, color.g, color.b, alpha);
+    }
+}
 
 [RequireComponent(typeof(Rigidbody))]
 public class DiceView3D : MonoBehaviour
@@ -8,12 +18,19 @@ public class DiceView3D : MonoBehaviour
     [Header("参照")]
     [SerializeField] private Rigidbody _rb;
     [SerializeField] private DiceManager _diceManager;
+    [SerializeField] private Renderer _diceRenderer;
 
     [Header("物理誘導パラメータ")]
     [SerializeField] private float _maxTorqueStrength = 30f;   // 目的面への最大誘導力
     [SerializeField] private float _angularDamping = 1f;    // 回転の減速
     [SerializeField] private float _bounceForce = 10f;
     [SerializeField] private float _diceRepelForce = 15f;  // ダイス同士の反発力
+
+    [Header("シール表示用パラメータ")]
+    [SerializeField] private Material _sealBaseMaterial;
+    [SerializeField] private float _faceDistance = 0.52f;
+    [SerializeField] private float _sealSize = 0.85f;
+    [SerializeField] private float _sealThickness = 0.02f;
 
     [Header("キープ演出用設定")]
     [SerializeField] private float _keepLiftHight = 0.4f;
@@ -30,6 +47,11 @@ public class DiceView3D : MonoBehaviour
     private int _bounceCount = 0;
 
     private Vector3 _landedPosition;    // 着地した位置
+
+    private MeshRenderer[] _sealFaceRenderers = new MeshRenderer[6];    // 各面のシール表示用Quad
+
+    private GameObject _keepMarkObj;    // 選択中ダイスのリングオブジェクト
+    private Coroutine _hoverCoroutine;  // 浮遊アニメーション
 
     // 各出目がダイスのローカル座標でどの方向を向いているか
     private static readonly Vector3[] LocalFaceDirections = new Vector3[6]
@@ -49,6 +71,15 @@ public class DiceView3D : MonoBehaviour
     {
         if (_rb == null) _rb = GetComponent<Rigidbody>();
         _rb.maxAngularVelocity = 40f;   // 高速回転を許可
+
+        // Rendererコンポーネントを取得
+        if (_diceRenderer == null) _diceRenderer = GetComponentInChildren<Renderer>();
+
+        // シール表示用パネル(Quad)を作成
+        CreateSealFacePanels();
+
+        // 選択中マーカーを生成
+        CreateKeepMarker();
     }
 
     private void OnMouseDown()
@@ -57,7 +88,11 @@ public class DiceView3D : MonoBehaviour
         if (_isRolling) return;
 
         // DiceManaagerにキープ切り替えを通知
-        if (_diceManager != null)
+        if (BattleUIManager.Instance != null)
+        {
+            BattleUIManager.Instance.Handle3DDiceClicked(_diceIndex);
+        }
+        else if (_diceManager != null)
         {
             _diceManager.ToggleKeepDice(_diceIndex);
         }
@@ -89,11 +124,11 @@ public class DiceView3D : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!_isRolling || _bounceCount >= 2) return;
+        if (!_isRolling) return;
 
         // ダイス同士が接触した時の処理
-        DiceView3D otherDIce = collision.gameObject.GetComponent<DiceView3D>();
-        if (otherDIce != null)
+        DiceView3D otherDice = collision.gameObject.GetComponent<DiceView3D>();
+        if (otherDice != null)
         {
             Vector3 pushDir = transform.position - collision.transform.position;
             pushDir.y = 0;
@@ -108,6 +143,7 @@ public class DiceView3D : MonoBehaviour
 
             // 相手から離れる方向へ押し出す力を加える
             _rb.AddForce(pushDir * _diceRepelForce, ForceMode.Impulse);
+            return;
         }
 
         // 床に接触したときの処理
@@ -127,8 +163,15 @@ public class DiceView3D : MonoBehaviour
                 }
             }
         }
+    }
 
-        // 衝突した面の法線をチェック
+    private void OnDestroy()
+    {
+        // 自身が破棄されたらマーカーも削除
+        if(_keepMarkObj != null)
+        {
+            Destroy(_keepMarkObj);
+        }
     }
 
     // ===== メソッド =====
@@ -208,9 +251,17 @@ public class DiceView3D : MonoBehaviour
         return alignRotation * transform.rotation;
     }
 
-    public void SetKeepState(bool isKept)
+    public void SetKeepState(bool Kept)
     {
-        if (isKept)
+        _isKept = Kept;
+
+        if (_hoverCoroutine != null)
+        {
+            StopCoroutine(_hoverCoroutine);
+            _hoverCoroutine = null;
+        }
+
+        if (_isKept)
         {
             // キープ時固定してぶつかっても動かないようにする
             // isKineticが無効の時だけ速度を0にする。
@@ -221,30 +272,71 @@ public class DiceView3D : MonoBehaviour
             }
             _rb.isKinematic = true;
 
-            StopCoroutine("AnimationLiftRoutine");
-            StartCoroutine(AnimationLiftRoutine(_landedPosition + Vector3.up * _keepLiftHight));
+            // ダイスの下に選択中マーカーを表示
+            if (_keepMarkObj != null)
+            {
+                // 位置：床から少し浮かす
+                _keepMarkObj.transform.position = new Vector3(_landedPosition.x, _landedPosition.y + 0.02f, _landedPosition.z);
+
+                // 向き：床と水平かつダイスと同じ向き
+                _keepMarkObj.transform.rotation = Quaternion.Euler(90f, transform.eulerAngles.y, 0f);
+
+                _keepMarkObj.SetActive(true);
+            }
+
+            // 浮遊アニメーション
+            _hoverCoroutine = StartCoroutine(KeepHoverRoutine());
         }
         else
         {
-            StopCoroutine("AnimationLiftRoutine");
-            StartCoroutine(AnimationLiftRoutine(_landedPosition));
+            // 選択中マーカーを非表示
+            if (_keepMarkObj != null) _keepMarkObj.SetActive(false);
+
+            // ダイスを床に着地させる
+            StartCoroutine(ReturnToFloorRoutine());
         }
     }
 
-    private IEnumerator AnimationLiftRoutine(Vector3 targetPos)
+    // 浮遊アニメーション
+    private IEnumerator KeepHoverRoutine()
     {
-        float t = 0f;
+        Vector3 baseLiftPos = _landedPosition + Vector3.up * _keepLiftHight;
+        float elapsed = 0f;
 
+        // まず浮き上がる
         Vector3 startPos = transform.position;
-
-        while (t < 0.15f)
+        while (elapsed < 0.15f)
         {
-            t += Time.deltaTime;
-            transform.position = Vector3.Lerp(startPos, targetPos, t / 0.15f);
+            elapsed += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, baseLiftPos, elapsed / 0.15f);
             yield return null;
         }
 
-        transform.position = targetPos;
+        // その後ゆっくり上下に揺れる
+        while (_isKept)
+        {
+            float hoverOffset = Mathf.Sin(Time.time * 4f) * 0.1f;
+            transform.position = baseLiftPos + Vector3.up * hoverOffset;
+            yield return null;
+        }
+    }
+
+    // ダイスを床に着地させるアニメーション
+    private IEnumerator ReturnToFloorRoutine()
+    {
+        float elapsed = 0f;
+
+        Vector3 startPos = transform.position;
+
+        while(elapsed < 0.15f)
+        {
+            elapsed += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, _landedPosition, elapsed / 0.15f);
+            yield return null;
+        }
+
+        transform.position = _landedPosition;
+        _rb.isKinematic = false;
     }
 
     public void AnimateCheatFaceChange(int newValue)
@@ -296,4 +388,160 @@ public class DiceView3D : MonoBehaviour
         _landedPosition = startPos;
         _isRolling = false;
     }
+
+    private void CreateSealFacePanels()
+    {
+        // BoxColliderがついていれば、そのサイズから自動で距離を算出
+        BoxCollider boxCol = GetComponent<BoxCollider>();
+        if (boxCol != null)
+        {
+            // コライダの半径の少し外側を基準にする
+            float autoDist = (boxCol.size.z * 0.5f) + 0.02f;
+            if (autoDist > 0.1f)
+            {
+                _faceDistance = autoDist;
+                _sealSize = boxCol.size.x * 0.75f;
+            }
+        }
+
+        // 各面のローカル位置と回転(表面の0.505の厚みに貼る)
+        Vector3[] facePotisions = new Vector3[6]
+        {
+            new Vector3(0,0,_faceDistance),
+            new Vector3(0,_faceDistance,0),
+            new Vector3(-_faceDistance,0,0),
+            new Vector3(_faceDistance,0,0),
+            new Vector3(0,-_faceDistance,0),
+            new Vector3(0,0,-_faceDistance)
+        };
+
+        Vector3[] faceScales = new Vector3[6]
+        {
+            new Vector3(_sealSize,_sealSize,_sealThickness),
+            new Vector3(_sealSize,_sealThickness,_sealSize),
+            new Vector3(_sealThickness,_sealSize,_sealSize),
+            new Vector3(_sealThickness,_sealSize,_sealSize),
+            new Vector3(_sealSize,_sealThickness,_sealSize),
+            new Vector3(_sealSize,_sealSize,_sealThickness)
+        };
+
+        for (int i = 0; i < 6; i++)
+        {
+            GameObject sealObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            sealObj.name = $"SealPanel_Face_{i + 1}";
+            sealObj.transform.SetParent(transform);
+            sealObj.transform.localPosition = facePotisions[i];
+            sealObj.transform.localRotation = Quaternion.identity;
+            sealObj.transform.localScale = faceScales[i];
+
+            DestroyImmediate(sealObj.GetComponent<Collider>());
+
+            var meshRenderer = sealObj.GetComponent<MeshRenderer>();
+            if (_sealBaseMaterial != null)
+            {
+                meshRenderer.material = new Material(_sealBaseMaterial);
+            }
+
+            _sealFaceRenderers[i] = sealObj.GetComponent<MeshRenderer>();
+            sealObj.SetActive(false);
+        }
+    }
+
+    public void UpdateVisuals(Dice diceData)
+    {
+        if (diceData == null) return;
+
+        // ダイス本体の色を変更
+        if (_diceRenderer != null)
+        {
+            Color targetColor = GetDiceColor(diceData.Type);
+            _diceRenderer.material.SetColor("_BaseColor", targetColor);
+        }
+
+        // 各面のシールの色と表示を更新
+        for (int i = 0; i < 6; i++)
+        {
+            int faceVal = i + 1;
+            SealType seal = diceData.GetSealOnFace(faceVal);
+
+            if (_sealFaceRenderers[i] != null)
+            {
+                if (seal == SealType.None)
+                {
+                    _sealFaceRenderers[i].gameObject.SetActive(false);
+                }
+                else
+                {
+                    _sealFaceRenderers[i].gameObject.SetActive(true);
+
+                    Color sealColor = GetSealColor(seal);
+                    _sealFaceRenderers[i].material.color = sealColor;
+                    if (_sealFaceRenderers[i].material.HasProperty("_BaseColor"))
+                    {
+                        _sealFaceRenderers[i].material.SetColor("_BaseColor", sealColor);
+                    }
+                }
+            }
+        }
+    }
+
+    private Color GetDiceColor(DiceType type)
+    {
+        switch (type)
+        {
+            case DiceType.Odd: return Color.blue;           // 青
+            case DiceType.Even: return Color.red;           // 赤
+            case DiceType.Straight: return Color.green;     // 緑
+            case DiceType.HighRoller: return Color.orange;  // オレンジ
+            case DiceType.Pinzoro: return Color.violet;     // 紫
+            default: return Color.white;
+        }
+    }
+
+    private Color GetSealColor(SealType seal)
+    {
+        switch (seal)
+        {
+            case SealType.Fire: return Color.red.WithAlpha(0.6f);
+            case SealType.Ice: return Color.cyan.WithAlpha(0.6f);
+            case SealType.Gold: return Color.yellow.WithAlpha(0.6f);
+            case SealType.Iron: return Color.gray.WithAlpha(0.6f);
+            case SealType.Lightning: return Color.white.WithAlpha(0.6f);
+            case SealType.Solo: return Color.green.WithAlpha(0.6f);
+            case SealType.Odd: return Color.blue.WithAlpha(0.6f);
+            case SealType.Even: return Color.magenta.WithAlpha(0.6f);
+            case SealType.Gamble: return Color.black.WithAlpha(0.6f);
+            default: return Color.clear;
+        }
+    }
+
+    private void CreateKeepMarker()
+    {
+        _keepMarkObj = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        _keepMarkObj.name = "Keep_Selection_Marker";
+
+        // ダイスと連動しないように独立させる
+        _keepMarkObj.transform.SetParent(transform.parent != null ? transform.parent.transform : null);
+
+        // 水平方向に寝かせる
+        _keepMarkObj.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+
+        // ダイスより一回り大きくする
+        _keepMarkObj.transform.localScale = Vector3.one * 2f;
+
+        DestroyImmediate(_keepMarkObj.GetComponent<Collider>());
+
+        var mr = _keepMarkObj.GetComponent<MeshRenderer>();
+        if (_sealBaseMaterial != null)
+        {
+            mr.material = new Material(_sealBaseMaterial);
+
+            // シアン色に変更
+            mr.material.SetColor("_BaseColor", Color.cyan.WhithAlpha(0.7f));
+        }
+
+        // 最初は非表示
+        _keepMarkObj.SetActive(false);
+    }
 }
+

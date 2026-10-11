@@ -58,6 +58,8 @@ public class ShopManager : MonoBehaviour
         // ダイスの種類だけ変更
         targetDice.SetDiceType(newDiceType);
 
+        _diceManager.UpdateAllDiceVisuals();
+
         return true;
     }
 
@@ -72,6 +74,8 @@ public class ShopManager : MonoBehaviour
 
         // シールの貼り付け
         _diceManager._diceList[slotIndex].AttachSeal(faceValue, seal);
+
+        _diceManager.UpdateAllDiceVisuals();
 
         return true;
     }

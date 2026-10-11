@@ -1,10 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 using TMPro;
 
 public class BattleUIManager : MonoBehaviour
 {
+    public static BattleUIManager Instance { get; private set; }
+
+    private enum CheatMode
+    {
+        None,
+        Flip,
+        DirectSet
+    }
+
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private DiceManager _diceManager;
@@ -12,7 +20,7 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private CheatingManager _cheatingManager;
 
     [Header("画面上部")]
-    [SerializeField] private TextMeshProUGUI _stageNameText;        // ステージ名
+    [SerializeField] private TextMeshProUGUI _stageNameText;    // ステージ名
     [SerializeField] private TextMeshProUGUI _bossTraitText;    // ボス特性
     [SerializeField] private Slider _quotaSlider;               // 返済メーター(スライダー)
     [SerializeField] private TextMeshProUGUI _quotaText;        // 目標スコア
@@ -44,9 +52,25 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _detailFinalScoreText;     // 最終スコア
     [SerializeField] private Button _detailConfirmButton;               // 次へボタン
 
+    [Header("イカサマ操作UI")]
+    [SerializeField] private GameObject _cheatBunnerPanel;
+    [SerializeField] private TextMeshProUGUI _cheatGuideText;
+    [SerializeField] private Button _cancelCheatButton;
+    [SerializeField] private GameObject _cheatFaceSelectGroup;
+    [SerializeField] private Button[] _cheatFaceButtons;
+
+    private CheatMode _currentCheatMode = CheatMode.None;
+    private int _targetDiceIndex = -1;
+
     // ===== プロパティ =====
 
     // ===== Unityメッセージ =====
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
+
     private void Start()
     {
         // 各ボタンにクリックイベントを登録
@@ -63,13 +87,28 @@ public class BattleUIManager : MonoBehaviour
         // イカサマボタンのイベント登録（フリップと目押しはとりあえず1番ダイスを対象に発動）
         if (_cheatingManager != null)
         {
-            _cheatRerollButton.onClick.AddListener(() => { _cheatingManager.TryUseExtraReroll(); UpdateUI(); });
-            _cheatFlipButton.onClick.AddListener(() => { _cheatingManager.TryUseDiceFlip(0); UpdateUI(); });
-            _cheatSetButton.onClick.AddListener(() => { _cheatingManager.TryUseDirectSet(0, 6); UpdateUI(); });
+            _cheatRerollButton.onClick.AddListener(OnCheatRerollClicked);
+            _cheatFlipButton.onClick.AddListener(OnStartFlipCheat);
+            _cheatSetButton.onClick.AddListener(OnStartDirectSetCheat);
+        }
+
+        // 目押しの出目選択ボタン
+        for (int i = 0; i < _cheatFaceButtons.Length; i++)
+        {
+            int faceVal = i + 1;
+            _cheatFaceButtons[i].onClick.AddListener(() => OnCheatFaceSelected(faceVal));
+        }
+
+        if (_cancelCheatButton != null)
+        {
+            _cancelCheatButton.onClick.AddListener(CancelCheat);
         }
 
         // 初期UIの更新
         _restartButton.gameObject.SetActive(false);
+        if (_scoreDetailPanel != null) _scoreDetailPanel.SetActive(false);
+        if (_cheatBunnerPanel != null) _cheatBunnerPanel.SetActive(false);
+        if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
         UpdateUI();
     }
 
@@ -107,10 +146,11 @@ public class BattleUIManager : MonoBehaviour
             _coinsText.text = $"所持コイン：<b>{PlayerManager.Instance.Coins} C</b>";
         }
 
-        // リロール・役確定ボタン(ダイスロール中、詳細パネルOP中は非表示にする)
+        // リロール・役確定ボタン(ダイスロール中、詳細パネルOP中、イカサマ中は非表示にする)
         bool isRolling = _diceManager.IsAnyDiceRolling;
-        bool isPanelOpen = _scoreDetailPanel != null && _scoreDetailPanel.activeSelf;
-        bool showControls = _battleManager._isBattleActive && !isRolling && !isPanelOpen;
+        bool isDetailOpen = _scoreDetailPanel != null && _scoreDetailPanel.activeSelf;
+        bool isCheating = _currentCheatMode != CheatMode.None;
+        bool showControls = _battleManager._isBattleActive && !isRolling && !isDetailOpen && !isCheating;
 
         _rerollButton.gameObject.SetActive(showControls);
         _submitButton.gameObject.SetActive(showControls);
@@ -123,7 +163,7 @@ public class BattleUIManager : MonoBehaviour
         }
 
         // イカサマボタンの活性・非活性
-        UpdateCheatButtons();
+        UpdateCheatButtons(showControls);
     }
 
     // リロールボタンが押されたとき
@@ -170,8 +210,8 @@ public class BattleUIManager : MonoBehaviour
         _detailUnusedDiceScoreText.text = $"役未使用ダイス：<b>{breakdown.UnusedDiceScore} G</b>";
         _detailSealAddScoreText.text = $"シール加算：<b>{breakdown.SealAddScore} G</b>";
         _detailTotalBaseText.text = $"返済額 小計：<b>{breakdown.TotalBaseScore} G</b>";
-        _detailMultiplierText.text = $"シール倍率：<b>× {breakdown.Multiplier:F1} 倍</b>";
-        _detailBossModifierText.text = (breakdown.BossTraitText != "補正なし") ? $"ボス補正：{breakdown.BossTraitText}" : "";
+        _detailMultiplierText.text = $"シール倍率：<b>× {breakdown.Multiplier:F2} 倍</b>";
+        _detailBossModifierText.text = (breakdown.BossTraitText != "補正なし") ? $"ボス補正：<size=65>{breakdown.BossTraitText}<size>" : "";
         _detailCoinsText.text = (breakdown.EarnedCoins > 0) ? $"獲得コイン：+ {breakdown.EarnedCoins} 枚" : "";
         _detailFinalScoreText.text = $"返済金額 総計：<color=yellow><size=80><b>+ {breakdown.FinalScore} G</b></size></color>";
 
@@ -195,11 +235,11 @@ public class BattleUIManager : MonoBehaviour
     }
 
     // イカサマボタン群の制御
-    private void UpdateCheatButtons()
+    private void UpdateCheatButtons(bool canInteract)
     {
         if (_cheatingManager == null || PlayerManager.Instance == null) return;
 
-        bool canCheat = _battleManager._isBattleActive && !_cheatingManager._hasUsedCheatThisBattle;
+        bool canCheat = canInteract && !_cheatingManager._hasUsedCheatThisBattle;
         int coins = PlayerManager.Instance.Coins;
 
         _cheatRerollButton.interactable = canCheat && (coins >= 1);
@@ -217,7 +257,7 @@ public class BattleUIManager : MonoBehaviour
             if (trait != BossTraitType.None)
             {
                 _bossTraitText.gameObject.SetActive(true);
-                _bossTraitText.text = $"<color=red>特性；{GetTraitName(trait)}</color>";
+                _bossTraitText.text = $"<color=red>【特性】\n{GetTraitName(trait)}</color>";
             }
             else
             {
@@ -237,5 +277,92 @@ public class BattleUIManager : MonoBehaviour
             case BossTraitType.HalfPair: return "ペア半減(ストレート以外の役での返済額を50％カット)";
             default: return "";
         }
+    }
+
+    // 追加リロールボタンクリック時処理
+    private void OnCheatRerollClicked()
+    {
+        if (_cheatingManager.TryUseExtraReroll()) UpdateUI();
+    }
+
+    // フリップボタンクリック時処理
+    private void OnStartFlipCheat()
+    {
+        _currentCheatMode = CheatMode.Flip;
+        _targetDiceIndex = -1;
+
+        _cheatGuideText.text = "裏返したいダイスを選んでください。";
+
+        _cheatBunnerPanel.SetActive(true);
+
+        if(_cheatFaceSelectGroup != null)_cheatFaceSelectGroup.SetActive(false);
+
+        UpdateUI();
+    }
+
+    // 目押しボタンクリック時処理
+    private void OnStartDirectSetCheat()
+    {
+        _currentCheatMode = CheatMode.DirectSet;
+        _targetDiceIndex = -1;
+
+        _cheatGuideText.text = "目を変更したいダイスを選んでください。";
+
+        _cheatBunnerPanel.SetActive(true);
+
+        if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
+
+        UpdateUI();
+    }
+
+    public void Handle3DDiceClicked(int diceIndex)
+    {
+        // イカサマ中でなければキープの切り替え
+        if(_currentCheatMode == CheatMode.None)
+        {
+            _diceManager.ToggleKeepDice(diceIndex);
+            return;
+        }
+
+        // フリップ中
+        if(_currentCheatMode == CheatMode.Flip)
+        {
+            _cheatingManager.TryUseDiceFlip(diceIndex);
+            EndCheat();
+        }
+
+        if(_currentCheatMode == CheatMode.DirectSet)
+        {
+            _targetDiceIndex = diceIndex;
+            
+            _cheatGuideText.text = $"ダイス {diceIndex + 1} をどの目に変更しますか？";
+
+            if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(true);
+        }
+    }
+
+    private void OnCheatFaceSelected(int faceVal)
+    {
+        if(_targetDiceIndex >= 0)
+        {
+            _cheatingManager.TryUseDirectSet(_targetDiceIndex,faceVal);
+            EndCheat();
+        }
+    }
+
+    private void CancelCheat()
+    {
+        EndCheat();
+    }
+
+    private void EndCheat()
+    {
+        _currentCheatMode = CheatMode.None;
+        _targetDiceIndex = -1;
+
+        if(_cheatBunnerPanel != null) _cheatBunnerPanel.SetActive(false);
+        if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
+
+        UpdateUI();
     }
 }

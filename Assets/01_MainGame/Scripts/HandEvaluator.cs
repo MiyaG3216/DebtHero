@@ -32,7 +32,6 @@ public static class HandEvaluator
     {
         if (diceValues == null || diceValues.Count != 5)
         {
-            Debug.Log("役判定には5つのダイスが必要です。");
             return null;
         }
 

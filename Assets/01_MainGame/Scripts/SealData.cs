@@ -148,6 +148,8 @@ public static class SealCalculator
         result.EarnedCoins += GoldCoins[goldCount];
         result.DisableBossPassive = sealCounts[SealType.Ice] > 0;
 
+        result.TotalMultiplier = totalMultiplier;
+
         // 最終スコア産出
         result.FinalScore = Mathf.RoundToInt(result.TotalBaseScore * result.TotalMultiplier);
 
