@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using Unity.VisualScripting;
 
 // Colorのα値の変更を行う為の拡張クラス
 public static class ColorExtensions
@@ -502,15 +501,15 @@ public class DiceView3D : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire: return Color.red.WithAlpha(0.6f);
-            case SealType.Ice: return Color.cyan.WithAlpha(0.6f);
-            case SealType.Gold: return Color.yellow.WithAlpha(0.6f);
-            case SealType.Iron: return Color.gray.WithAlpha(0.6f);
-            case SealType.Lightning: return Color.white.WithAlpha(0.6f);
-            case SealType.Solo: return Color.green.WithAlpha(0.6f);
-            case SealType.Odd: return Color.blue.WithAlpha(0.6f);
-            case SealType.Even: return Color.magenta.WithAlpha(0.6f);
-            case SealType.Gamble: return Color.black.WithAlpha(0.6f);
+            case SealType.Fire: return WithAlpha(Color.red,0.6f);
+            case SealType.Ice: return WithAlpha(Color.cyan, 0.6f);
+            case SealType.Gold: return WithAlpha(Color.yellow, 0.6f);
+            case SealType.Iron: return WithAlpha(Color.gray, 0.6f);
+            case SealType.Lightning: return WithAlpha(Color.white, 0.6f);
+            case SealType.Solo: return WithAlpha(Color.green, 0.6f);
+            case SealType.Odd: return WithAlpha(Color.blue, 0.6f);
+            case SealType.Even: return WithAlpha(Color.magenta, 0.6f);
+            case SealType.Gamble: return WithAlpha(Color.black, 0.6f);
             default: return Color.clear;
         }
     }
@@ -537,11 +536,16 @@ public class DiceView3D : MonoBehaviour
             mr.material = new Material(_sealBaseMaterial);
 
             // シアン色に変更
-            mr.material.SetColor("_BaseColor", Color.cyan.WhithAlpha(0.7f));
+            mr.material.SetColor("_BaseColor", WithAlpha(Color.cyan,0.7f));
         }
 
         // 最初は非表示
         _keepMarkObj.SetActive(false);
+    }
+
+    private Color WithAlpha(Color c, float a)
+    {
+        return new Color(c.r,c.g,c.b,a);
     }
 }
 

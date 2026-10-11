@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 public class ShopUIManager : MonoBehaviour
 {
