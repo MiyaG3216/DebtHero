@@ -110,9 +110,9 @@ public class RewardUIManager : MonoBehaviour
         // ダイスタブの表示
         for (int i = 0; i < _diceTabButtons.Count; i++)
         {
-            if (i < _diceManager._diceList.Count)
+            if (i < _diceManager.DiceList.Count)
             {
-                var dice = _diceManager._diceList[i];
+                var dice = _diceManager.DiceList[i];
 
                 string isCurrent = (i == _selectedDiceIndex) ? "▶" : "";
 
@@ -121,7 +121,7 @@ public class RewardUIManager : MonoBehaviour
         }
 
         // 選択中ダイスの1-6の面表示
-        var currentDice = _diceManager._diceList[_selectedDiceIndex];
+        var currentDice = _diceManager.DiceList[_selectedDiceIndex];
 
         for (int i = 0; i < _faceButtons.Count; i++)
         {

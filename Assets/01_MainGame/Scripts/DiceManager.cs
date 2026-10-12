@@ -18,6 +18,11 @@ public class DiceManager : MonoBehaviour
 
     [Header("設定")]
     [SerializeField] private int _maxRerollCount = 2;   // 最大リロール可能回数
+    [SerializeField] private float _spawnHight = 9f;    // ダイスの待機する高さ
+    [SerializeField] private float _diceSpacing = 2.2f; // ダイス同士の間隔
+
+    [Header("状態")]
+    public bool IsWaitingForThrow = false;      // 投げるボタンフラグ
 
     [Header("ダイスタイプ")]
     [SerializeField]
@@ -31,9 +36,9 @@ public class DiceManager : MonoBehaviour
     };
 
     [Header("確認用")]
-    public List<Dice> _diceList = new List<Dice>();
-    public int _remainingRerolls;   // 残リロール
-    public bool _isTurnActive;
+    public List<Dice> DiceList = new List<Dice>();
+    public int RemainingRerolls;   // 残リロール
+    public bool IsTurnActive;
 
     // ===== プロパティ =====
     public bool IsAnyDiceRolling
@@ -41,7 +46,7 @@ public class DiceManager : MonoBehaviour
         get
         {
             if (_diceViews == null) return false;
-            return _diceViews.Exists(v => v != null && v._isRolling);
+            return _diceViews.Exists(v => v != null && v.IsRolling);
         }
     }
 
@@ -49,16 +54,16 @@ public class DiceManager : MonoBehaviour
     private void Awake()
     {
         // 5つのダイスを作成
-        _diceList.Clear();
+        DiceList.Clear();
         for (int i = 0; i < 5; i++)
         {
             DiceType type = (1 < _initialDiceTypes.Count) ? _initialDiceTypes[i] : DiceType.Nomal;
-            _diceList.Add(new Dice(type));
+            DiceList.Add(new Dice(type));
         }
 
         // テスト用
-        _diceList[0].AttachSeal(1, SealType.Fire);
-        _diceList[1].AttachSeal(1, SealType.Gamble);
+        DiceList[0].AttachSeal(1, SealType.Fire);
+        DiceList[1].AttachSeal(1, SealType.Gamble);
     }
 
     private void Start()
@@ -70,22 +75,23 @@ public class DiceManager : MonoBehaviour
     // ===== メソッド =====
     public void StartNewTurn()
     {
-        _remainingRerolls = _maxRerollCount;
-        _isTurnActive = true;
+        RemainingRerolls = _maxRerollCount;
+        IsTurnActive = true;
+        IsWaitingForThrow = true;
 
         UpdateAllDiceVisuals();
 
         // 全ダイスをリセットして振る
-        for (int i = 0; i < _diceList.Count; i++)
+        for (int i = 0; i < DiceList.Count; i++)
         {
-            _diceList[i].Reset();
-            _diceList[i].Roll();
+            DiceList[i].Reset();
+            DiceList[i].Roll();
 
             if (i < _diceViews.Count && _diceViews[i] != null)
             {
-                float zOffset = (i % 2 == 0) ? 0.6f : -0.6f;
-                Vector3 spawnPos = new Vector3((i - 2) * 1.8f, 4.5f, zOffset);
-                _diceViews[i].Roll(_diceList[i].Value, spawnPos);
+                float zOffset = (i % 2 == 0) ? 0.8f : -0.8f;
+                Vector3 spawnPos = new Vector3((i - 2) * _diceSpacing, _spawnHight, zOffset);
+                _diceViews[i].PrepareRoll(spawnPos);
             }
         }
     }
@@ -93,24 +99,24 @@ public class DiceManager : MonoBehaviour
     // リロール（キープされていないダイスだけ振り直す）
     public void Reroll()
     {
-        if (!_isTurnActive) return;
+        if (!IsTurnActive) return;
 
-        if (_remainingRerolls <= 0) return;
+        if (RemainingRerolls <= 0) return;
 
-        _remainingRerolls--;
+        RemainingRerolls--;
 
-        for (int i = 0; i < _diceList.Count; i++)
+        for (int i = 0; i < DiceList.Count; i++)
         {
             // キープされていないダイスだけ再計算＆リロール
-            if (!_diceList[i].IsKept)
+            if (!DiceList[i].IsKept)
             {
-                _diceList[i].Roll();
+                DiceList[i].Roll();
 
                 if (i < _diceViews.Count && _diceViews[i] != null)
                 {
                     float zOffset = (i % 2 == 0) ? 0.6f : -0.6f;
                     Vector3 spawnPos = new Vector3((i - 2) * 2.2f, 4.5f, zOffset);
-                    _diceViews[i].Roll(_diceList[i].Value, spawnPos);
+                    _diceViews[i].Roll(DiceList[i].Value, spawnPos);
                 }
             }
         }
@@ -119,28 +125,28 @@ public class DiceManager : MonoBehaviour
     // ダイスのキープ状態切り替え
     public void ToggleKeepDice(int index)
     {
-        if (index < 0 || index >= _diceList.Count) return;
+        if (index < 0 || index >= DiceList.Count) return;
 
-        _diceList[index].ToggleKeep();
+        DiceList[index].ToggleKeep();
 
         // キープ時物理ダイスも固定する
         if (index < _diceViews.Count && _diceViews[index] != null)
         {
-            _diceViews[index].SetKeepState(_diceList[index].IsKept);
+            _diceViews[index].SetKeepState(DiceList[index].IsKept);
         }
     }
 
     // 現在の出目で役を確定する
     public HandEvaluationResult SubmitHand()
     {
-        if (!_isTurnActive)
+        if (!IsTurnActive)
         {
             return null;
         }
 
         // 5つのダイスの出目をリスト化
         List<int> currentValues = new List<int>();
-        foreach (var dice in _diceList)
+        foreach (var dice in DiceList)
         {
             currentValues.Add(dice.Value);
         }
@@ -149,7 +155,7 @@ public class DiceManager : MonoBehaviour
         HandEvaluationResult result = HandEvaluator.Evaluate(currentValues);
 
         // ターン終了
-        _isTurnActive = false;
+        IsTurnActive = false;
 
         if (_battleManager != null)
         {
@@ -160,9 +166,9 @@ public class DiceManager : MonoBehaviour
     }
 
     // イカサマ使用時のダイスの回転演出
-    public void AnimateDiceCheat(int diceIndex,int newValue)
+    public void AnimateDiceCheat(int diceIndex, int newValue)
     {
-        if(diceIndex >= 0 && diceIndex < _diceViews.Count && _diceViews[diceIndex] != null)
+        if (diceIndex >= 0 && diceIndex < _diceViews.Count && _diceViews[diceIndex] != null)
         {
             _diceViews[diceIndex].AnimateCheatFaceChange(newValue);
         }
@@ -171,11 +177,51 @@ public class DiceManager : MonoBehaviour
     // ダイスの色とシールの見た目をデータと同期する
     public void UpdateAllDiceVisuals()
     {
-        for (int i = 0; i < _diceList.Count; i++)
+        for (int i = 0; i < DiceList.Count; i++)
         {
-            if(i < _diceViews.Count && _diceViews[i] != null)
+            if (i < _diceViews.Count && _diceViews[i] != null)
             {
-                _diceViews[i].UpdateVisuals(_diceList[i]);
+                _diceViews[i].UpdateVisuals(DiceList[i]);
+            }
+        }
+    }
+
+    public void PrepareReroll()
+    {
+        if (!IsTurnActive || RemainingRerolls <= 0 || IsWaitingForThrow) return;
+
+        RemainingRerolls--;
+        IsWaitingForThrow = true;
+
+        for (int i = 0; i < DiceList.Count; i++)
+        {
+            if (!DiceList[i].IsKept)
+            {
+                DiceList[i].Roll();
+
+                if (i < _diceViews.Count && _diceViews[i] != null)
+                {
+                    float zOffset = (i % 2 == 0) ? 0.8f : -0.8f;
+                    Vector3 spawnPos = new Vector3((i - 2) * _diceSpacing, _spawnHight, zOffset);
+                    _diceViews[i].PrepareRoll(spawnPos);
+                }
+            }
+        }
+    }
+
+    public void ThrowDice()
+    {
+        if (!IsWaitingForThrow) return;
+        IsWaitingForThrow = false;
+
+        for (int i = 0; i < DiceList.Count; i++)
+        {
+            if (!DiceList[i].IsKept)
+            {
+                if (i < _diceViews.Count && _diceViews[i] != null)
+                {
+                    _diceViews[i].ThrowDice(DiceList[i].Value);
+                }
             }
         }
     }

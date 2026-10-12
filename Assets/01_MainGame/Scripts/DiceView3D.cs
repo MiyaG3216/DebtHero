@@ -31,14 +31,18 @@ public class DiceView3D : MonoBehaviour
     [SerializeField] private float _sealSize = 0.85f;
     [SerializeField] private float _sealThickness = 0.02f;
 
+    [Header("ジャラジャラ用パラメータ")]
+    [SerializeField] private float _shakeAmount = 0.3f;     // 位置揺れの大きさ
+    [SerializeField] private float _rotateSpeed = 400f;     // 回転スピード
+
     [Header("キープ演出用設定")]
     [SerializeField] private float _keepLiftHight = 0.4f;
 
     [Header("状態")]
     [SerializeField] private int _diceIndex = 0;    // ダイススロットの何番目か(0~4)
 
-    public bool _isRolling = false;
-    public bool _isKept = false;
+    public bool IsRolling = false;
+    public bool IsKept = false;
 
     private int _targetValue = 1;
     private bool _isGuiding = false;
@@ -51,6 +55,7 @@ public class DiceView3D : MonoBehaviour
 
     private GameObject _keepMarkObj;    // 選択中ダイスのリングオブジェクト
     private Coroutine _hoverCoroutine;  // 浮遊アニメーション
+    private Coroutine _jiggleCroutine;  // 空中でジャラジャラする動き
 
     // 各出目がダイスのローカル座標でどの方向を向いているか
     private static readonly Vector3[] LocalFaceDirections = new Vector3[6]
@@ -84,7 +89,7 @@ public class DiceView3D : MonoBehaviour
     private void OnMouseDown()
     {
         // 転がっている最中はクリック無効
-        if (_isRolling) return;
+        if (IsRolling) return;
 
         // DiceManaagerにキープ切り替えを通知
         if (BattleUIManager.Instance != null)
@@ -123,7 +128,7 @@ public class DiceView3D : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!_isRolling) return;
+        if (!IsRolling) return;
 
         // ダイス同士が接触した時の処理
         DiceView3D otherDice = collision.gameObject.GetComponent<DiceView3D>();
@@ -167,7 +172,7 @@ public class DiceView3D : MonoBehaviour
     private void OnDestroy()
     {
         // 自身が破棄されたらマーカーも削除
-        if(_keepMarkObj != null)
+        if (_keepMarkObj != null)
         {
             Destroy(_keepMarkObj);
         }
@@ -178,23 +183,15 @@ public class DiceView3D : MonoBehaviour
     {
         StopAllCoroutines();
         _targetValue = targetValue;
-        StartCoroutine(RollRoutine(spawnPosition));
+        StartCoroutine(RollRoutine());
     }
 
-    private IEnumerator RollRoutine(Vector3 spawnPosition)
+    private IEnumerator RollRoutine()
     {
-        _isRolling = true;
-        _isGuiding = false;
+        IsRolling = true;
         _guideWeight = 0f;
         _bounceCount = 0;
-        _isKept = false;
         _rb.isKinematic = false;
-
-        // ダイスを上空に配置して物理をセット
-        transform.position = spawnPosition;
-        transform.rotation = Random.rotation;
-        _rb.linearVelocity = Vector3.zero;
-        _rb.angularVelocity = Vector3.zero;
 
         // ランダムな力と回転を加えて投げる
         Vector3 throwForce = new Vector3(Random.Range(-1f, 1f), Random.Range(-5f, -3f), Random.Range(-1f, 1f));
@@ -231,7 +228,7 @@ public class DiceView3D : MonoBehaviour
         _rb.linearVelocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
         _landedPosition = transform.position;   // 着地位置を記録
-        _isRolling = false;
+        IsRolling = false;
     }
 
     // 現在のダイスの向き(水平方向)を維持したまま、目的の面を上に向ける回転を算出
@@ -252,7 +249,7 @@ public class DiceView3D : MonoBehaviour
 
     public void SetKeepState(bool Kept)
     {
-        _isKept = Kept;
+        IsKept = Kept;
 
         if (_hoverCoroutine != null)
         {
@@ -260,7 +257,7 @@ public class DiceView3D : MonoBehaviour
             _hoverCoroutine = null;
         }
 
-        if (_isKept)
+        if (IsKept)
         {
             // キープ時固定してぶつかっても動かないようにする
             // isKineticが無効の時だけ速度を0にする。
@@ -312,7 +309,7 @@ public class DiceView3D : MonoBehaviour
         }
 
         // その後ゆっくり上下に揺れる
-        while (_isKept)
+        while (IsKept)
         {
             float hoverOffset = Mathf.Sin(Time.time * 4f) * 0.1f;
             transform.position = baseLiftPos + Vector3.up * hoverOffset;
@@ -327,7 +324,7 @@ public class DiceView3D : MonoBehaviour
 
         Vector3 startPos = transform.position;
 
-        while(elapsed < 0.15f)
+        while (elapsed < 0.15f)
         {
             elapsed += Time.deltaTime;
             transform.position = Vector3.Lerp(startPos, _landedPosition, elapsed / 0.15f);
@@ -345,7 +342,7 @@ public class DiceView3D : MonoBehaviour
 
     private IEnumerator CheatAnimateRoutine(int newValue)
     {
-        _isRolling = true;
+        IsRolling = true;
         _rb.isKinematic = true;
 
         Vector3 startPos = transform.position;
@@ -385,7 +382,7 @@ public class DiceView3D : MonoBehaviour
         transform.position = startPos;
 
         _landedPosition = startPos;
-        _isRolling = false;
+        IsRolling = false;
     }
 
     private void CreateSealFacePanels()
@@ -501,7 +498,7 @@ public class DiceView3D : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire: return WithAlpha(Color.red,0.6f);
+            case SealType.Fire: return WithAlpha(Color.red, 0.6f);
             case SealType.Ice: return WithAlpha(Color.cyan, 0.6f);
             case SealType.Gold: return WithAlpha(Color.yellow, 0.6f);
             case SealType.Iron: return WithAlpha(Color.gray, 0.6f);
@@ -536,7 +533,7 @@ public class DiceView3D : MonoBehaviour
             mr.material = new Material(_sealBaseMaterial);
 
             // シアン色に変更
-            mr.material.SetColor("_BaseColor", WithAlpha(Color.cyan,0.7f));
+            mr.material.SetColor("_BaseColor", WithAlpha(Color.cyan, 0.7f));
         }
 
         // 最初は非表示
@@ -545,7 +542,66 @@ public class DiceView3D : MonoBehaviour
 
     private Color WithAlpha(Color c, float a)
     {
-        return new Color(c.r,c.g,c.b,a);
+        return new Color(c.r, c.g, c.b, a);
+    }
+
+    // 空中でジャラジャラする
+    public void PrepareRoll(Vector3 spawnPosition)
+    {
+        StopAllCoroutines();
+        IsRolling = true;
+        _isGuiding = false;
+        IsKept = false;
+        _rb.isKinematic = true;
+
+        if(_keepMarkObj != null)
+        {
+            _keepMarkObj.SetActive(false);
+        }
+
+        transform.position = spawnPosition;
+        transform.rotation = Random.rotation;
+
+        // 空中でジャラジャラ開始
+        _jiggleCroutine = StartCoroutine(JiggleRoutine(spawnPosition));
+    }
+
+    // ジャラジャラアニメーション
+    private IEnumerator JiggleRoutine(Vector3 basePos)
+    {
+        float randomSeed = _diceIndex * 1.5f;
+
+        while (true)
+        {
+            // 位置の小刻みな揺れ
+            Vector3 shakeOffset = new Vector3(
+                Mathf.Sin(Time.time * 18f + randomSeed) * _shakeAmount,
+                Mathf.Sin(Time.time * 22f + randomSeed) * (_shakeAmount * 1.2f),
+                Mathf.Sin(Time.time * 15f + randomSeed * 2f) * _shakeAmount);
+
+            transform.position = basePos + shakeOffset;
+
+            transform.Rotate(new Vector3(
+                Mathf.Sin(Time.time * 10f) * _rotateSpeed,
+                _rotateSpeed,
+                Mathf.Cos(Time.time * 12f) * _rotateSpeed
+                ) * Time.deltaTime);
+
+            yield return null;
+        }
+    }
+
+    // 投げるボタンが押されたらダイスロール
+    public void ThrowDice(int targetValue)
+    {
+        if (_jiggleCroutine != null)
+        {
+            StopCoroutine(_jiggleCroutine);
+            _jiggleCroutine = null;
+        }
+
+        _targetValue = targetValue;
+        StartCoroutine(RollRoutine());
     }
 }
 

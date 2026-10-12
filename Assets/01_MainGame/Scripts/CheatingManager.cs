@@ -14,7 +14,7 @@ public class CheatingManager : MonoBehaviour
 
     [Header("状態")]
     // 今回のバトルでイカサマを使用したかどうか
-    public bool _hasUsedCheatThisBattle = false;
+    public bool HasUsedCheatThisBattle = false;
 
     // ===== プロパティ =====
 
@@ -23,18 +23,18 @@ public class CheatingManager : MonoBehaviour
     // ===== メソッド =====
     public void ResetCheating()
     {
-        _hasUsedCheatThisBattle = false;
+        HasUsedCheatThisBattle = false;
     }
 
     // イカサマが使用可能かの判定
     private bool CanUseCgeat(int cost)
     {
-        if (!_battleManager._isBattleActive)
+        if (!_battleManager.IsBattleActive)
         {
             return false;
         }
 
-        if (_hasUsedCheatThisBattle)
+        if (HasUsedCheatThisBattle)
         {
             return false;
         }
@@ -55,8 +55,8 @@ public class CheatingManager : MonoBehaviour
         // コイン消費
         if (!PlayerManager.Instance.TrySpendCoins(_extraRollCost)) return false;
 
-        _diceManager._remainingRerolls++;
-        _hasUsedCheatThisBattle = true;
+        _diceManager.RemainingRerolls++;
+        HasUsedCheatThisBattle = true;
 
         return true;
     }
@@ -65,12 +65,12 @@ public class CheatingManager : MonoBehaviour
     public bool TryUseDiceFlip(int diceIndex)
     {
         if (!CanUseCgeat(_diceFlipCost)) return false;
-        if (diceIndex < 0 || diceIndex >= _diceManager._diceList.Count) return false;
+        if (diceIndex < 0 || diceIndex >= _diceManager.DiceList.Count) return false;
 
         // コイン消費
         if (!PlayerManager.Instance.TrySpendCoins(_diceFlipCost)) return false;
 
-        var targetDice = _diceManager._diceList[diceIndex];
+        var targetDice = _diceManager.DiceList[diceIndex];
         int originalValue = targetDice.Value;
 
         // ダイスの裏面を計算
@@ -80,7 +80,7 @@ public class CheatingManager : MonoBehaviour
         // ダイス回転アニメーションを再生
         _diceManager.AnimateDiceCheat(diceIndex, flippedValue);
 
-        _hasUsedCheatThisBattle = true;
+        HasUsedCheatThisBattle = true;
 
         return true;
     }
@@ -88,13 +88,13 @@ public class CheatingManager : MonoBehaviour
     public bool TryUseDirectSet(int diceIndex, int targetValue)
     {
         if (!CanUseCgeat(_directSetCost)) return false;
-        if (diceIndex < 0 || diceIndex >= _diceManager._diceList.Count) return false;
+        if (diceIndex < 0 || diceIndex >= _diceManager.DiceList.Count) return false;
         if (targetValue < 1 || targetValue > 6) return false;
 
         // コイン消費
         if (!PlayerManager.Instance.TrySpendCoins(_directSetCost)) return false;
 
-        var targetDice = _diceManager._diceList[diceIndex];
+        var targetDice = _diceManager.DiceList[diceIndex];
         int originalValue = targetDice.Value;
 
         targetDice.SetValueDirectly(targetValue);
@@ -102,7 +102,7 @@ public class CheatingManager : MonoBehaviour
         // ダイス回転アニメーションを再生
         _diceManager.AnimateDiceCheat(diceIndex, targetValue);
 
-        _hasUsedCheatThisBattle = true;
+        HasUsedCheatThisBattle = true;
 
 
         return true;
