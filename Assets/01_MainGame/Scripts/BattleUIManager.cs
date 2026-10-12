@@ -31,6 +31,7 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _rerollButtonText; // リロールボタン文字
     [SerializeField] private Button _submitButton;              // 役確定ボタン
     [SerializeField] private Button _restartButton;             // リスタートボタン
+    [SerializeField] private Button _throwButton;               // 投げるボタン
 
     [Header("画面中央")]
     [SerializeField] private TextMeshProUGUI _coinsText;        // 所持コイン
@@ -73,6 +74,8 @@ public class BattleUIManager : MonoBehaviour
 
     private void Start()
     {
+        if (_throwButton != null) _throwButton.onClick.AddListener(OnThrowClicked);
+
         // 各ボタンにクリックイベントを登録
         _rerollButton.onClick.AddListener(OnRerollClicked);
         _submitButton.onClick.AddListener(OnSubmitClicked);
@@ -126,18 +129,18 @@ public class BattleUIManager : MonoBehaviour
         if (_quotaSlider != null)
         {
             _quotaSlider.maxValue = _battleManager.TargetQuota;
-            _quotaSlider.value = _battleManager._currentScore;
+            _quotaSlider.value = _battleManager.CurrentScore;
         }
 
         if (_quotaText != null)
         {
-            _quotaText.text = $"返済額：<b>{_battleManager._currentScore}</b> / {_battleManager.TargetQuota} G";
+            _quotaText.text = $"返済額：<b>{_battleManager.CurrentScore}</b> / {_battleManager.TargetQuota} G";
         }
 
         // 残りターン数
         if (_turnsText != null)
         {
-            _turnsText.text = $"残りターン：<b>{_battleManager._remainingTurns}</b>";
+            _turnsText.text = $"残りターン：<b>{_battleManager.RemainingTurns}</b>";
         }
 
         // 所持コイン
@@ -148,17 +151,24 @@ public class BattleUIManager : MonoBehaviour
 
         // リロール・役確定ボタン(ダイスロール中、詳細パネルOP中、イカサマ中は非表示にする)
         bool isRolling = _diceManager.IsAnyDiceRolling;
+        bool isWaitingThrow = _diceManager.IsWaitingForThrow;
         bool isDetailOpen = _scoreDetailPanel != null && _scoreDetailPanel.activeSelf;
         bool isCheating = _currentCheatMode != CheatMode.None;
-        bool showControls = _battleManager._isBattleActive && !isRolling && !isDetailOpen && !isCheating;
+        
+        if(_throwButton != null)
+        {
+            _throwButton.gameObject.SetActive(_battleManager.IsBattleActive && isWaitingThrow && !isDetailOpen && !isCheating);
+        }
+        
+        bool showControls = _battleManager.IsBattleActive && !isRolling && !isWaitingThrow && !isDetailOpen && !isCheating;
 
         _rerollButton.gameObject.SetActive(showControls);
         _submitButton.gameObject.SetActive(showControls);
 
         if (showControls)
         {
-            _rerollButtonText.text = $"リロール\n(あと{_diceManager._remainingRerolls}回)";
-            _rerollButton.interactable = _diceManager._remainingRerolls > 0;
+            _rerollButtonText.text = $"リロール\n(あと{_diceManager.RemainingRerolls}回)";
+            _rerollButton.interactable = _diceManager.RemainingRerolls > 0;
             _submitButton.interactable = true;
         }
 
@@ -169,7 +179,7 @@ public class BattleUIManager : MonoBehaviour
     // リロールボタンが押されたとき
     private void OnRerollClicked()
     {
-        _diceManager.Reroll();
+        _diceManager.PrepareReroll();
 
         UpdateUI();
     }
@@ -178,6 +188,14 @@ public class BattleUIManager : MonoBehaviour
     private void OnSubmitClicked()
     {
         _diceManager.SubmitHand();
+    }
+
+    // 投げるボタンが押されたとき
+    private void OnThrowClicked()
+    {
+        _diceManager.ThrowDice();
+
+        UpdateUI();
     }
 
     private void OnRestartClicked()
@@ -211,7 +229,7 @@ public class BattleUIManager : MonoBehaviour
         _detailSealAddScoreText.text = $"シール加算：<b>{breakdown.SealAddScore} G</b>";
         _detailTotalBaseText.text = $"返済額 小計：<b>{breakdown.TotalBaseScore} G</b>";
         _detailMultiplierText.text = $"シール倍率：<b>× {breakdown.Multiplier:F2} 倍</b>";
-        _detailBossModifierText.text = (breakdown.BossTraitText != "補正なし") ? $"ボス補正：<size=65>{breakdown.BossTraitText}<size>" : "";
+        _detailBossModifierText.text = (breakdown.BossTraitText != "補正なし") ? $"ボス補正：<size=65>{breakdown.BossTraitText}</size>" : "";
         _detailCoinsText.text = (breakdown.EarnedCoins > 0) ? $"獲得コイン：+ {breakdown.EarnedCoins} 枚" : "";
         _detailFinalScoreText.text = $"返済金額 総計：<color=yellow><size=80><b>+ {breakdown.FinalScore} G</b></size></color>";
 
@@ -239,7 +257,7 @@ public class BattleUIManager : MonoBehaviour
     {
         if (_cheatingManager == null || PlayerManager.Instance == null) return;
 
-        bool canCheat = canInteract && !_cheatingManager._hasUsedCheatThisBattle;
+        bool canCheat = canInteract && !_cheatingManager.HasUsedCheatThisBattle;
         int coins = PlayerManager.Instance.Coins;
 
         _cheatRerollButton.interactable = canCheat && (coins >= 1);
@@ -295,7 +313,7 @@ public class BattleUIManager : MonoBehaviour
 
         _cheatBunnerPanel.SetActive(true);
 
-        if(_cheatFaceSelectGroup != null)_cheatFaceSelectGroup.SetActive(false);
+        if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
 
         UpdateUI();
     }
@@ -318,23 +336,23 @@ public class BattleUIManager : MonoBehaviour
     public void Handle3DDiceClicked(int diceIndex)
     {
         // イカサマ中でなければキープの切り替え
-        if(_currentCheatMode == CheatMode.None)
+        if (_currentCheatMode == CheatMode.None)
         {
             _diceManager.ToggleKeepDice(diceIndex);
             return;
         }
 
         // フリップ中
-        if(_currentCheatMode == CheatMode.Flip)
+        if (_currentCheatMode == CheatMode.Flip)
         {
             _cheatingManager.TryUseDiceFlip(diceIndex);
             EndCheat();
         }
 
-        if(_currentCheatMode == CheatMode.DirectSet)
+        if (_currentCheatMode == CheatMode.DirectSet)
         {
             _targetDiceIndex = diceIndex;
-            
+
             _cheatGuideText.text = $"ダイス {diceIndex + 1} をどの目に変更しますか？";
 
             if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(true);
@@ -343,9 +361,9 @@ public class BattleUIManager : MonoBehaviour
 
     private void OnCheatFaceSelected(int faceVal)
     {
-        if(_targetDiceIndex >= 0)
+        if (_targetDiceIndex >= 0)
         {
-            _cheatingManager.TryUseDirectSet(_targetDiceIndex,faceVal);
+            _cheatingManager.TryUseDirectSet(_targetDiceIndex, faceVal);
             EndCheat();
         }
     }
@@ -360,7 +378,7 @@ public class BattleUIManager : MonoBehaviour
         _currentCheatMode = CheatMode.None;
         _targetDiceIndex = -1;
 
-        if(_cheatBunnerPanel != null) _cheatBunnerPanel.SetActive(false);
+        if (_cheatBunnerPanel != null) _cheatBunnerPanel.SetActive(false);
         if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
 
         UpdateUI();

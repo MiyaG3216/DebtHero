@@ -195,9 +195,9 @@ public class ShopUIManager : MonoBehaviour
     {
         for (int i = 0; i < _sealDiceTabTexts.Length; i++)
         {
-            if (i < _diceManager._diceList.Count)
+            if (i < _diceManager.DiceList.Count)
             {
-                var dice = _diceManager._diceList[i];
+                var dice = _diceManager.DiceList[i];
 
                 string isCurrent = (i == _selectedDiceIndexForSeal) ? "▶" : "";
 
@@ -205,7 +205,7 @@ public class ShopUIManager : MonoBehaviour
             }
         }
 
-        var currentDice = _diceManager._diceList[_selectedDiceIndexForSeal];
+        var currentDice = _diceManager.DiceList[_selectedDiceIndexForSeal];
 
         for (int i = 0; i < _sealFaceButtons.Length; i++)
         {

@@ -24,9 +24,9 @@ public class ShopManager : MonoBehaviour
     };
 
     [Header("情報屋のヒント")]
-    public string _currentBossHint = "";
+    public string CurrentBossHint = "";
 
-    public int _shopVisitCount = 0;     // ショップ訪問回数（ラインナップに影響）
+    public int ShopVisitCount = 0;     // ショップ訪問回数（ラインナップに影響）
 
     // ===== プロパティ =====
     public int RareSealPrice => _rareSealPrice;
@@ -37,23 +37,23 @@ public class ShopManager : MonoBehaviour
     // ショップを開く
     public void OpenShop(string bossHintText)
     {
-        _shopVisitCount++;
+        ShopVisitCount++;
 
-        _currentBossHint = bossHintText;
+        CurrentBossHint = bossHintText;
 
-        if (_shopUIManager != null) _shopUIManager.OpenShopUI(_currentBossHint,_shopVisitCount);
+        if (_shopUIManager != null) _shopUIManager.OpenShopUI(CurrentBossHint,ShopVisitCount);
     }
 
     //新しいダイスを購入して入れ替える（シールは引き継ぐ）
     public bool TryBuyDice(DiceType newDiceType, int slotIndex)
     {
-        if (slotIndex < 0 || slotIndex >= _diceManager._diceList.Count) return false;
+        if (slotIndex < 0 || slotIndex >= _diceManager.DiceList.Count) return false;
 
         // コイン消費
         int price = GetDicePrice(newDiceType);
         if (!PlayerManager.Instance.TrySpendCoins(price)) return false;
 
-        var targetDice = _diceManager._diceList[slotIndex];
+        var targetDice = _diceManager.DiceList[slotIndex];
 
         // ダイスの種類だけ変更
         targetDice.SetDiceType(newDiceType);
@@ -66,14 +66,14 @@ public class ShopManager : MonoBehaviour
     // シールを購入してダイスに貼る
     public bool TryBuyAndApplySeal(SealType seal, int slotIndex, int faceValue)
     {
-        if (slotIndex < 0 || slotIndex >= _diceManager._diceList.Count) return false;
+        if (slotIndex < 0 || slotIndex >= _diceManager.DiceList.Count) return false;
         if (faceValue < 1 || faceValue > 6) return false;
 
         // コイン消費
         if (!PlayerManager.Instance.TrySpendCoins(_rareSealPrice)) return false;
 
         // シールの貼り付け
-        _diceManager._diceList[slotIndex].AttachSeal(faceValue, seal);
+        _diceManager.DiceList[slotIndex].AttachSeal(faceValue, seal);
 
         _diceManager.UpdateAllDiceVisuals();
 

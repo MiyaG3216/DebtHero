@@ -33,8 +33,8 @@ public class GameProgressManager : MonoBehaviour
     [SerializeField] private List<StageData> _stageList = new List<StageData>();
 
     [Header("進行状況")]
-    public int _currentStageIndex = 0;
-    public bool _isGameCleared = false;
+    public int CurrentStageIndex = 0;
+    public bool IsGameCleared = false;
 
     // ===== プロパティ =====
 
@@ -90,8 +90,8 @@ public class GameProgressManager : MonoBehaviour
 
     public void StartNewGame()
     {
-        _currentStageIndex = 0;
-        _isGameCleared = false;
+        CurrentStageIndex = 0;
+        IsGameCleared = false;
 
         // ラスボスの特性抽選
         BossManager.Instance.DecideFinalBossTrait();
@@ -101,22 +101,22 @@ public class GameProgressManager : MonoBehaviour
 
     public void ExecuteCurrentStage()
     {
-        if (_currentStageIndex >= _stageList.Count)
+        if (CurrentStageIndex >= _stageList.Count)
         {
             OnGameClear();
             return;
         }
 
-        var currentStage = _stageList[_currentStageIndex];
+        var currentStage = _stageList[CurrentStageIndex];
 
         if (currentStage.Type == StageType.Battle)
         {
             BossTraitType trait = currentStage.BossTrait;
 
             // ラスボス戦の場合は抽選された特性をセットする
-            if (_currentStageIndex == _stageList.Count - 1)
+            if (CurrentStageIndex == _stageList.Count - 1)
             {
-                trait = BossManager.Instance._currentFinalBossTrait;
+                trait = BossManager.Instance.CurrentFinalBossTrait;
             }
 
             _battleManager.StartBattle(currentStage.StageName, currentStage.TargetQuota, currentStage.MaxTurns, trait);
@@ -141,12 +141,12 @@ public class GameProgressManager : MonoBehaviour
 
     public void OnStageCompleted()
     {
-        _currentStageIndex++;
+        CurrentStageIndex++;
         ExecuteCurrentStage();
     }
 
     private void OnGameClear()
     {
-        _isGameCleared = true;
+        IsGameCleared = true;
     }
 }

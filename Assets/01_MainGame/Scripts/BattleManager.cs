@@ -15,9 +15,9 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private BossTraitType _currentBossTrait = BossTraitType.None;  // 現在の敵の特性
 
     [Header("モニター用")]
-    public int _currentScore = 0;           // 現在の合計スコア
-    public int _remainingTurns = 0;         // 残りターン数
-    public bool _isBattleActive = false;    // バトル中かどうか
+    public int CurrentScore = 0;           // 現在の合計スコア
+    public int RemainingTurns = 0;         // 残りターン数
+    public bool IsBattleActive = false;    // バトル中かどうか
 
     private ScoreBreakdown _lastBreakdown;  // 最後に提出された内訳
 
@@ -33,9 +33,9 @@ public class BattleManager : MonoBehaviour
         _targetQuota = quota;
         _maxTurn = turns;
         _currentBossTrait = bossTrait;
-        _currentScore = 0;
-        _remainingTurns = _maxTurn;
-        _isBattleActive = true;
+        CurrentScore = 0;
+        RemainingTurns = _maxTurn;
+        IsBattleActive = true;
 
         if (_cheatingManager != null) _cheatingManager.ResetCheating();
 
@@ -52,10 +52,10 @@ public class BattleManager : MonoBehaviour
     // 役確定ボタンが押されたとき：詳細内訳を計算してパネルを開く
     public void OnHandSubmitted(HandEvaluationResult handResult)
     {
-        if (!_isBattleActive || handResult == null) return;
+        if (!IsBattleActive || handResult == null) return;
 
         // シール効果計算
-        var calcResult = SealCalculator.Calculate(handResult, _diceManager._diceList);
+        var calcResult = SealCalculator.Calculate(handResult, _diceManager.DiceList);
 
         // ボス特性によるスコア補正
         int finalScore = BossManager.Instance.ApplyBossTrait(
@@ -97,18 +97,18 @@ public class BattleManager : MonoBehaviour
         }
 
         // スコア加算とターン消費
-        _currentScore += _lastBreakdown.FinalScore;
-        _remainingTurns--;
+        CurrentScore += _lastBreakdown.FinalScore;
+        RemainingTurns--;
 
         // 勝敗判定
-        if (_currentScore >= _targetQuota)
+        if (CurrentScore >= _targetQuota)
         {
             // ノルマ達成
-            _isBattleActive = false;
+            IsBattleActive = false;
             if (_battleUIManager != null) _battleUIManager.ShowBattleResult(true);
 
             // サブミッション判定(残りターン1以上で達成)
-            bool missinonCleared = _remainingTurns >= 1;
+            bool missinonCleared = RemainingTurns >= 1;
 
             // 報酬フェーズを開始
             if (_rewardManager != null)
@@ -116,10 +116,10 @@ public class BattleManager : MonoBehaviour
                 _rewardManager.StartRewardPhase(missinonCleared);
             }
         }
-        else if (_remainingTurns <= 0)
+        else if (RemainingTurns <= 0)
         {
             // 残りターン無し
-            _isBattleActive = false;
+            IsBattleActive = false;
             if (_battleUIManager != null) _battleUIManager.ShowBattleResult(false);
         }
         else

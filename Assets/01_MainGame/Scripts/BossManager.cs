@@ -16,7 +16,7 @@ public class BossManager : MonoBehaviour
     public static BossManager Instance { get; private set; }
 
     [Header("ラスボスの特性（ランダム決定）")]
-    public BossTraitType _currentFinalBossTrait;
+    public BossTraitType CurrentFinalBossTrait;
 
     // ===== プロパティ =====
 
@@ -46,12 +46,12 @@ public class BossManager : MonoBehaviour
             BossTraitType.HalfPair
         };
 
-        _currentFinalBossTrait = traits[Random.Range(0, traits.Length)];
+        CurrentFinalBossTrait = traits[Random.Range(0, traits.Length)];
     }
 
     public string GetBossHintText()
     {
-        switch (_currentFinalBossTrait)
+        switch (CurrentFinalBossTrait)
         {
             case BossTraitType.DisableEven:
                 return "本社のボスは【偶数】が含まれる役を認めないらしい...";

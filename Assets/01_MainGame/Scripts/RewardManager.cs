@@ -54,11 +54,11 @@ public class RewardManager : MonoBehaviour
     public bool ApplySealToDice(SealType seal, int diceIndex, int faceValue)
     {
         if (RemainingPicks <= 0) return false;
-        if (diceIndex < 0 || diceIndex >= _diceManager._diceList.Count) return false;
+        if (diceIndex < 0 || diceIndex >= _diceManager.DiceList.Count) return false;
         if (faceValue < 1 || faceValue > 6) return false;
 
         // ダイスにシールを張り付ける
-        _diceManager._diceList[diceIndex].AttachSeal(faceValue, seal);
+        _diceManager.DiceList[diceIndex].AttachSeal(faceValue, seal);
         RemainingPicks--;
 
         CurrentOfferSeals.Remove(seal);
