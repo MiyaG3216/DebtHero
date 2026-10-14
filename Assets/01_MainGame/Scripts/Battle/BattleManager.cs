@@ -1,3 +1,5 @@
+using System.Security.Cryptography.X509Certificates;
+using UnityEditor.Build.Content;
 using UnityEngine;
 
 public class BattleManager : MonoBehaviour
@@ -26,9 +28,34 @@ public class BattleManager : MonoBehaviour
     public int MaxTurn => _maxTurn;
 
     // ===== Unityメッセージ =====
+    private void Start()
+    {
+        // GameDataManagerから現在のステージデータを読み込む
+        if (GameDataManager.Instance != null)
+        {
+            StageData stage = GameDataManager.Instance.GetCurrentStageData();
+
+            if (stage != null)
+            {
+                BossTraitType trait = stage.BossTrait;
+
+                if (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1)
+                {
+                    trait = GameDataManager.Instance.CurrentFinalBossTrait;
+                }
+
+                StartBattle(stage.TargetQuota, stage.MaxTurns, trait, stage.StageName);
+
+                return;
+            }
+        }
+
+        // 単体テスト用のフォールバック
+        StartBattle(_targetQuota, _maxTurn, _currentBossTrait, "取り立て屋");
+    }
 
     // ===== メソッド =====
-    public void StartBattle(string stageName, int quota, int turns, BossTraitType bossTrait = BossTraitType.None)
+    public void StartBattle(int quota, int turns, BossTraitType bossTrait = BossTraitType.None, string stageName = "取り立て屋")
     {
         _targetQuota = quota;
         _maxTurn = turns;
@@ -42,8 +69,7 @@ public class BattleManager : MonoBehaviour
         // UIに適名と特性を反映
         if (_battleUIManager != null)
         {
-            string enemyName = (GameProgressManager.Instance != null) ? $"{stageName}" : "借金取り";
-            _battleUIManager.SetupStageInfo(enemyName, _currentBossTrait);
+            _battleUIManager.SetupStageInfo(stageName, _currentBossTrait);
         }
 
         _diceManager.StartNewTurn();
@@ -73,7 +99,7 @@ public class BattleManager : MonoBehaviour
             SealAddScore = calcResult.SealAddScore,
             TotalBaseScore = calcResult.TotalBaseScore,
             Multiplier = calcResult.TotalMultiplier,
-            BossTraitText = GetBossModifierText(calcResult.DisableBossPassive),
+            BossTraitText = GetBossModifierText(_currentBossTrait, handResult, calcResult.DisableBossPassive),
             FinalScore = finalScore,
             EarnedCoins = calcResult.EarnedCoins
         };
@@ -130,20 +156,36 @@ public class BattleManager : MonoBehaviour
         _lastBreakdown = null;
     }
 
-    private string GetBossModifierText(bool isIceActive)
+    private string GetBossModifierText(BossTraitType trait, HandEvaluationResult handResult, bool isIceActive)
     {
-        if (_currentBossTrait == BossTraitType.None) return "補正なし";
+        if (_currentBossTrait == BossTraitType.None || handResult == null) return "";
 
         if (isIceActive) return "氷シールで特性無効化！";
 
-        switch (_currentBossTrait)
+        switch (trait)
         {
-            case BossTraitType.Fee75Percent: return "<color=red>みかじめ料 (× 75 %)</color>";
-            case BossTraitType.DisableEven: return "<color=red>偶数無効 ( 0 G )</color>";
-            case BossTraitType.DisableOdd: return "<color=red>奇数無効 ( 0 G )</color>";
-            case BossTraitType.DisableHighHand: return "<color=red>強役つぶし ( 0 G )</color>";
-            case BossTraitType.HalfPair: return "<color=red>ペア半減 (× 50 %)</color>";
-            default: return "";
+            case BossTraitType.Fee75Percent:
+                return "<color=red>みかじめ料 (× 75 %)</color>";
+                
+            case BossTraitType.DisableEven:
+                if (handResult.UsedDice.Exists(x => x % 2 == 0)) return "<color=red>偶数無効 ( 0 G )</color>";
+                break;
+
+            case BossTraitType.DisableOdd:
+                if (handResult.UsedDice.Exists(x => x % 2 != 0)) return "<color=red>奇数無効 ( 0 G )</color>";
+                break;
+
+            case BossTraitType.DisableHighHand:
+                if (handResult.HandType == HandType.FullHouse ||
+                    handResult.HandType == HandType.Straight ||
+                    handResult.HandType == HandType.FiveDice) return "<color=red>強役つぶし ( 0 G )</color>";
+                break;
+
+            case BossTraitType.HalfPair:
+                if (handResult.HandType != HandType.Straight) return "<color=red>ペア半減 (× 50 %)</color>";
+                break;
         }
+
+        return "";
     }
 }

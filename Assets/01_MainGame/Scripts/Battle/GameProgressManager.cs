@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public enum StageType
 {
@@ -26,7 +27,6 @@ public class GameProgressManager : MonoBehaviour
     [Header("参照")]
     [SerializeField] private BattleManager _battleManager;
     [SerializeField] private RewardManager _rewardManager;
-    [SerializeField] private ShopManager _shopManager;
     [SerializeField] private DiceManager _diceManager;
 
     [Header("全ステージの√定義")]
@@ -53,11 +53,6 @@ public class GameProgressManager : MonoBehaviour
         SetUpDefaultStages();
     }
 
-    private void Start()
-    {
-        StartNewGame();
-    }
-
     // ===== メソッド =====
     private void SetUpDefaultStages()
     {
@@ -69,11 +64,11 @@ public class GameProgressManager : MonoBehaviour
         // Stage 2
         _stageList.Add(new StageData { StageName = "ベテラン取り立て屋", Type = StageType.Battle, TargetQuota = 400, MaxTurns = 3, BossTrait = BossTraitType.None });
 
-        // Stage 3 (中ボス)     
-        _stageList.Add(new StageData { StageName = "用心棒【中ボス】", Type = StageType.Battle, TargetQuota = 600, MaxTurns = 4, BossTrait = BossTraitType.Fee75Percent });
-
         // Shop 1
         _stageList.Add(new StageData { StageName = "カジノショップ", Type = StageType.Shop });
+
+        // Stage 3 (中ボス)     
+        _stageList.Add(new StageData { StageName = "用心棒【中ボス】", Type = StageType.Battle, TargetQuota = 600, MaxTurns = 4, BossTrait = BossTraitType.Fee75Percent });
 
         // Stage 4
         _stageList.Add(new StageData { StageName = "エリート取り立て屋", Type = StageType.Battle, TargetQuota = 800, MaxTurns = 4, BossTrait = BossTraitType.None });
@@ -119,11 +114,11 @@ public class GameProgressManager : MonoBehaviour
                 trait = BossManager.Instance.CurrentFinalBossTrait;
             }
 
-            _battleManager.StartBattle(currentStage.StageName, currentStage.TargetQuota, currentStage.MaxTurns, trait);
+            _battleManager.StartBattle(currentStage.TargetQuota, currentStage.MaxTurns, trait, currentStage.StageName);
         }
         else if (currentStage.Type == StageType.Shop)
         {
-            _shopManager.OpenShop(BossManager.Instance.GetBossHintText());
+            SceneManager.LoadScene("Scene_Shop");
         }
     }
 

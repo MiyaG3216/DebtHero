@@ -6,7 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/01_MainGame/Scenes/Dice.unity
+    path: Assets/01_MainGame/Scenes/Scene_Map.unity
+    guid: ecbf1034ac5bf314da0c0cef3e761b6a
+  - enabled: 1
+    path: Assets/01_MainGame/Scenes/Scene_Battle.unity
     guid: f332873e56c3ed542af483bf81582408
+  - enabled: 1
+    path: Assets/01_MainGame/Scenes/Scene_Shop.unity
+    guid: 0955c205b13699d409a2b24e9cae73a0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

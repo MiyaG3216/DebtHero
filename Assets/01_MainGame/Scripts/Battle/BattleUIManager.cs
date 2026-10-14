@@ -154,12 +154,12 @@ public class BattleUIManager : MonoBehaviour
         bool isWaitingThrow = _diceManager.IsWaitingForThrow;
         bool isDetailOpen = _scoreDetailPanel != null && _scoreDetailPanel.activeSelf;
         bool isCheating = _currentCheatMode != CheatMode.None;
-        
-        if(_throwButton != null)
+
+        if (_throwButton != null)
         {
             _throwButton.gameObject.SetActive(_battleManager.IsBattleActive && isWaitingThrow && !isDetailOpen && !isCheating);
         }
-        
+
         bool showControls = _battleManager.IsBattleActive && !isRolling && !isWaitingThrow && !isDetailOpen && !isCheating;
 
         _rerollButton.gameObject.SetActive(showControls);
@@ -204,9 +204,23 @@ public class BattleUIManager : MonoBehaviour
         _restartButton.gameObject.SetActive(false);
 
         // 現在のステージをリトライする
-        if (GameProgressManager.Instance != null)
+        if (GameDataManager.Instance != null)
         {
-            GameProgressManager.Instance.RetryCurrentStage();
+            StageData stage = GameDataManager.Instance.GetCurrentStageData();
+
+            if (stage != null)
+            {
+                BossTraitType trait = stage.BossTrait;
+
+                if (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1)
+                {
+                    trait = GameDataManager.Instance.CurrentFinalBossTrait;
+                }
+
+                _battleManager.StartBattle(stage.TargetQuota, stage.MaxTurns, trait, stage.StageName);
+                UpdateUI();
+                return;
+            }
         }
 
         UpdateUI();
@@ -229,7 +243,7 @@ public class BattleUIManager : MonoBehaviour
         _detailSealAddScoreText.text = $"シール加算：<b>{breakdown.SealAddScore} G</b>";
         _detailTotalBaseText.text = $"返済額 小計：<b>{breakdown.TotalBaseScore} G</b>";
         _detailMultiplierText.text = $"シール倍率：<b>× {breakdown.Multiplier:F2} 倍</b>";
-        _detailBossModifierText.text = (breakdown.BossTraitText != "補正なし") ? $"ボス補正：<size=65>{breakdown.BossTraitText}</size>" : "";
+        _detailBossModifierText.text = (breakdown.BossTraitText != "") ? $"ボス補正：<size=65>{breakdown.BossTraitText}</size>" : "";
         _detailCoinsText.text = (breakdown.EarnedCoins > 0) ? $"獲得コイン：+ {breakdown.EarnedCoins} 枚" : "";
         _detailFinalScoreText.text = $"返済金額 総計：<color=yellow><size=80><b>+ {breakdown.FinalScore} G</b></size></color>";
 
