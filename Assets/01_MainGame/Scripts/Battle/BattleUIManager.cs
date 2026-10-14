@@ -18,6 +18,7 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private DiceManager _diceManager;
     [SerializeField] private BattleManager _battleManager;
     [SerializeField] private CheatingManager _cheatingManager;
+    [SerializeField] private RewardManager _rewardManager;
 
     [Header("画面上部")]
     [SerializeField] private TextMeshProUGUI _stageNameText;    // ステージ名
@@ -30,7 +31,6 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private Button _rerollButton;              // リロールボタン
     [SerializeField] private TextMeshProUGUI _rerollButtonText; // リロールボタン文字
     [SerializeField] private Button _submitButton;              // 役確定ボタン
-    [SerializeField] private Button _restartButton;             // リスタートボタン
     [SerializeField] private Button _throwButton;               // 投げるボタン
 
     [Header("画面中央")]
@@ -38,7 +38,6 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private Button _cheatRerollButton;         // 追加リロールボタン
     [SerializeField] private Button _cheatFlipButton;           // フリップボタン
     [SerializeField] private Button _cheatSetButton;            // 目押しボタン
-    [SerializeField] private TextMeshProUGUI _messageText;
 
     [Header("スコア詳細パネル")]
     [SerializeField] private GameObject _scoreDetailPanel;
@@ -60,8 +59,21 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private GameObject _cheatFaceSelectGroup;
     [SerializeField] private Button[] _cheatFaceButtons;
 
+    [Header("リザルト画面")]
+    [SerializeField] private GameObject _battleResultPanel;
+    [SerializeField] private TextMeshProUGUI _resultTitleText;
+    [SerializeField] private TextMeshProUGUI _resultDescText;
+    [SerializeField] private GameObject _resultCoinGroup;
+    [SerializeField] private TextMeshProUGUI _resultBaseCoinText;
+    [SerializeField] private TextMeshProUGUI _resultBonusCoinText;
+    [SerializeField] private TextMeshProUGUI _resultTotalCoinText;
+    [SerializeField] private Button _resultNextButton;
+    [SerializeField] private Button _resultRetryButton;             // リスタートボタン
+
     private CheatMode _currentCheatMode = CheatMode.None;
     private int _targetDiceIndex = -1;
+
+    private bool _isFinalBossDefeated = false;  // ラスボス撃破フラグ
 
     // ===== プロパティ =====
 
@@ -79,7 +91,6 @@ public class BattleUIManager : MonoBehaviour
         // 各ボタンにクリックイベントを登録
         _rerollButton.onClick.AddListener(OnRerollClicked);
         _submitButton.onClick.AddListener(OnSubmitClicked);
-        _restartButton.onClick.AddListener(OnRestartClicked);
 
         // 詳細パネルの次へボタン
         if (_detailConfirmButton != null)
@@ -107,8 +118,11 @@ public class BattleUIManager : MonoBehaviour
             _cancelCheatButton.onClick.AddListener(CancelCheat);
         }
 
+        // リザルトパネルのボタン登録
+        if (_resultNextButton != null) _resultNextButton.onClick.AddListener(OnResultNextClicked);
+        if (_resultRetryButton != null) _resultRetryButton.onClick.AddListener(OnResultRetryClicked);
+
         // 初期UIの更新
-        _restartButton.gameObject.SetActive(false);
         if (_scoreDetailPanel != null) _scoreDetailPanel.SetActive(false);
         if (_cheatBunnerPanel != null) _cheatBunnerPanel.SetActive(false);
         if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
@@ -198,10 +212,11 @@ public class BattleUIManager : MonoBehaviour
         UpdateUI();
     }
 
-    private void OnRestartClicked()
+    private void OnResultRetryClicked()
     {
-        _messageText.text = "バトル開始！";
-        _restartButton.gameObject.SetActive(false);
+        _battleResultPanel.SetActive(false);
+
+        _resultRetryButton.gameObject.SetActive(false);
 
         // 現在のステージをリトライする
         if (GameDataManager.Instance != null)
@@ -226,10 +241,70 @@ public class BattleUIManager : MonoBehaviour
         UpdateUI();
     }
 
+    // リザルトパネルで「次へ」を押したとき
+    private void OnResultNextClicked()
+    {
+        _battleResultPanel.SetActive(false);
+
+        if (_isFinalBossDefeated)
+        {
+            return;
+        }
+
+        if (_rewardManager != null) _rewardManager.OpenRewardPhaseUI();
+    }
+
     private void OnDetailConfirmClicked()
     {
         _scoreDetailPanel.SetActive(false);
         _battleManager.ConfirmScoreAndAdvanceTurn();
+        UpdateUI();
+    }
+
+    public void ShowBattleResultPanel(bool isWin, int baseCoin, int bonusCoin, bool missionCleared, bool isFinalBoss = false)
+    {
+        if (_battleResultPanel == null) return;
+        _isFinalBossDefeated = isFinalBoss && isWin;
+
+        if (isWin)
+        {
+            if (_isFinalBossDefeated)
+            {
+                _resultTitleText.text = "借金完全返済！ GAME CLEAR";
+                _resultDescText.text = "魔王城本社のボスをダイスで粉砕した！";
+
+                if (_resultCoinGroup != null) _resultCoinGroup.SetActive(false);
+                _resultNextButton.GetComponentInChildren<TextMeshProUGUI>().text = "エンディングへ";
+            }
+            else
+            {
+                _resultTitleText.text = "返済完了！ STAGE CLEAR";
+                _resultDescText.text = "取り立て屋を追い返した！";
+
+                // コイン内訳表示
+                if (_resultCoinGroup != null) _resultCoinGroup.SetActive(true);
+                if (_resultBaseCoinText != null) _resultBaseCoinText.text = $"・返済報酬：+ <b><color=yellow>{baseCoin}</color></b> C";
+                if (_resultBonusCoinText != null) _resultBonusCoinText.text = missionCleared ? $"・ミッションボーナス：+  <b><color=yellow>{bonusCoin}</color></b> C" : "・ミッションボーナス：未達成";
+                if (_resultTotalCoinText != null) _resultTotalCoinText.text = $"・合計獲得コイン：+  <b><color=yellow>{baseCoin + bonusCoin}</color></b> C";
+
+                _resultNextButton.GetComponentInChildren<TextMeshProUGUI>().text = "次へ";
+            }
+
+            _resultNextButton.gameObject.SetActive(true);
+            _resultRetryButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            _resultTitleText.text = "返済失敗... GAME OVER";
+            _resultDescText.text = "期限内に返済できなかった...";
+
+            if (_resultCoinGroup != null) _resultCoinGroup.SetActive(false);
+
+            _resultNextButton.gameObject.SetActive(false);
+            _resultRetryButton.gameObject.SetActive(true);
+        }
+
+        _battleResultPanel.SetActive(true);
         UpdateUI();
     }
 
@@ -249,21 +324,6 @@ public class BattleUIManager : MonoBehaviour
 
         _scoreDetailPanel.SetActive(true);
         UpdateUI();
-    }
-
-    // 勝敗メッセージの表示用 (後で消す)
-    public void ShowBattleResult(bool isWin)
-    {
-        if (isWin)
-        {
-            _messageText.text = "<color=green>★ 完済成功！ STAGE CLEAR ★</color>";
-            _restartButton.gameObject.SetActive(false);
-        }
-        else
-        {
-            _messageText.text = "<color=red>× 完済失敗... GAME OVER ×</color>";
-            _restartButton.gameObject.SetActive(true);
-        }
     }
 
     // イカサマボタン群の制御

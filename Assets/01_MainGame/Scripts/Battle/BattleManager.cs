@@ -1,5 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
-using UnityEditor.Build.Content;
 using UnityEngine;
 
 public class BattleManager : MonoBehaviour
@@ -119,7 +117,7 @@ public class BattleManager : MonoBehaviour
         // コイン付与
         if (_lastBreakdown.EarnedCoins > 0)
         {
-            PlayerManager.Instance.AddCoins(_lastBreakdown.EarnedCoins);
+            if (GameDataManager.Instance != null) GameDataManager.Instance.Coins += _lastBreakdown.EarnedCoins;
         }
 
         // スコア加算とターン消費
@@ -131,22 +129,32 @@ public class BattleManager : MonoBehaviour
         {
             // ノルマ達成
             IsBattleActive = false;
-            if (_battleUIManager != null) _battleUIManager.ShowBattleResult(true);
 
-            // サブミッション判定(残りターン1以上で達成)
-            bool missinonCleared = RemainingTurns >= 1;
-
-            // 報酬フェーズを開始
-            if (_rewardManager != null)
+            bool isFinalBoss = false;
+            if (GameDataManager.Instance != null)
             {
-                _rewardManager.StartRewardPhase(missinonCleared);
+                isFinalBoss = (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1);
             }
+
+            bool missionCleared = RemainingTurns >= 1;
+            int baseCoins = 0;
+            int bonusCoins = 0;
+
+            if (!isFinalBoss)
+            {
+                baseCoins = 5;
+                bonusCoins = missionCleared ? 3 : 0;
+                if (GameDataManager.Instance != null) GameDataManager.Instance.Coins += (baseCoins + bonusCoins);
+            }
+
+            // リザルトパネルを表示
+            if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(true, baseCoins, bonusCoins, missionCleared,isFinalBoss);
         }
         else if (RemainingTurns <= 0)
         {
             // 残りターン無し
             IsBattleActive = false;
-            if (_battleUIManager != null) _battleUIManager.ShowBattleResult(false);
+            if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(false, 0, 0, false);
         }
         else
         {
@@ -166,7 +174,7 @@ public class BattleManager : MonoBehaviour
         {
             case BossTraitType.Fee75Percent:
                 return "<color=red>みかじめ料 (× 75 %)</color>";
-                
+
             case BossTraitType.DisableEven:
                 if (handResult.UsedDice.Exists(x => x % 2 == 0)) return "<color=red>偶数無効 ( 0 G )</color>";
                 break;

@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using UnityEngine.InputSystem.LowLevel;
 
 public enum SealType
 {
@@ -91,7 +90,7 @@ public static class SealCalculator
         int ironCount = Mathf.Min(sealCounts[SealType.Iron], 5);
         int sealAdd = IronAddScores[ironCount];
 
-        int lightningCount = Mathf.Min(sealCounts[SealType.Lightning], 5);
+        int lightningCount = 0;
         if (handResult.HandType != HandType.NoHand && handResult.HandType != HandType.Straight)
         {
             // 役に使われた出目をコピー

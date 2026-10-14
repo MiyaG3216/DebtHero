@@ -32,14 +32,8 @@ public class RewardManager : MonoBehaviour
 
     // ===== メソッド =====
     // 報酬フェーズの開始
-    public void StartRewardPhase(bool missionCleared)
+    public void OpenRewardPhaseUI()
     {
-        // コインの付与
-        int rewardCoins = 5;
-        if (missionCleared) rewardCoins += 3;
-
-        GameDataManager.Instance.Coins += rewardCoins;
-
         // 報酬ドロップ9種から5種を重複なしで抽選
         CurrentOfferSeals = _nomalSealPool.OrderBy(x => Random.value).Take(5).ToList();
         RemainingPicks = 3;

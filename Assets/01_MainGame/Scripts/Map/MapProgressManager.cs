@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.ShaderKeywordFilter;
 
 public class MapProgressManager : MonoBehaviour
 {
@@ -49,6 +48,8 @@ public class MapProgressManager : MonoBehaviour
     // ===== メソッド =====
     private IEnumerator MovePlayerPieceRoutine()
     {
+        _currentDestinationText.gameObject.SetActive(false);
+
         // 前回の位置
         int fromNodeIndex = Mathf.Clamp(_targetStageIndex, 0, _tileNodes.Count - 1);
 
@@ -105,6 +106,7 @@ public class MapProgressManager : MonoBehaviour
         }
 
         _enterStageButton.gameObject.SetActive(true);
+        _currentDestinationText.gameObject.SetActive(true);
     }
 
     private void OnEnterStageClicked()
