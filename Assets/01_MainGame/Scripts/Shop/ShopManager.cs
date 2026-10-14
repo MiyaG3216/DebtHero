@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 
 public class ShopManager : MonoBehaviour
 {
     // ===== フィールド =====
     [Header("参照")]
-    [SerializeField] private DiceManager _diceManager;
     [SerializeField] private ShopUIManager _shopUIManager;
 
     [Header("価格設定")]
@@ -32,33 +32,49 @@ public class ShopManager : MonoBehaviour
     public int RareSealPrice => _rareSealPrice;
 
     // ===== Unityメッセージ =====
+    private void Start()
+    {
+        string hint = "ボスの情報はまだない...";
+        int visitCount = 1;
+
+        if (GameDataManager.Instance != null)
+        {
+            if (GameDataManager.Instance.CurrentStageIndex > 4)
+            {
+                visitCount = 2;
+            }
+
+            hint = GameDataManager.Instance.GetBossHintText();
+        }
+
+        OpenShop(hint, visitCount);
+    }
 
     // ===== メソッド =====
     // ショップを開く
-    public void OpenShop(string bossHintText)
+    public void OpenShop(string bossHintText, int visitCount = 1)
     {
-        ShopVisitCount++;
+        ShopVisitCount = visitCount;
 
         CurrentBossHint = bossHintText;
 
-        if (_shopUIManager != null) _shopUIManager.OpenShopUI(CurrentBossHint,ShopVisitCount);
+        if (_shopUIManager != null) _shopUIManager.OpenShopUI(CurrentBossHint, ShopVisitCount);
     }
 
     //新しいダイスを購入して入れ替える（シールは引き継ぐ）
     public bool TryBuyDice(DiceType newDiceType, int slotIndex)
     {
-        if (slotIndex < 0 || slotIndex >= _diceManager.DiceList.Count) return false;
+        var diceList = GetPlayerDiceList();
+
+        if (diceList == null || slotIndex < 0 || slotIndex >= diceList.Count) return false;
 
         // コイン消費
         int price = GetDicePrice(newDiceType);
-        if (!PlayerManager.Instance.TrySpendCoins(price)) return false;
-
-        var targetDice = _diceManager.DiceList[slotIndex];
+        if (GameDataManager.Instance == null || GameDataManager.Instance.Coins < price) return false;
+        GameDataManager.Instance.Coins -= price;
 
         // ダイスの種類だけ変更
-        targetDice.SetDiceType(newDiceType);
-
-        _diceManager.UpdateAllDiceVisuals();
+        diceList[slotIndex].SetDiceType(newDiceType);
 
         return true;
     }
@@ -66,16 +82,17 @@ public class ShopManager : MonoBehaviour
     // シールを購入してダイスに貼る
     public bool TryBuyAndApplySeal(SealType seal, int slotIndex, int faceValue)
     {
-        if (slotIndex < 0 || slotIndex >= _diceManager.DiceList.Count) return false;
+        var diceList = GetPlayerDiceList();
+
+        if (diceList == null || slotIndex < 0 || slotIndex >= diceList.Count) return false;
         if (faceValue < 1 || faceValue > 6) return false;
 
         // コイン消費
-        if (!PlayerManager.Instance.TrySpendCoins(_rareSealPrice)) return false;
+        if (GameDataManager.Instance == null || GameDataManager.Instance.Coins < _rareSealPrice) return false;
+        GameDataManager.Instance.Coins -= _rareSealPrice;
 
         // シールの貼り付け
-        _diceManager.DiceList[slotIndex].AttachSeal(faceValue, seal);
-
-        _diceManager.UpdateAllDiceVisuals();
+        diceList[slotIndex].AttachSeal(faceValue, seal);
 
         return true;
     }
@@ -91,5 +108,11 @@ public class ShopManager : MonoBehaviour
             case DiceType.Pinzoro: return _pinzoroDicePrice;
             default: return 8;
         }
+    }
+
+    // ダイスリストを取得
+    private List<Dice> GetPlayerDiceList()
+    {
+        return GameDataManager.Instance != null ? GameDataManager.Instance.PlayerDiceList : null;
     }
 }

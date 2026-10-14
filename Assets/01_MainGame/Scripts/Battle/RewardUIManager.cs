@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using TMPro;
 
@@ -180,8 +181,13 @@ public class RewardUIManager : MonoBehaviour
     private void OnNextStageClicked()
     {
         _rewardPanel.SetActive(false);
+        if(GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.CurrentStageIndex++;
 
-        if (GameProgressManager.Instance != null)
+            SceneManager.LoadScene("Scene_Map");
+        }
+        else if (GameProgressManager.Instance != null)
         {
             GameProgressManager.Instance.OnStageCompleted();
         }

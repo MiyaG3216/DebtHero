@@ -53,17 +53,24 @@ public class DiceManager : MonoBehaviour
     // ===== Unityメッセージ =====
     private void Awake()
     {
-        // 5つのダイスを作成
-        DiceList.Clear();
-        for (int i = 0; i < 5; i++)
+        if (GameDataManager.Instance != null)
         {
-            DiceType type = (1 < _initialDiceTypes.Count) ? _initialDiceTypes[i] : DiceType.Nomal;
-            DiceList.Add(new Dice(type));
+            DiceList = GameDataManager.Instance.PlayerDiceList;
         }
+        else
+        {
+            // 5つのダイスを作成
+            DiceList.Clear();
+            for (int i = 0; i < 5; i++)
+            {
+                DiceType type = (1 < _initialDiceTypes.Count) ? _initialDiceTypes[i] : DiceType.Nomal;
+                DiceList.Add(new Dice(type));
+            }
 
-        // テスト用
-        DiceList[0].AttachSeal(1, SealType.Fire);
-        DiceList[1].AttachSeal(1, SealType.Gamble);
+            // テスト用
+            DiceList[0].AttachSeal(1, SealType.Fire);
+            DiceList[1].AttachSeal(1, SealType.Gamble);
+        }
     }
 
     private void Start()

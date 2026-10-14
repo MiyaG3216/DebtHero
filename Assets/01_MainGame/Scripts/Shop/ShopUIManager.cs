@@ -1,13 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System.Xml.Schema;
+using UnityEditor.Build.Content;
 
 public class ShopUIManager : MonoBehaviour
 {
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private ShopManager _shopManager;
-    [SerializeField] private DiceManager _diceManager;
 
     [Header("ショップパネル")]
     [SerializeField] private GameObject _shopPanel;         // ショップパネル
@@ -99,7 +101,6 @@ public class ShopUIManager : MonoBehaviour
         if (_cancelApplySealButton != null) _cancelApplySealButton.onClick.AddListener(() => _applySealPanel.SetActive(false));
 
         // 各種パネルを非表示に
-        if (_shopPanel != null) _shopPanel.SetActive(false);
         if (_slotSelectPanel != null) _slotSelectPanel.SetActive(false);
         if (_applySealPanel != null) _applySealPanel.SetActive(false);
     }
@@ -131,9 +132,7 @@ public class ShopUIManager : MonoBehaviour
 
     public void UpdateShopUI()
     {
-        if (PlayerManager.Instance == null) return;
-
-        int coins = PlayerManager.Instance.Coins;
+        int coins = (GameDataManager.Instance != null) ? GameDataManager.Instance.Coins : 0;
         _coinsText.text = $"所持金：<color=yellow><b>{coins} C</b></color>";
 
         // 価格テキストの更新
@@ -193,11 +192,13 @@ public class ShopUIManager : MonoBehaviour
     // シール貼り付け画面タブ・面表示更新
     private void UpdateSealApplyUI()
     {
+        var diceList = GameDataManager.Instance != null ? GameDataManager.Instance.PlayerDiceList : null;
+
         for (int i = 0; i < _sealDiceTabTexts.Length; i++)
         {
-            if (i < _diceManager.DiceList.Count)
+            if (i < diceList.Count)
             {
-                var dice = _diceManager.DiceList[i];
+                var dice = diceList[i];
 
                 string isCurrent = (i == _selectedDiceIndexForSeal) ? "▶" : "";
 
@@ -205,7 +206,7 @@ public class ShopUIManager : MonoBehaviour
             }
         }
 
-        var currentDice = _diceManager.DiceList[_selectedDiceIndexForSeal];
+        var currentDice = diceList[_selectedDiceIndexForSeal];
 
         for (int i = 0; i < _sealFaceButtons.Length; i++)
         {
@@ -233,7 +234,12 @@ public class ShopUIManager : MonoBehaviour
     private void OnLeaveShopClicked()
     {
         _shopPanel.SetActive(false);
-        if (GameProgressManager.Instance != null) GameProgressManager.Instance.OnStageCompleted();
+
+        if (GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.CurrentStageIndex++;
+            SceneManager.LoadScene("Scene_Map");
+        }
     }
 
     private string GetSealName(SealType seal)
