@@ -150,9 +150,12 @@ public class ShopUIManager : MonoBehaviour
         _buyPinZoroDiceButton.interactable = (coins >= _shopManager.GetDicePrice(DiceType.Pinzoro));
 
         int sealPrice = _shopManager.RareSealPrice;
-        _buyLightningSealButton.interactable = (coins >= sealPrice);
-        _buyOddSealButton.interactable = (coins >= sealPrice);
-        _buyEvenSealButton.interactable = (coins >= sealPrice);
+        //_buyLightningSealButton.interactable = (coins >= sealPrice);
+        _buyLightningSealButton.gameObject.SetActive(false);
+        //_buyOddSealButton.interactable = (coins >= sealPrice);
+        _buyOddSealButton.gameObject.SetActive(false);
+        //_buyEvenSealButton.interactable = (coins >= sealPrice);
+        _buyEvenSealButton.gameObject.SetActive(false);
     }
 
     // ダイス購入時：どのスロットと入れ替えるかを選ぶパネルを開く

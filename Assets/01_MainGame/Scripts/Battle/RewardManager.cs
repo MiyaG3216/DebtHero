@@ -10,7 +10,7 @@ public class RewardManager : MonoBehaviour
     [SerializeField] private BattleManager _battleManager;
     [SerializeField] private RewardUIManager _rewardUIManager;
 
-    // 報酬でドロップするシール(6種類)
+    // 報酬でドロップするシール(9種類)
     private readonly List<SealType> _nomalSealPool = new List<SealType>()
     {
         SealType.Fire,
@@ -18,7 +18,10 @@ public class RewardManager : MonoBehaviour
         SealType.Gold,
         SealType.Iron,
         SealType.Solo,
-        SealType.Gamble
+        SealType.Gamble,
+        SealType.Odd,
+        SealType.Even,
+        SealType.Lightning
     };
 
     // ===== プロパティ =====
@@ -32,17 +35,14 @@ public class RewardManager : MonoBehaviour
     public void StartRewardPhase(bool missionCleared)
     {
         // コインの付与
-        int rewardCoins = 3;
-        if (missionCleared)
-        {
-            rewardCoins += 2;
-        }
+        int rewardCoins = 5;
+        if (missionCleared) rewardCoins += 3;
 
-        PlayerManager.Instance.AddCoins(rewardCoins);
+        GameDataManager.Instance.Coins += rewardCoins;
 
-        // 報酬ドロップ6種から4種を重複なしで抽選
-        CurrentOfferSeals = _nomalSealPool.OrderBy(x => Random.value).Take(4).ToList();
-        RemainingPicks = 2;
+        // 報酬ドロップ9種から5種を重複なしで抽選
+        CurrentOfferSeals = _nomalSealPool.OrderBy(x => Random.value).Take(5).ToList();
+        RemainingPicks = 3;
 
         if (_rewardUIManager != null)
         {
