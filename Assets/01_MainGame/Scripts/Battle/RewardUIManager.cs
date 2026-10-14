@@ -217,11 +217,11 @@ public class RewardUIManager : MonoBehaviour
         switch (seal)
         {
             case SealType.Fire: return "返済額を( 1.2 ～ 3.0 )倍";
-            case SealType.Ice: return "ボスを凍結し、特性を無効化";
+            case SealType.Ice: return "ボスの特性を無効化\n返済額を( 1.1 ～ 1.5 )倍";
             case SealType.Gold: return "コインを( 1 ～ 10 )枚獲得";
             case SealType.Iron: return "返済額に( 50 ～ 450 )G 加算";
-            case SealType.Solo: return "役に使用されなかったら、返済額に 10 G 加算";
-            case SealType.Gamble: return "役成立で返済額を 1.5 倍、不成立で返済額 0 G";
+            case SealType.Solo: return "同じダイスに孤高シールのみなら返済額を2倍";
+            case SealType.Gamble: return "役成立で返済額を ( 1.5 ～ 3.5) 倍、不成立で返済額 0 G";
             case SealType.Lightning: return "ゾロ目系役に使用されると返済額( 100 ～ 700 )G 加算";
             case SealType.Odd: return "奇数目に貼られているなら、返済額を( 1.3 ～ 4.1 )倍";
             case SealType.Even: return "偶数目に貼られているなら、返済額を( 1.3 ～ 4.1 )倍";
