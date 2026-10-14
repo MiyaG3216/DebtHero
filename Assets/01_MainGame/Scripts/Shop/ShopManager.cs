@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
 
 public class ShopManager : MonoBehaviour
 {
