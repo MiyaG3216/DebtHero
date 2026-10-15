@@ -331,7 +331,7 @@ public class BattleUIManager : MonoBehaviour
     {
         if (_cheatingManager == null || PlayerManager.Instance == null) return;
 
-        bool canCheat = canInteract && !_cheatingManager.HasUsedCheatThisBattle;
+        bool canCheat = canInteract && (_cheatingManager.CheatUseCount < (GameDataManager.Instance!=null&&GameDataManager.Instance.HasPassive(PassiveType.MagicianSet)?3:2));
         int coins = PlayerManager.Instance.Coins;
 
         _cheatRerollButton.interactable = canCheat && (coins >= 1);
@@ -365,8 +365,8 @@ public class BattleUIManager : MonoBehaviour
             case BossTraitType.Fee75Percent: return "みかじめ料(返済額 25％ カット)";
             case BossTraitType.DisableEven: return "偶数無効（2,4,6を含む役で返済不可）";
             case BossTraitType.DisableOdd: return "奇数無効（1,3,5を含む役で返済不可）";
-            case BossTraitType.DisableHighHand: return "強役つぶし（フルハウス・ストレート・ファイブダイスで返済不可）";
-            case BossTraitType.HalfPair: return "ペア半減(ストレート以外の役での返済額を50％カット)";
+            case BossTraitType.DisableHighHand: return "強役つぶし（FH・St・FDで返済不可）";
+            case BossTraitType.HalfPair: return "ペア半減(St以外での返済額を50％カット)";
             default: return "";
         }
     }

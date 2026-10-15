@@ -79,7 +79,7 @@ public class BattleManager : MonoBehaviour
         if (!IsBattleActive || handResult == null) return;
 
         // シール効果計算
-        var calcResult = SealCalculator.Calculate(handResult, _diceManager.DiceList);
+        var calcResult = SealCalculator.Calculate(handResult, _diceManager.DiceList,RemainingTurns);
 
         // ボス特性によるスコア補正
         int finalScore = BossManager.Instance.ApplyBossTrait(

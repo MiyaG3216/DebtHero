@@ -1,6 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[System.Serializable]
+public class SealPackData
+{
+    public string PackName;         // パック名
+    public string Description;      // 説明
+    public int Price = 6;           // 価格
+    public List<SealType> Seals;    // 内容（どのシールが含まれるか）
+}
+
 public class ShopManager : MonoBehaviour
 {
     // ===== フィールド =====
@@ -8,18 +17,37 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private ShopUIManager _shopUIManager;
 
     [Header("価格設定")]
+    [SerializeField] private int _straightDicePrice = 7;    // 連番ダイスの価格
+    [SerializeField] private int _highRollerDicePrice = 7;  // 高目ダイスの価格
     [SerializeField] private int _oddDicePrice = 8;         // 奇数ダイスの価格
     [SerializeField] private int _evenDicePrice = 8;        // 偶数ダイスの価格
-    [SerializeField] private int _straightDicePrice = 8;    // 連番ダイスの価格
-    [SerializeField] private int _highRollerDicePrice = 9;  // 高目ダイスの価格
     [SerializeField] private int _pinzoroDicePrice = 10;    // ピンゾロダイスの価格
-    [SerializeField] private int _rareSealPrice = 5;        // レアシールの価格
 
-    private readonly List<SealType> _rareSealPool = new List<SealType>()
+    [Header("シールパック一覧")]
+    [SerializeField]
+    private List<SealPackData> _sealPacks = new List<SealPackData>()
     {
-        SealType.Lightning,
-        SealType.Odd,
-        SealType.Even
+        new SealPackData
+        {
+            PackName = "エレメントパック",
+            Description = "炎・氷・雷の属性セット",
+            Price = 6,
+            Seals = new List<SealType>(){SealType.Fire,SealType.Ice,SealType.Lightning}
+        },
+        new SealPackData
+        {
+            PackName = "鉱物パック",
+            Description = "鉄・金箔・孤高の堅実セット",
+            Price = 6,
+            Seals = new List<SealType>(){SealType.Iron,SealType.Gold,SealType.Solo}
+        },
+        new SealPackData
+        {
+            PackName = "ギャンブルパック",
+            Description = "奇数・偶数・博打の賭け狂いセット",
+            Price = 6,
+            Seals = new List<SealType>(){SealType.Odd,SealType.Even,SealType.Gamble}
+        }
     };
 
     [Header("情報屋のヒント")]
@@ -28,33 +56,25 @@ public class ShopManager : MonoBehaviour
     public int ShopVisitCount = 0;     // ショップ訪問回数（ラインナップに影響）
 
     // ===== プロパティ =====
-    public int RareSealPrice => _rareSealPrice;
+    public List<SealPackData> SealPacks => _sealPacks;
 
     // ===== Unityメッセージ =====
     private void Start()
     {
         string hint = "ボスの情報はまだない...";
-        int visitCount = 1;
 
         if (GameDataManager.Instance != null)
         {
-            if (GameDataManager.Instance.CurrentStageIndex > 4)
-            {
-                visitCount = 2;
-            }
-
             hint = GameDataManager.Instance.GetBossHintText();
         }
 
-        OpenShop(hint, visitCount);
+        OpenShop(hint);
     }
 
     // ===== メソッド =====
     // ショップを開く
     public void OpenShop(string bossHintText, int visitCount = 1)
     {
-        ShopVisitCount = visitCount;
-
         CurrentBossHint = bossHintText;
 
         if (_shopUIManager != null) _shopUIManager.OpenShopUI(CurrentBossHint, ShopVisitCount);
@@ -78,34 +98,77 @@ public class ShopManager : MonoBehaviour
         return true;
     }
 
-    // シールを購入してダイスに貼る
-    public bool TryBuyAndApplySeal(SealType seal, int slotIndex, int faceValue)
+    // シール貼り付け(1枚)
+    public void ApplySeal(SealType seal, int slotIndex, int faceValue)
     {
         var diceList = GetPlayerDiceList();
 
-        if (diceList == null || slotIndex < 0 || slotIndex >= diceList.Count) return false;
-        if (faceValue < 1 || faceValue > 6) return false;
+        if (diceList == null) return;
 
-        // コイン消費
-        if (GameDataManager.Instance == null || GameDataManager.Instance.Coins < _rareSealPrice) return false;
-        GameDataManager.Instance.Coins -= _rareSealPrice;
-
-        // シールの貼り付け
         diceList[slotIndex].AttachSeal(faceValue, seal);
-
-        return true;
     }
 
+    // パック購入時のコイン消費
+    public void SpendPackCoins(int price)
+    {
+        if (GameDataManager.Instance != null) GameDataManager.Instance.Coins -= price;
+    }
+
+    // ダイスの値段を取得
     public int GetDicePrice(DiceType type)
+    {
+        int price = 8;
+        switch (type)
+        {
+            case DiceType.Odd:
+                price = _oddDicePrice;
+                break;
+            case DiceType.Even:
+                price = _evenDicePrice;
+                break;
+            case DiceType.Straight:
+                price = _straightDicePrice;
+                break;
+            case DiceType.HighRoller:
+                price = _highRollerDicePrice;
+                break;
+            case DiceType.Pinzoro:
+                price = _pinzoroDicePrice;
+                break;
+        }
+
+        // VIP会員証を適応
+        if(GameDataManager.Instance != null&&GameDataManager.Instance.HasPassive(PassiveType.VipCard))
+        {
+            price = Mathf.CeilToInt(price * 0.5f);
+        }
+
+        return price;
+    }
+
+    // シールパックの価格取得
+    public int GetPackPrice(SealPackData pack)
+    {
+        int price = pack.Price;
+        if(GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.VipCard))
+        {
+            price = Mathf.CeilToInt(price * 0.5f);
+        }
+
+        return price;
+    }
+
+    // ダイスの説明文を取得
+    public string GetDiceDescription(DiceType type)
     {
         switch (type)
         {
-            case DiceType.Odd: return _oddDicePrice;
-            case DiceType.Even: return _evenDicePrice;
-            case DiceType.Straight: return _straightDicePrice;
-            case DiceType.HighRoller: return _highRollerDicePrice;
-            case DiceType.Pinzoro: return _pinzoroDicePrice;
-            default: return 8;
+            case DiceType.Odd: return "奇数( 1,3,5 )が出やすい";
+            case DiceType.Even: return "偶数( 2,4,6 )が出やすい";
+            case DiceType.Straight: return "2,3,4,5 がすこし出やすい";
+            case DiceType.HighRoller: return "高目( 4,5,6 )が出やすい";
+            case DiceType.Pinzoro: return "1 がかなり出やすい";
+            default: return "";
         }
     }
 
