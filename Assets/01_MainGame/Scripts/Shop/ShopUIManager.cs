@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using UnityEngine.SceneManagement;
-using UnityEngine.Rendering;
+using System.Collections.Generic;
+using TMPro;
+using Unity.Collections.Tests.CoreCLR.TestJobs;
 
 public class ShopUIManager : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class ShopUIManager : MonoBehaviour
     {
         None,
         BuyDice,
-        BuySeal
+        ApplyPackSeal
     }
 
     // ===== フィールド =====
@@ -36,10 +37,9 @@ public class ShopUIManager : MonoBehaviour
     [SerializeField] private Button _buyPinZoroDiceButton;      // ピンゾロダイス
     [SerializeField] private TextMeshProUGUI _pinzoroDiceText;
 
-    [Header("商品（シール）")]
-    [SerializeField] private Button _buyLightningSealButton;    // 雷シール
-    [SerializeField] private Button _buyOddSealButton;          // 奇数シール
-    [SerializeField] private Button _buyEvenSealButton;         // 偶数シール
+    [Header("商品（シールパック）")]
+    [SerializeField] private Button[] _packButtons;             // シールパック
+    [SerializeField] private TextMeshProUGUI[] _packTexts;      // パック説明
 
     [Header("ダイスカスタマイズパネル")]
     [SerializeField] private GameObject _customizeModalPanel;   // ダイスカスタマイズパネル
@@ -55,9 +55,11 @@ public class ShopUIManager : MonoBehaviour
 
     private ShopModalMode _currentMode = ShopModalMode.None;
     private DiceType _pendingDiceType;  // 購入予定ダイスタイプ
-    private SealType _pendingSealType;  // 購入予定シールタイプ
     private int _selectedDiceIndex = 0;
     private int _selectedFaceValue = -1;
+
+    private SealPackData _currentPack;  // 購入予定シールパック
+    private int _packSealStepIndex = 0; // パック購入時貼り付け済みシール数
 
     // ===== プロパティ =====
 
@@ -72,9 +74,11 @@ public class ShopUIManager : MonoBehaviour
         _buyPinZoroDiceButton.onClick.AddListener(() => OpenModalForDice(DiceType.Pinzoro));
 
         // シール購入イベント
-        _buyLightningSealButton.onClick.AddListener(() => OpenModalForSeal(SealType.Lightning));
-        _buyOddSealButton.onClick.AddListener(() => OpenModalForSeal(SealType.Odd));
-        _buyEvenSealButton.onClick.AddListener(() => OpenModalForSeal(SealType.Even));
+        for (int i = 0; i < _packButtons.Length; i++)
+        {
+            int index = i;
+            _packButtons[i].onClick.AddListener(() => StartPackPurchase(index));
+        }
 
         // ダイスタブ選択
         for (int i = 0; i < _diceTabButtons.Length; i++)
@@ -107,14 +111,6 @@ public class ShopUIManager : MonoBehaviour
         _shopTitleText.text = (visitCount == 1) ? "【よろずや】" : "【裏カジノショップ】";
         _bossHintText.text = $"<size=40>情報屋の噂話：</size>\n『<b>{hint}</b>』";
 
-        // ショップに応じて表示商品の切り替え
-        bool isFirstShop = (visitCount == 1);
-        _buyOddDiceButton.gameObject.SetActive(isFirstShop);
-        _buyEvenDiceButton.gameObject.SetActive(isFirstShop);
-        _buyStraightDiceButton.gameObject.SetActive(!isFirstShop);
-        _buyHighRollerDiceButton.gameObject.SetActive(!isFirstShop);
-        _buyPinZoroDiceButton.gameObject.SetActive(!isFirstShop);
-
         UpdateShopUI();
     }
 
@@ -126,30 +122,40 @@ public class ShopUIManager : MonoBehaviour
         if (_shopManager != null)
         {
             // 価格テキストの更新
-            _oddDiceText.text = $"奇数ダイス\n( {_shopManager.GetDicePrice(DiceType.Odd)} C )";
-            _evenDiceText.text = $"偶数ダイス\n( {_shopManager.GetDicePrice(DiceType.Even)} C )";
-            _straightDiceText.text = $"連番ダイス\n( {_shopManager.GetDicePrice(DiceType.Straight)} C )";
-            _highrollerDiceText.text = $"高目ダイス\n( {_shopManager.GetDicePrice(DiceType.HighRoller)} C )";
-            _pinzoroDiceText.text = $"ピンゾロダイス\n( {_shopManager.GetDicePrice(DiceType.Pinzoro)} C )";
+            UpdateDiceButtonDisplay(_buyOddDiceButton, _oddDiceText, DiceType.Odd, coins);
+            UpdateDiceButtonDisplay(_buyEvenDiceButton, _evenDiceText, DiceType.Even, coins);
+            UpdateDiceButtonDisplay(_buyStraightDiceButton, _straightDiceText, DiceType.Straight, coins);
+            UpdateDiceButtonDisplay(_buyHighRollerDiceButton, _highrollerDiceText, DiceType.HighRoller, coins);
+            UpdateDiceButtonDisplay(_buyPinZoroDiceButton, _pinzoroDiceText, DiceType.Pinzoro, coins);
 
-            // コイン不足ならボタンをグレーアウト
-            _buyOddDiceButton.interactable = (coins >= _shopManager.GetDicePrice(DiceType.Odd));
-            _buyEvenDiceButton.interactable = (coins >= _shopManager.GetDicePrice(DiceType.Even));
-            _buyStraightDiceButton.interactable = (coins >= _shopManager.GetDicePrice(DiceType.Straight));
-            _buyHighRollerDiceButton.interactable = (coins >= _shopManager.GetDicePrice(DiceType.HighRoller));
-            _buyPinZoroDiceButton.interactable = (coins >= _shopManager.GetDicePrice(DiceType.Pinzoro));
+            // シールパック購入ボタン
+            for (int i = 0; i < _packButtons.Length; i++)
+            {
+                if (i < _shopManager.SealPacks.Count)
+                {
+                    _packButtons[i].gameObject.SetActive(true);
 
-            // シール購入ボタン：コイン不足ならグレーアウト
-            // シールパック販売まで非表示にする
-            int sealPrice = _shopManager.RareSealPrice;
-            //_buyLightningSealButton.interactable = (coins >= sealPrice);
-            //_buyOddSealButton.interactable = (coins >= sealPrice);
-            //_buyEvenSealButton.interactable = (coins >= sealPrice);
-            _buyLightningSealButton.gameObject.SetActive(false);
-            _buyOddSealButton.gameObject.SetActive(false);
-            _buyEvenSealButton.gameObject.SetActive(false);
+                    var pack = _shopManager.SealPacks[i];
+                    _packTexts[i].text = $"{pack.PackName}( {pack.Price} C )\n{pack.Description}";
+                    _packButtons[i].interactable = (coins >= pack.Price);
+                }
+                else
+                {
+                    _packButtons[i].gameObject.SetActive(false);
+                }
+            }
         }
 
+    }
+
+    private void UpdateDiceButtonDisplay(Button btn, TextMeshProUGUI txt, DiceType type, int coins)
+    {
+        int price = _shopManager.GetDicePrice(type);
+        string desc = _shopManager.GetDiceDescription(type);
+
+        txt.text = $"{GetDiceTypeName(type)}( {price} C)\n{desc}";
+
+        btn.interactable = (coins >= price);
     }
 
     // ダイス購入時開く
@@ -162,23 +168,41 @@ public class ShopUIManager : MonoBehaviour
 
         _modalTitleText.text = $"<<color=red>{GetDiceTypeName(diceType)}</color>>をどのダイスと置き替えますか？";
         _confirmButtonText.text = "決定";
-        _customizeModalPanel.SetActive(true);
+        _confirmButton.gameObject.SetActive(true);
+        _cancelModalButton.interactable = true;
 
+        _customizeModalPanel.SetActive(true);
         UpdateModalUI();
     }
 
-    // シール購入時開く
-    private void OpenModalForSeal(SealType seal)
+    // パック購入フロー
+    private void StartPackPurchase(int packIndex)
     {
-        _currentMode = ShopModalMode.BuySeal;
-        _pendingSealType = seal;
+        if (packIndex >= _shopManager.SealPacks.Count) return;
+
+        _currentPack = _shopManager.SealPacks[packIndex];
+        _packSealStepIndex = 0;
+        _currentMode = ShopModalMode.ApplyPackSeal;
+
         _selectedDiceIndex = 0;
         _selectedFaceValue = -1;
 
-        _modalTitleText.text = $"<<color=red>{GetSealName(seal)}</color>>をどの面に貼りますか？";
-        _confirmButtonText.text = "決定";
         _customizeModalPanel.SetActive(true);
+        SetupPackSealStep();
+    }
 
+    private void SetupPackSealStep()
+    {
+        SealType currentSeal = _currentPack.Seals[_packSealStepIndex];
+        int stepNumber = _packSealStepIndex + 1;
+
+        _modalTitleText.text = $"[{stepNumber}/3枚目]【{GetSealName(currentSeal)}】を貼る面を選ぼう。";
+        _confirmButtonText.text = (stepNumber < 3) ? "貼る" : "完了";
+
+        // 1枚目貼る前のみ戻る可能
+        _cancelModalButton.interactable = (_packSealStepIndex == 0);
+
+        _selectedFaceValue = -1;
         UpdateModalUI();
     }
 
@@ -189,6 +213,16 @@ public class ShopUIManager : MonoBehaviour
         _selectedFaceValue = -1;
 
         UpdateModalUI();
+    }
+
+    // 面がクリックされた
+    private void OnFaceSelected(int faceValue)
+    {
+        if (_currentMode == ShopModalMode.ApplyPackSeal)
+        {
+            _selectedFaceValue = faceValue;
+            UpdateModalUI();
+        }
     }
 
     // パネル全体のUI更新
@@ -220,13 +254,13 @@ public class ShopUIManager : MonoBehaviour
             string sealText = (seal != SealType.None) ? $"<size=30><{GetSealName(seal)}></size>" : "[空き]";
 
             // シールモードで選択中の面をハイライト
-            string selectedMark = (_currentMode == ShopModalMode.BuySeal && _selectedFaceValue == faceVal) ?
+            string selectedMark = (_currentMode == ShopModalMode.ApplyPackSeal && _selectedFaceValue == faceVal) ?
                 "\n<color=yellow>【選択中】</color>" : "";
 
             _faceTexts[i].text = $"{faceVal}\n{sealText}{selectedMark}";
 
             // ダイス購入時は面クリック不可、シール購入時はクリック可
-            _faceButtons[i].interactable = (_currentMode == ShopModalMode.BuySeal);
+            _faceButtons[i].interactable = (_currentMode == ShopModalMode.ApplyPackSeal);
         }
 
         // 決定ボタンの活性化
@@ -235,7 +269,7 @@ public class ShopUIManager : MonoBehaviour
             // ダイス購入時：ダイススロットを選んでいれば活性化
             _confirmButton.interactable = true;
         }
-        else if(_currentMode == ShopModalMode.BuySeal)
+        else if (_currentMode == ShopModalMode.ApplyPackSeal)
         {
             // シール購入時：貼る面を選択すると活性化
             _confirmButton.interactable = (_selectedFaceValue >= 1 && _selectedFaceValue <= 6);
@@ -253,10 +287,23 @@ public class ShopUIManager : MonoBehaviour
                 CloseModal();
             }
         }
-        else if (_currentMode == ShopModalMode.BuySeal)
+        else if (_currentMode == ShopModalMode.ApplyPackSeal)
         {
-            if (_shopManager.TryBuyAndApplySeal(_pendingSealType, _selectedDiceIndex, _selectedFaceValue))
+            // 現在のシールを張り付け
+            SealType seal = _currentPack.Seals[_packSealStepIndex];
+            _shopManager.ApplySeal(seal,_selectedDiceIndex,_selectedFaceValue);
+
+            _packSealStepIndex++;
+
+            if(_packSealStepIndex < _currentPack.Seals.Count)
             {
+                // まだ貼り付けできるシールが残っているなら次のシール貼り付けへ
+                SetupPackSealStep();
+            }
+            else
+            {
+                // 3枚すべて貼り付けたらコインを消費
+                _shopManager.SpendPackCoins(_currentPack.Price);
                 CloseModal();
             }
         }
@@ -265,20 +312,13 @@ public class ShopUIManager : MonoBehaviour
     private void CloseModal()
     {
         _currentMode = ShopModalMode.None;
+        _currentPack = null;
+        _packSealStepIndex = 0;
         _selectedFaceValue = -1;
+
         if (_customizeModalPanel != null) _customizeModalPanel.SetActive(false);
 
         UpdateShopUI();
-    }
-
-    // 面がクリックされた
-    private void OnFaceSelected(int faceValue)
-    {
-        if (_currentMode == ShopModalMode.BuySeal)
-        {
-            _selectedFaceValue = faceValue;
-            UpdateModalUI();
-        }
     }
 
     // 店を出て次のステージへ進む

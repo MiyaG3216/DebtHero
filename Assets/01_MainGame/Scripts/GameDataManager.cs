@@ -15,6 +15,9 @@ public class GameDataManager : MonoBehaviour
     [Header("進行度")]
     public int CurrentStageIndex = 0;
 
+    [Header("パッシブアイテム")]
+    public List<PassiveType> AcquiredPassive = new List<PassiveType>();
+
     public BossTraitType CurrentFinalBossTrait = BossTraitType.None;
 
     public readonly List<StageData> StageRoute = new List<StageData>()
@@ -90,6 +93,8 @@ public class GameDataManager : MonoBehaviour
         CurrentFinalBossTrait = traits[Random.Range(0, traits.Length)];
 
         PlayerDiceList.Clear();
+        AcquiredPassive.Clear();
+
         for (int i = 0; i < 5; i++)
         {
             PlayerDiceList.Add(new Dice(DiceType.Nomal));
@@ -128,5 +133,11 @@ public class GameDataManager : MonoBehaviour
             default:
                 return "ボスに関する情報はまだない...";
         }
+    }
+
+    // パッシブアイテムを持っているか判定する
+    public bool HasPassive(PassiveType type)
+    {
+        return AcquiredPassive != null && AcquiredPassive.Contains(type);
     }
 }

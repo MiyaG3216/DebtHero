@@ -307,9 +307,14 @@ MonoBehaviour:
   _highrollerDiceText: {fileID: 3389879632377905430}
   _buyPinZoroDiceButton: {fileID: 1086774941481353351}
   _pinzoroDiceText: {fileID: 5173352114432789208}
-  _buyLightningSealButton: {fileID: 7380143590256560647}
-  _buyOddSealButton: {fileID: 8759907891302956687}
-  _buyEvenSealButton: {fileID: 2655683875189775303}
+  _packButtons:
+  - {fileID: 8759907891302956687}
+  - {fileID: 2655683875189775303}
+  - {fileID: 7380143590256560647}
+  _packTexts:
+  - {fileID: 6010608092237832682}
+  - {fileID: 1114184668445751517}
+  - {fileID: 7634412618733838595}
   _customizeModalPanel: {fileID: 1588675970180766579}
   _modalTitleText: {fileID: 862186757613362087}
   _diceTabButtons:
@@ -354,12 +359,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
   _shopUIManager: {fileID: 426549915}
-  _oddDicePrice: 8
-  _evenDicePrice: 8
   _straightDicePrice: 8
   _highRollerDicePrice: 9
+  _oddDicePrice: 8
+  _evenDicePrice: 8
   _pinzoroDicePrice: 10
-  _rareSealPrice: 5
+  _sealPacks:
+  - PackName: "\u30A8\u30EC\u30E1\u30F3\u30C8\u30D1\u30C3\u30AF"
+    Description: "\u708E\u30FB\u6C37\u30FB\u96F7\u306E\u5C5E\u6027\u30BB\u30C3\u30C8"
+    Price: 6
+    Seals: 010000000200000005000000i
+  - PackName: "\u9271\u7269\u30D1\u30C3\u30AF"
+    Description: "\u9244\u30FB\u91D1\u7B94\u30FB\u5B64\u9AD8\u306E\u5805\u5B9F\u30BB\u30C3\u30C8"
+    Price: 6
+    Seals: 040000000300000006000000i
+  - PackName: "\u30AE\u30E3\u30F3\u30D6\u30EB\u30D1\u30C3\u30AF"
+    Description: "\u5947\u6570\u30FB\u5076\u6570\u30FB\u535A\u6253\u306E\u8CED\u3051\u72C2\u3044\u30BB\u30C3\u30C8"
+    Price: 6
+    Seals: 070000000800000009000000i
   CurrentBossHint: 
   ShopVisitCount: 0
 --- !u!1 &717259332
@@ -972,10 +989,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7354902381301418541}
-  - {fileID: 478322651888967811}
   - {fileID: 7488106523632500895}
   - {fileID: 2740813409942857018}
+  - {fileID: 7354902381301418541}
+  - {fileID: 478322651888967811}
   - {fileID: 7506627317953642369}
   m_Father: {fileID: 271633626517328537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1108,7 +1125,7 @@ GameObject:
   - component: {fileID: 8896322778999474738}
   - component: {fileID: 8759907891302956687}
   m_Layer: 5
-  m_Name: BuyOddSealButton
+  m_Name: Pack1_btn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1195,7 +1212,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: 150}
+  m_AnchoredPosition: {x: 300, y: 150}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &497569568881042769
@@ -1813,8 +1830,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2108,7 +2125,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!222 &1770366282702598435
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2802,7 +2819,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: 150}
+  m_AnchoredPosition: {x: -300, y: 150}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2751333124609402273
@@ -3073,7 +3090,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4560416335140851872}
   m_Layer: 5
-  m_Name: BuySealButtons
+  m_Name: BuySealPacks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4240,7 +4257,7 @@ GameObject:
   - component: {fileID: 2449847591315985882}
   - component: {fileID: 2655683875189775303}
   m_Layer: 5
-  m_Name: BuyEvenSealButton
+  m_Name: Pack2_btn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4824,7 +4841,7 @@ GameObject:
   - component: {fileID: 4234625065064659768}
   - component: {fileID: 7634412618733838595}
   m_Layer: 5
-  m_Name: BuyLightningSealButtonText
+  m_Name: Pack3_text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4843,7 +4860,7 @@ GameObject:
   - component: {fileID: 8520654856159315079}
   - component: {fileID: 7380143590256560647}
   m_Layer: 5
-  m_Name: BuyLightningSealButton
+  m_Name: Pack3_btn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5118,7 +5135,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u5947\u6570\u30B7\u30FC\u30EB\\n( 5 C )"
+  m_text: "\u30A8\u30EC\u30E1\u30F3\u30C8\u30D1\u30C3\u30AF\\n\u708E\u30FB\u6C37\u30FB\u96F7\u306E\u5C5E\u6027\u30BB\u30C3\u30C8"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb779d5c1f115e44c82aa6f81b029f3f, type: 2}
   m_sharedMaterial: {fileID: -3649477919199228876, guid: bb779d5c1f115e44c82aa6f81b029f3f, type: 2}
@@ -5145,8 +5162,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -5420,7 +5437,7 @@ GameObject:
   - component: {fileID: 8456144314493874988}
   - component: {fileID: 6010608092237832682}
   m_Layer: 5
-  m_Name: BuyOddSealButtonText
+  m_Name: Pack1_text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5645,7 +5662,7 @@ GameObject:
   - component: {fileID: 1463444529136564886}
   - component: {fileID: 1114184668445751517}
   m_Layer: 5
-  m_Name: BuyEvenSealButtonText
+  m_Name: Pack2_text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5931,7 +5948,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -600, y: 150}
+  m_AnchoredPosition: {x: 0, y: 150}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7380143590256560647
@@ -6042,7 +6059,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 200, y: 150}
+  m_AnchoredPosition: {x: 600, y: 150}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7518188152247390582
@@ -6103,7 +6120,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u96F7\u30B7\u30FC\u30EB\\n( 5 C )"
+  m_text: "\u30AE\u30E3\u30F3\u30D6\u30EB\u30D1\u30C3\u30AF"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb779d5c1f115e44c82aa6f81b029f3f, type: 2}
   m_sharedMaterial: {fileID: -3649477919199228876, guid: bb779d5c1f115e44c82aa6f81b029f3f, type: 2}
@@ -6130,8 +6147,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

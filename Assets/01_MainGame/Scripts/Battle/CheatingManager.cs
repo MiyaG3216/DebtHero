@@ -14,7 +14,7 @@ public class CheatingManager : MonoBehaviour
 
     [Header("状態")]
     // 今回のバトルでイカサマを使用したかどうか
-    public bool HasUsedCheatThisBattle = false;
+    public int CheatUseCount = 0;
 
     // ===== プロパティ =====
 
@@ -23,26 +23,20 @@ public class CheatingManager : MonoBehaviour
     // ===== メソッド =====
     public void ResetCheating()
     {
-        HasUsedCheatThisBattle = false;
+        CheatUseCount = 0;
     }
 
     // イカサマが使用可能かの判定
     private bool CanUseCgeat(int cost)
     {
-        if (!_battleManager.IsBattleActive)
-        {
-            return false;
-        }
+        if (!_battleManager.IsBattleActive) return false;
 
-        if (HasUsedCheatThisBattle)
-        {
-            return false;
-        }
+        // マジシャンセット所持なら2回、無ければ1回まで使用可能
+        int maxCheats = (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.MagicianSet)) ? 2 : 1;
 
-        if (PlayerManager.Instance.Coins < cost)
-        {
-            return false;
-        }
+        if (CheatUseCount >= maxCheats) return false;
+
+        if(GameDataManager.Instance!=null&&GameDataManager.Instance.Coins <cost) return false;
 
         return true;
     }
@@ -56,7 +50,7 @@ public class CheatingManager : MonoBehaviour
         if (!PlayerManager.Instance.TrySpendCoins(_extraRollCost)) return false;
 
         _diceManager.RemainingRerolls++;
-        HasUsedCheatThisBattle = true;
+        CheatUseCount++;
 
         return true;
     }
@@ -80,7 +74,7 @@ public class CheatingManager : MonoBehaviour
         // ダイス回転アニメーションを再生
         _diceManager.AnimateDiceCheat(diceIndex, flippedValue);
 
-        HasUsedCheatThisBattle = true;
+        CheatUseCount++;
 
         return true;
     }
@@ -102,8 +96,7 @@ public class CheatingManager : MonoBehaviour
         // ダイス回転アニメーションを再生
         _diceManager.AnimateDiceCheat(diceIndex, targetValue);
 
-        HasUsedCheatThisBattle = true;
-
+        CheatUseCount++;
 
         return true;
     }

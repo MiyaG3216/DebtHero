@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using TMPro.EditorUtilities;
 
 public enum SealType
 {
@@ -24,7 +25,7 @@ public static class SealCalculator
     private static readonly float[] IceMultipliers = { 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f };
     private static readonly float[] OddMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
     private static readonly float[] EvenMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
-    private static readonly float[] GambleMultipliers = { 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f };
+    private static readonly float[] GambleMultipliers = { 1.0f, 2.5f, 4.0f, 5.5f, 7.0f, 8.5f };
     private static readonly int[] GoldCoins = { 0, 1, 3, 5, 7, 10 };
     private static readonly int[] IronAddScores = { 0, 50, 120, 210, 320, 450 };
     private static readonly int[] LightningAddScores = { 0, 100, 220, 360, 520, 700 };
@@ -44,7 +45,7 @@ public static class SealCalculator
     }
 
     // ===== メソッド =====
-    public static CalculationResult Calculate(HandEvaluationResult handResult, List<Dice> diceList)
+    public static CalculationResult Calculate(HandEvaluationResult handResult, List<Dice> diceList, int remainingTurns = 0)
     {
         var result = new CalculationResult();
 
@@ -52,11 +53,11 @@ public static class SealCalculator
 
         // 中ボス戦後は基礎スコアが2倍
         int handScore = handResult.BaseScore;
-        if (GameDataManager.Instance != null && GameDataManager.Instance.CurrentStageIndex > 3)
+        if (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.GoldCard))
         {
+            // ゴールドカードを持っていれば役スコア2倍
             handScore *= 2;
         }
-
         result.HandBaseScore = handScore;
 
         // 今回の5つの出目に貼られていたシールを取得
@@ -113,7 +114,7 @@ public static class SealCalculator
                 }
             }
         }
-        sealAdd += LightningAddScores[Mathf.Min(lightningCount,5)];
+        sealAdd += LightningAddScores[Mathf.Min(lightningCount, 5)];
 
         result.SealAddScore = sealAdd;
 
@@ -152,17 +153,57 @@ public static class SealCalculator
         totalMultiplier *= EvenMultipliers[Mathf.Min(evenCount, 5)];
 
         // 博打シール
-        int gambleCount = Mathf.Min(sealCounts[SealType.Gamble], 5);
-        if (gambleCount > 0)
+        int gambleCount = 0;
+        bool isGambleBusted = false;
+
+        if (handResult.HandType == HandType.NoHand)
         {
-            if (handResult.HandType != HandType.NoHand)
+            for (int i = 0; i < diceList.Count; i++)
             {
-                totalMultiplier *= GambleMultipliers[gambleCount];
+                if (diceList[i].GetSealOnFace(diceList[i].Value) == SealType.Gamble)
+                {
+                    // 役なしかつ博打シールが提出された場合バースト判定（スコア0）
+                    isGambleBusted = true;
+                    break;
+                }
             }
-            else
+        }
+        else
+        {
+            // 役ありの場合、役使用ダイスと不使用ダイスを仕分け
+            var remainingDice = new List<int>(handResult.UsedDice);
+
+            for (int i = 0; i < diceList.Count; i++)
             {
-                totalMultiplier = 0.0f;
+                // 各ダイスの貼られているシールをチェック
+                var dice = diceList[i];
+                SealType seal = dice.GetSealOnFace(dice.Value);
+
+                if (seal == SealType.Gamble)
+                {
+                    if (remainingDice.Contains(dice.Value))
+                    {
+                        // 貼られているのが博打シールかつ使用ダイスリストに含まれているならリストから削除
+                        remainingDice.Remove(dice.Value);
+                        gambleCount++;
+                    }
+                    else
+                    {
+                        // 使用ダイスリストに含まれなければバースト
+                        isGambleBusted = true;
+                    }
+                }
             }
+        }
+
+        // 博打シールの適応
+        if (isGambleBusted)
+        {
+            totalMultiplier = 0.0f;
+        }
+        else if (gambleCount > 0)
+        {
+            totalMultiplier *= GambleMultipliers[Mathf.Min(gambleCount, 5)];
         }
 
         // 孤高シール
@@ -195,6 +236,20 @@ public static class SealCalculator
             totalMultiplier *= 2.0f;
         }
         result.IsSoloTriggers = soloTriggered;
+
+        // パッシブ（督促状）の適応
+        if (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.FinalNotice))
+        {
+            if (remainingTurns == 1) totalMultiplier *= 3.0f;
+        }
+
+        // パッシブ（預金通帳）の適応
+        if(GameDataManager.Instance!= null && GameDataManager.Instance.HasPassive(PassiveType.PassBook))
+        {
+            int coins = GameDataManager.Instance.Coins;
+            totalMultiplier *= (1.0f + 0.1f * coins);
+        }
+
         result.TotalMultiplier = totalMultiplier;
 
         // その他シール（金箔・氷）の適応
