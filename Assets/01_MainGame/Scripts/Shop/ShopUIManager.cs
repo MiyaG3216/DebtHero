@@ -136,7 +136,8 @@ public class ShopUIManager : MonoBehaviour
                     _packButtons[i].gameObject.SetActive(true);
 
                     var pack = _shopManager.SealPacks[i];
-                    _packTexts[i].text = $"{pack.PackName}( {pack.Price} C )\n{pack.Description}";
+                    int price = _shopManager.GetPackPrice(pack);
+                    _packTexts[i].text = $"{pack.PackName}( {price} C )\n{pack.Description}";
                     _packButtons[i].interactable = (coins >= pack.Price);
                 }
                 else

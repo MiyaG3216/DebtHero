@@ -13,10 +13,12 @@ public class CheatingManager : MonoBehaviour
     [SerializeField] private int _directSetCost = 4;
 
     [Header("状態")]
-    // 今回のバトルでイカサマを使用したかどうか
     public int CheatUseCount = 0;
 
     // ===== プロパティ =====
+    public int MaxCheats => (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.MagicianSet)) ? 2 : 1;
+    public int RemainingCheats => Mathf.Max(0, MaxCheats - CheatUseCount);
+    public bool CanCheatAny => RemainingCheats > 0;
 
     // ===== Unityメッセージ =====
 
@@ -30,13 +32,8 @@ public class CheatingManager : MonoBehaviour
     private bool CanUseCgeat(int cost)
     {
         if (!_battleManager.IsBattleActive) return false;
-
-        // マジシャンセット所持なら2回、無ければ1回まで使用可能
-        int maxCheats = (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.MagicianSet)) ? 2 : 1;
-
-        if (CheatUseCount >= maxCheats) return false;
-
-        if(GameDataManager.Instance!=null&&GameDataManager.Instance.Coins <cost) return false;
+        if (CheatUseCount >= MaxCheats) return false;
+        if (GameDataManager.Instance != null && GameDataManager.Instance.Coins < cost) return false;
 
         return true;
     }

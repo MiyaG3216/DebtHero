@@ -3,6 +3,9 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.ShaderKeywordFilter;
+using UnityEngine.Android;
+using System.Linq;
 
 public class RewardUIManager : MonoBehaviour
 {
@@ -28,8 +31,18 @@ public class RewardUIManager : MonoBehaviour
     [SerializeField] private List<Button> _faceButtons;
     [SerializeField] private List<TextMeshProUGUI> _faceTexts;
 
+    [Header("パッシブ選択パネル")]
+    [SerializeField] private GameObject _passiveSelectPanel;
+    [SerializeField] private Button[] _passiveCardButtons;
+    [SerializeField] private TextMeshProUGUI[] _passiveCardTexts;
+    [SerializeField] private TextMeshProUGUI[] _passiveCardDescs;
+    [SerializeField] private Button _passiveConfirmButton;
+
     private SealType _selectedSeal = SealType.None;
     private int _selectedDiceIndex = 0;             // 選択中のダイス
+
+    private List<PassiveType> _currentOfferedPassives = new List<PassiveType>();
+    private int _selectedPassiveCardIndex = -1;
 
     // ===== プロパティ =====
 
@@ -57,13 +70,27 @@ public class RewardUIManager : MonoBehaviour
             _faceButtons[i].onClick.AddListener(() => OnFaceButtonClicked(index));
         }
 
+        // 「次へ」ボタン
         if (_nextStageButton != null)
         {
             _nextStageButton.onClick.AddListener(OnNextStageClicked);
         }
 
-        if (_rewardPanel != null) _rewardPanel.SetActive(false);
+        // パッシブカードのクリックイベント
+        for (int i = 0; i < _passiveCardButtons.Length; i++)
+        {
+            int index = i;
+            _passiveCardButtons[i].onClick.AddListener(() => OnPassiveCardClicked(index));
+        }
 
+        // パッシブパネルの次へボタン
+        if (_passiveConfirmButton != null)
+        {
+            _passiveConfirmButton.onClick.AddListener(OnPassiveConfirmClicked);
+        }
+
+        if (_rewardPanel != null) _rewardPanel.SetActive(false);
+        if (_passiveSelectPanel != null) _passiveSelectPanel.SetActive(false);
     }
 
     // ===== メソッド =====
@@ -74,6 +101,32 @@ public class RewardUIManager : MonoBehaviour
 
         _rewardPanel.SetActive(true);
         UpdateRewardUI();
+    }
+
+    // パッシブアイテム選択パネルを開く
+    public void OpenPassiveRewardUI()
+    {
+        List<PassiveType> allPassives = new List<PassiveType>()
+        {
+            PassiveType.GoldCard,
+            PassiveType.VipCard,
+            PassiveType.MagicianSet,
+            PassiveType.FinalNotice,
+            PassiveType.PassBook,
+            PassiveType.DiceCup
+        };
+
+        _currentOfferedPassives = allPassives.OrderBy(x => Random.value).Take(3).ToList();
+        _selectedPassiveCardIndex = -1;
+
+        // アイテムを選択するまで次へボタンは不活性に
+        if (_passiveConfirmButton != null)
+        {
+            _passiveConfirmButton.interactable = false;
+        }
+
+        UpdatePassiveCardsUI();
+        _passiveSelectPanel.SetActive(true);
     }
 
     public void UpdateRewardUI()
@@ -145,6 +198,26 @@ public class RewardUIManager : MonoBehaviour
         }
     }
 
+    private void UpdatePassiveCardsUI()
+    {
+        // カードボタンの表示を更新
+        for (int i = 0; i < _passiveCardButtons.Length; i++)
+        {
+            if (i < _currentOfferedPassives.Count)
+            {
+                PassiveType type = _currentOfferedPassives[i];
+                bool isSelected = (i == _selectedPassiveCardIndex);
+
+                string highlightTag = isSelected ? "<color=green>【選択中】</color>" : "";
+
+                _passiveCardTexts[i].text = PassiveHelper.GetName(type);
+                _passiveCardDescs[i].text = $"{PassiveHelper.GetDescription(type)}\n{highlightTag}";
+
+                _passiveCardButtons[i].gameObject.SetActive(true);
+            }
+        }
+    }
+
     // シールカードがクリックされた時のイベント
     private void OnSealCardClicked(int cardIndex)
     {
@@ -178,10 +251,11 @@ public class RewardUIManager : MonoBehaviour
         }
     }
 
+    // 次へボタンがクリックされたとき
     private void OnNextStageClicked()
     {
         _rewardPanel.SetActive(false);
-        if(GameDataManager.Instance != null)
+        if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.CurrentStageIndex++;
 
@@ -191,6 +265,36 @@ public class RewardUIManager : MonoBehaviour
         {
             GameProgressManager.Instance.OnStageCompleted();
         }
+    }
+
+    // パッシブアイテムが選択されたとき
+    private void OnPassiveCardClicked(int cardIndex)
+    {
+        _selectedPassiveCardIndex = cardIndex;
+        if (_passiveConfirmButton != null)
+        {
+            // 決定ボタンを活性化
+            _passiveConfirmButton.interactable = true;
+        }
+
+        UpdatePassiveCardsUI();
+    }
+
+    // パッシブパネルの決定ボタンが押されたとき
+    private void OnPassiveConfirmClicked()
+    {
+        if (_selectedPassiveCardIndex < 0 || _selectedPassiveCardIndex >= _currentOfferedPassives.Count) return;
+
+        PassiveType selectedPassive = _currentOfferedPassives[_selectedPassiveCardIndex];
+
+        if (GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.AcquiredPassive.Add(selectedPassive);
+        }
+
+        _passiveSelectPanel.SetActive(false);
+
+        OpenRewardUI();
     }
 
     // 日本語表示ヘルパー（シール名）
