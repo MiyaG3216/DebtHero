@@ -359,8 +359,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
   _shopUIManager: {fileID: 426549915}
-  _straightDicePrice: 8
-  _highRollerDicePrice: 9
+  _straightDicePrice: 7
+  _highRollerDicePrice: 7
   _oddDicePrice: 8
   _evenDicePrice: 8
   _pinzoroDicePrice: 10

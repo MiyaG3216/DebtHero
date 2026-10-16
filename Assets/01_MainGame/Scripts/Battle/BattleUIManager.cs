@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class BattleUIManager : MonoBehaviour
 {
@@ -26,6 +27,8 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private Slider _quotaSlider;               // 返済メーター(スライダー)
     [SerializeField] private TextMeshProUGUI _quotaText;        // 目標スコア
     [SerializeField] private TextMeshProUGUI _turnsText;        // 残りターン
+    [SerializeField] private GameObject _passiveDisplayObject;  // 所持パッシブ表示アイコン
+    [SerializeField] private TextMeshProUGUI _passiveDisplayText;
 
     [Header("画面下部")]
     [SerializeField] private Button _rerollButton;              // リロールボタン
@@ -53,6 +56,7 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private Button _detailConfirmButton;               // 次へボタン
 
     [Header("イカサマ操作UI")]
+    [SerializeField] private TextMeshProUGUI _cheatRemainingText;
     [SerializeField] private GameObject _cheatBunnerPanel;
     [SerializeField] private TextMeshProUGUI _cheatGuideText;
     [SerializeField] private Button _cancelCheatButton;
@@ -188,6 +192,9 @@ public class BattleUIManager : MonoBehaviour
 
         // イカサマボタンの活性・非活性
         UpdateCheatButtons(showControls);
+
+        // 所持パッシブの表示
+        UpdatePassiveDisplay();
     }
 
     // リロールボタンが押されたとき
@@ -246,12 +253,42 @@ public class BattleUIManager : MonoBehaviour
     {
         _battleResultPanel.SetActive(false);
 
+        // ラスボス戦後はエンディングへ（未実装）
         if (_isFinalBossDefeated)
         {
             return;
         }
 
-        if (_rewardManager != null) _rewardManager.OpenRewardPhaseUI();
+        // 中ボス戦クリア時はパッシブアイテム獲得パネルを先に開く
+        bool isMidBoss = false;
+        if (GameDataManager.Instance != null)
+        {
+            StageData stage = GameDataManager.Instance.GetCurrentStageData();
+            if (stage != null && stage.BossTrait == BossTraitType.Fee75Percent)
+            {
+                isMidBoss = true;
+            }
+        }
+
+        if (_rewardManager != null)
+        {
+            // 報酬シールを決定
+            _rewardManager.PrepareRewardSeals();
+
+            // 中ボス戦の場合は先にパッシブ獲得を開く
+            if (isMidBoss)
+            {
+                var rewardUI = FindAnyObjectByType<RewardUIManager>();
+                if (rewardUI != null)
+                {
+                    rewardUI.OpenPassiveRewardUI();
+                    return;
+                }
+            }
+
+            // それ以外はシール報酬を開く
+            _rewardManager.OpenRewardPhaseUI();
+        }
     }
 
     private void OnDetailConfirmClicked()
@@ -316,11 +353,11 @@ public class BattleUIManager : MonoBehaviour
         _detailHandBaseScoreText.text = $"役の金額：<b>{breakdown.HandBaseScore} G</b>";
         _detailUnusedDiceScoreText.text = $"役未使用ダイス：<b>{breakdown.UnusedDiceScore} G</b>";
         _detailSealAddScoreText.text = $"シール加算：<b>{breakdown.SealAddScore} G</b>";
-        _detailTotalBaseText.text = $"返済額 小計：<b>{breakdown.TotalBaseScore} G</b>";
+        _detailTotalBaseText.text = $"小計：<b>{breakdown.TotalBaseScore} G</b>";
         _detailMultiplierText.text = $"シール倍率：<b>× {breakdown.Multiplier:F2} 倍</b>";
         _detailBossModifierText.text = (breakdown.BossTraitText != "") ? $"ボス補正：<size=65>{breakdown.BossTraitText}</size>" : "";
         _detailCoinsText.text = (breakdown.EarnedCoins > 0) ? $"獲得コイン：+ {breakdown.EarnedCoins} 枚" : "";
-        _detailFinalScoreText.text = $"返済金額 総計：<color=yellow><size=80><b>+ {breakdown.FinalScore} G</b></size></color>";
+        _detailFinalScoreText.text = $"返済金額：<color=yellow><size=80><b>+ {breakdown.FinalScore} G</b></size></color>";
 
         _scoreDetailPanel.SetActive(true);
         UpdateUI();
@@ -331,9 +368,26 @@ public class BattleUIManager : MonoBehaviour
     {
         if (_cheatingManager == null || PlayerManager.Instance == null) return;
 
-        bool canCheat = canInteract && (_cheatingManager.CheatUseCount < (GameDataManager.Instance!=null&&GameDataManager.Instance.HasPassive(PassiveType.MagicianSet)?3:2));
-        int coins = PlayerManager.Instance.Coins;
+        int coins = (GameDataManager.Instance != null) ? GameDataManager.Instance.Coins : 0;
+        int remaining = _cheatingManager.RemainingCheats;
+        bool hasRemaining = _cheatingManager.CanCheatAny;
 
+
+        // 残り回数テキストの更新
+        if (_cheatRemainingText != null)
+        {
+            if(hasRemaining)
+            {
+                _cheatRemainingText.text = $"イカサマ <color=red>(残り {remaining} 回)</color>";
+            }
+            else
+            {
+                _cheatRemainingText.text = "イカサマ <color=blue>(使用済み)</color>";
+            }
+        }
+
+        // ボタンの活性化(残り回数またはコイン不足で不活性)
+        bool canCheat = canInteract && hasRemaining;
         _cheatRerollButton.interactable = canCheat && (coins >= 1);
         _cheatFlipButton.interactable = canCheat && (coins >= 2);
         _cheatSetButton.interactable = canCheat && (coins >= 4);
@@ -355,6 +409,28 @@ public class BattleUIManager : MonoBehaviour
             {
                 _bossTraitText.gameObject.SetActive(false);
             }
+        }
+    }
+
+    private void UpdatePassiveDisplay()
+    {
+        if (_passiveDisplayObject == null || _passiveDisplayText == null) return;
+
+        // パッシブを所持していれば表示、なければ非表示
+        if (GameDataManager.Instance != null && GameDataManager.Instance.AcquiredPassive.Count > 0)
+        {
+            _passiveDisplayObject.SetActive(true);
+
+            List<string> passiveInfos = new List<string>();
+            foreach (var p in GameDataManager.Instance.AcquiredPassive)
+            {
+                passiveInfos.Add($"【{PassiveHelper.GetName(p)}】\n\n{PassiveHelper.GetDescription(p)}");
+            }
+            _passiveDisplayText.text = string.Join("", passiveInfos);
+        }
+        else
+        {
+            _passiveDisplayObject.SetActive(false);
         }
     }
 

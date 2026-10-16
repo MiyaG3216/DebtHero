@@ -11,7 +11,7 @@ public class RewardManager : MonoBehaviour
     [SerializeField] private RewardUIManager _rewardUIManager;
 
     // 報酬でドロップするシール(9種類)
-    private readonly List<SealType> _nomalSealPool = new List<SealType>()
+    private readonly List<SealType> _allSealPool = new List<SealType>()
     {
         SealType.Fire,
         SealType.Ice,
@@ -31,13 +31,17 @@ public class RewardManager : MonoBehaviour
     // ===== Unityメッセージ =====
 
     // ===== メソッド =====
+    // 報酬シールを決定する
+    public void PrepareRewardSeals()
+    {
+        // 報酬ドロップ9種から5種を重複なしで抽選
+        CurrentOfferSeals = _allSealPool.OrderBy(x => Random.value).Take(5).ToList();
+        RemainingPicks = 3;
+    }
+
     // 報酬フェーズの開始
     public void OpenRewardPhaseUI()
     {
-        // 報酬ドロップ9種から5種を重複なしで抽選
-        CurrentOfferSeals = _nomalSealPool.OrderBy(x => Random.value).Take(5).ToList();
-        RemainingPicks = 3;
-
         if (_rewardUIManager != null)
         {
             _rewardUIManager.OpenRewardUI();
