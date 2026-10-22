@@ -100,6 +100,9 @@ public class DiceView3D : MonoBehaviour
         {
             _diceManager.ToggleKeepDice(_diceIndex);
         }
+
+        // ダイス詳細パネルを非表示にする
+        if (DiceTooltipUI.Instance != null) DiceTooltipUI.Instance.Hide();
     }
 
     private void FixedUpdate()
@@ -175,6 +178,30 @@ public class DiceView3D : MonoBehaviour
         if (_keepMarkObj != null)
         {
             Destroy(_keepMarkObj);
+        }
+    }
+
+    private void OnMouseEnter()
+    {
+        // 転がっている最中は非表示
+        if (IsRolling) return;
+
+        // 自身のダイスデータを取得してダイス詳細パネルを表示
+        if (DiceTooltipUI.Instance != null && _diceManager != null)
+        {
+            if (_diceIndex >= 0 && _diceIndex < _diceManager.DiceList.Count)
+            {
+                var diceData = _diceManager.DiceList[_diceIndex];
+                DiceTooltipUI.Instance.Show(diceData, _diceIndex);
+            }
+        }
+    }
+
+    private void OnMouseExit()
+    {
+        if (DiceTooltipUI.Instance != null)
+        {
+            DiceTooltipUI.Instance.Hide();
         }
     }
 
@@ -489,7 +516,7 @@ public class DiceView3D : MonoBehaviour
             case DiceType.Even: return Color.red;           // 赤
             case DiceType.Straight: return Color.green;     // 緑
             case DiceType.HighRoller: return Color.orange;  // オレンジ
-            case DiceType.Pinzoro: return Color.violet;     // 紫
+            case DiceType.LowRoller: return Color.violet;     // 紫
             default: return Color.white;
         }
     }
@@ -548,13 +575,16 @@ public class DiceView3D : MonoBehaviour
     // 空中でジャラジャラする
     public void PrepareRoll(Vector3 spawnPosition)
     {
+        // ダイス詳細パネルを非表示にする
+        if (DiceTooltipUI.Instance != null) DiceTooltipUI.Instance.Hide();
+
         StopAllCoroutines();
         IsRolling = true;
         _isGuiding = false;
         IsKept = false;
         _rb.isKinematic = true;
 
-        if(_keepMarkObj != null)
+        if (_keepMarkObj != null)
         {
             _keepMarkObj.SetActive(false);
         }

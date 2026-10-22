@@ -73,12 +73,6 @@ public class DiceManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        // 開始時に1ターン目を開始
-        StartNewTurn();
-    }
-
     // ===== メソッド =====
     public void StartNewTurn()
     {

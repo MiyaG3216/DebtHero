@@ -51,7 +51,7 @@ public static class HandEvaluator
             {
                 HandType = HandType.FiveDice,
                 HandName = "ファイブダイス",
-                BaseScore = 600,
+                BaseScore = 1000,
                 UnusedDiceSum = 0,
                 UsedDice = sortedDice,
                 UnusedDice = new List<int>()
@@ -70,7 +70,7 @@ public static class HandEvaluator
                 {
                     HandType = HandType.Straight,
                     HandName = "ストレート",
-                    BaseScore = 300,
+                    BaseScore = 500,
                     UnusedDiceSum = 0,
                     UsedDice = sortedDice,
                     UnusedDice = new List<int>()
@@ -88,7 +88,7 @@ public static class HandEvaluator
             {
                 HandType = HandType.FourDice,
                 HandName = "フォーダイス",
-                BaseScore = 150,
+                BaseScore = 700,
                 UnusedDiceSum = unused.Sum(),
                 UsedDice = used,
                 UnusedDice = unused
@@ -102,7 +102,7 @@ public static class HandEvaluator
             {
                 HandType = HandType.FullHouse,
                 HandName = "フルハウス",
-                BaseScore = 200,
+                BaseScore = 400,
                 UnusedDiceSum = 0,
                 UsedDice = sortedDice,
                 UnusedDice = new List<int>()
@@ -123,7 +123,7 @@ public static class HandEvaluator
             {
                 HandType = HandType.ThreeDice,
                 HandName = "スリーダイス",
-                BaseScore = 100,
+                BaseScore = 200,
                 UnusedDiceSum = unusedList.Sum(),
                 UsedDice = groups[0].ToList(),
                 UnusedDice = unusedList
@@ -140,7 +140,7 @@ public static class HandEvaluator
             {
                 HandType = HandType.TwoPair,
                 HandName = "ツーペア",
-                BaseScore = 60,
+                BaseScore = 120,
                 UnusedDiceSum = unusedList.Sum(),
                 UsedDice = usedList,
                 UnusedDice = unusedList
@@ -158,7 +158,7 @@ public static class HandEvaluator
             {
                 HandType = HandType.OnePair,
                 HandName = "ワンペア",
-                BaseScore = 30,
+                BaseScore = 50,
                 UnusedDiceSum = unusedList.Sum(),
                 UsedDice = usedList,
                 UnusedDice = unusedList

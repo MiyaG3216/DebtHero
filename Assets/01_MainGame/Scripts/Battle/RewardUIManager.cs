@@ -44,6 +44,8 @@ public class RewardUIManager : MonoBehaviour
     private List<PassiveType> _currentOfferedPassives = new List<PassiveType>();
     private int _selectedPassiveCardIndex = -1;
 
+    private bool _initialSealSetup = false;     // 初期シール貼り付けフラグ
+
     // ===== プロパティ =====
 
     // ===== Unityメッセージ =====
@@ -89,7 +91,6 @@ public class RewardUIManager : MonoBehaviour
             _passiveConfirmButton.onClick.AddListener(OnPassiveConfirmClicked);
         }
 
-        if (_rewardPanel != null) _rewardPanel.SetActive(false);
         if (_passiveSelectPanel != null) _passiveSelectPanel.SetActive(false);
     }
 
@@ -136,9 +137,18 @@ public class RewardUIManager : MonoBehaviour
         // ヘッダーテキスト
         int remaining = _rewardManager.RemainingPicks;
 
-        _headerText.text = (remaining > 0) ?
-            $"【勝利報酬】シールを選んでダイスに貼ってください。(残り：<b>{remaining} 枚</b>)" :
-            "【貼り付け完了】『次へ進む』ボタンを押してください。";
+        if (_initialSealSetup)
+        {
+            _headerText.text = (remaining > 0) ? 
+                $"シールを選んでダイスに貼ってください。（残り：{remaining} 枚）":
+                "『次へ進む』ボタンを押してください。";
+        }
+        else
+        {
+            _headerText.text = (remaining > 0) ?
+                $"【勝利報酬】シールを選んでダイスに貼ってください。(残り：<b>{remaining} 枚</b>)" :
+                "【貼り付け完了】『次へ進む』ボタンを押してください。";
+        }
 
         // 提示シールカード
         for (int i = 0; i < _sealCardButtons.Count; i++)
@@ -255,15 +265,27 @@ public class RewardUIManager : MonoBehaviour
     private void OnNextStageClicked()
     {
         _rewardPanel.SetActive(false);
+        if (_initialSealSetup)
+        {
+            _initialSealSetup = false;
+            if(GameDataManager.Instance != null)
+            {
+                GameDataManager.Instance.HasSetupInitialSeals = true;
+            }
+
+            var battleMgr = FindAnyObjectByType<BattleManager>();
+            if(battleMgr != null )
+            {
+                battleMgr.StartFirstStageBattle();
+            }
+            return;
+        }
+
         if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.CurrentStageIndex++;
 
             SceneManager.LoadScene("Scene_Map");
-        }
-        else if (GameProgressManager.Instance != null)
-        {
-            GameProgressManager.Instance.OnStageCompleted();
         }
     }
 
@@ -295,6 +317,17 @@ public class RewardUIManager : MonoBehaviour
         _passiveSelectPanel.SetActive(false);
 
         OpenRewardUI();
+    }
+
+    // ゲーム開始時の初期シール選択画面を開く
+    public void OpenInitialSealUI()
+    {
+        _initialSealSetup = true;
+        _selectedSeal = SealType.None;
+        _selectedDiceIndex = 0;
+
+        _rewardPanel.SetActive(true);
+        UpdateRewardUI();
     }
 
     // 日本語表示ヘルパー（シール名）
@@ -341,7 +374,7 @@ public class RewardUIManager : MonoBehaviour
             case DiceType.Odd: return "奇数";
             case DiceType.Even: return "偶数";
             case DiceType.HighRoller: return "高目";
-            case DiceType.Pinzoro: return "ピンゾロ";
+            case DiceType.LowRoller: return "低目";
             case DiceType.Straight: return "連番";
             default: return "通常";
         }

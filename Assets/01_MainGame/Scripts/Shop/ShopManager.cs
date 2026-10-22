@@ -19,9 +19,9 @@ public class ShopManager : MonoBehaviour
     [Header("価格設定")]
     [SerializeField] private int _straightDicePrice = 7;    // 連番ダイスの価格
     [SerializeField] private int _highRollerDicePrice = 7;  // 高目ダイスの価格
+    [SerializeField] private int _lowRollerDicePrice = 7;   // 低目ダイスの価格
     [SerializeField] private int _oddDicePrice = 8;         // 奇数ダイスの価格
     [SerializeField] private int _evenDicePrice = 8;        // 偶数ダイスの価格
-    [SerializeField] private int _pinzoroDicePrice = 10;    // ピンゾロダイスの価格
 
     [Header("シールパック一覧")]
     [SerializeField]
@@ -132,8 +132,8 @@ public class ShopManager : MonoBehaviour
             case DiceType.HighRoller:
                 price = _highRollerDicePrice;
                 break;
-            case DiceType.Pinzoro:
-                price = _pinzoroDicePrice;
+            case DiceType.LowRoller:
+                price = _lowRollerDicePrice;
                 break;
         }
 
@@ -163,11 +163,11 @@ public class ShopManager : MonoBehaviour
     {
         switch (type)
         {
-            case DiceType.Odd: return "奇数( 1,3,5 )が出やすい";
-            case DiceType.Even: return "偶数( 2,4,6 )が出やすい";
+            case DiceType.Odd: return "1,3,5 が出やすい";
+            case DiceType.Even: return "2,4,6 が出やすい";
             case DiceType.Straight: return "2,3,4,5 がすこし出やすい";
-            case DiceType.HighRoller: return "高目( 4,5,6 )が出やすい";
-            case DiceType.Pinzoro: return "1 がかなり出やすい";
+            case DiceType.HighRoller: return "4,5,6 が出やすい";
+            case DiceType.LowRoller: return "1,2,3 が出やすい";
             default: return "";
         }
     }
