@@ -305,8 +305,8 @@ MonoBehaviour:
   _straightDiceText: {fileID: 1505152263529308216}
   _buyHighRollerDiceButton: {fileID: 6996608810569253510}
   _highrollerDiceText: {fileID: 3389879632377905430}
-  _buyPinZoroDiceButton: {fileID: 1086774941481353351}
-  _pinzoroDiceText: {fileID: 5173352114432789208}
+  _buyLowRollerDiceButton: {fileID: 1086774941481353351}
+  _lowRollerDiceText: {fileID: 5173352114432789208}
   _packButtons:
   - {fileID: 8759907891302956687}
   - {fileID: 2655683875189775303}
@@ -361,9 +361,9 @@ MonoBehaviour:
   _shopUIManager: {fileID: 426549915}
   _straightDicePrice: 7
   _highRollerDicePrice: 7
+  _lowRollerDicePrice: 7
   _oddDicePrice: 8
   _evenDicePrice: 8
-  _pinzoroDicePrice: 10
   _sealPacks:
   - PackName: "\u30A8\u30EC\u30E1\u30F3\u30C8\u30D1\u30C3\u30AF"
     Description: "\u708E\u30FB\u6C37\u30FB\u96F7\u306E\u5C5E\u6027\u30BB\u30C3\u30C8"
@@ -4591,7 +4591,7 @@ GameObject:
   - component: {fileID: 5544134696351988972}
   - component: {fileID: 1086774941481353351}
   m_Layer: 5
-  m_Name: BuyPinzoroDiceButton
+  m_Name: BuyLowRollerDiceButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5300,7 +5300,7 @@ GameObject:
   - component: {fileID: 5192619331028756154}
   - component: {fileID: 5173352114432789208}
   m_Layer: 5
-  m_Name: BuyPinzoroDiceButtonText
+  m_Name: BuyLowRollerDiceButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

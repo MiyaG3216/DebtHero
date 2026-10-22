@@ -236,6 +236,18 @@ public static class SealCalculator
         }
         result.IsSoloTriggers = soloTriggered;
 
+        // フルハウス成立時の効果適応
+        if(handResult.HandType == HandType.FullHouse)
+        {
+            totalMultiplier *= 1.5f;
+        }
+
+        // ストレート成立時の効果適応
+        if(handResult.HandType == HandType.Straight)
+        {
+            totalMultiplier *= 2.0f;
+        }
+
         // パッシブ（督促状）の適応
         if (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.FinalNotice))
         {
@@ -256,6 +268,12 @@ public static class SealCalculator
 
         result.EarnedCoins = GoldCoins[goldCount];
         result.DisableBossPassive = sealCounts[SealType.Ice] > 0;
+
+        // ストレート成立時のコイン獲得
+        if(handResult.HandType == HandType.Straight)
+        {
+            result.EarnedCoins += 3;
+        }
 
         // 最終スコア産出
         result.FinalScore = Mathf.RoundToInt(result.TotalBaseScore * result.TotalMultiplier);

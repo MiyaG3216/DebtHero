@@ -34,8 +34,8 @@ public class ShopUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _straightDiceText;
     [SerializeField] private Button _buyHighRollerDiceButton;   // 高目ダイス
     [SerializeField] private TextMeshProUGUI _highrollerDiceText;
-    [SerializeField] private Button _buyPinZoroDiceButton;      // ピンゾロダイス
-    [SerializeField] private TextMeshProUGUI _pinzoroDiceText;
+    [SerializeField] private Button _buyLowRollerDiceButton;    // 低目ダイス
+    [SerializeField] private TextMeshProUGUI _lowRollerDiceText;
 
     [Header("商品（シールパック）")]
     [SerializeField] private Button[] _packButtons;             // シールパック
@@ -71,7 +71,7 @@ public class ShopUIManager : MonoBehaviour
         _buyEvenDiceButton.onClick.AddListener(() => OpenModalForDice(DiceType.Even));
         _buyStraightDiceButton.onClick.AddListener(() => OpenModalForDice(DiceType.Straight));
         _buyHighRollerDiceButton.onClick.AddListener(() => OpenModalForDice(DiceType.HighRoller));
-        _buyPinZoroDiceButton.onClick.AddListener(() => OpenModalForDice(DiceType.Pinzoro));
+        _buyLowRollerDiceButton.onClick.AddListener(() => OpenModalForDice(DiceType.LowRoller));
 
         // シール購入イベント
         for (int i = 0; i < _packButtons.Length; i++)
@@ -126,7 +126,7 @@ public class ShopUIManager : MonoBehaviour
             UpdateDiceButtonDisplay(_buyEvenDiceButton, _evenDiceText, DiceType.Even, coins);
             UpdateDiceButtonDisplay(_buyStraightDiceButton, _straightDiceText, DiceType.Straight, coins);
             UpdateDiceButtonDisplay(_buyHighRollerDiceButton, _highrollerDiceText, DiceType.HighRoller, coins);
-            UpdateDiceButtonDisplay(_buyPinZoroDiceButton, _pinzoroDiceText, DiceType.Pinzoro, coins);
+            UpdateDiceButtonDisplay(_buyLowRollerDiceButton, _lowRollerDiceText, DiceType.LowRoller, coins);
 
             // シールパック購入ボタン
             for (int i = 0; i < _packButtons.Length; i++)
@@ -359,7 +359,7 @@ public class ShopUIManager : MonoBehaviour
             case DiceType.Even: return "偶数ダイス";
             case DiceType.Straight: return "連番ダイス";
             case DiceType.HighRoller: return "高目ダイス";
-            case DiceType.Pinzoro: return "ピンゾロダイス";
+            case DiceType.LowRoller: return "低目ダイス";
             default: return "通常ダイス";
         }
     }

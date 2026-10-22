@@ -33,6 +33,37 @@ public class BattleManager : MonoBehaviour
         {
             StageData stage = GameDataManager.Instance.GetCurrentStageData();
 
+            // Stage 1開始時は先にシール貼り付けを開く
+            if(GameDataManager.Instance.CurrentStageIndex == 0 && !GameDataManager.Instance.HasSetupInitialSeals)
+            {
+                if(stage != null)
+                {
+                    _targetQuota = stage.TargetQuota;
+                    _maxTurn = stage.MaxTurns;
+                    _currentBossTrait = stage.BossTrait;
+                    CurrentScore = 0;
+                    RemainingTurns = _maxTurn;
+
+                    if(_battleUIManager != null)
+                    {
+                        _battleUIManager.SetupStageInfo(stage.StageName, _currentBossTrait);
+                    }
+                }
+
+                if(_rewardManager != null)
+                {
+                    _rewardManager.PrepareRewardSeals();
+
+                    var rewardUI = FindAnyObjectByType<RewardUIManager>();
+                    if(rewardUI != null)
+                    {
+                        rewardUI.OpenInitialSealUI();
+
+                        return;
+                    }
+                }
+            }
+
             if (stage != null)
             {
                 BossTraitType trait = stage.BossTrait;
@@ -195,5 +226,21 @@ public class BattleManager : MonoBehaviour
         }
 
         return "";
+    }
+
+    public void StartFirstStageBattle()
+    {
+        if(GameDataManager.Instance != null)
+        {
+            StageData stage = GameDataManager.Instance.GetCurrentStageData();
+
+            if(stage != null)
+            {
+                StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
+
+                return;
+            }
+        }
+        StartBattle(300, 3, BossTraitType.None, "取り立て屋");
     }
 }

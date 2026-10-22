@@ -6,7 +6,7 @@ public enum DiceType
     Odd,        // 奇数が出やすい
     Even,       // 偶数が出やすい
     HighRoller, // 4,5,6が出やすい
-    Pinzoro,    // 1が出やすい
+    LowRoller,  // 1,2,3が出やすい
     Straight    // 2,3,4,5が出やすい
 }
 
@@ -31,6 +31,7 @@ public class Dice
     public Dice(DiceType type = DiceType.Nomal)
     {
         _dicetype = type;
+        _faceSeals = new SealType[6];
     }
 
     // ===== Unityメッセージ =====
@@ -59,19 +60,19 @@ public class Dice
         switch (type)
         {
             case DiceType.Odd:
-                return new int[] { 30, 10, 30, 10, 30, 10 };
+                return new int[] { 40, 10, 40, 10, 40, 10 };
 
             case DiceType.Even:
-                return new int[] { 10, 30, 10, 30, 10, 30 };
+                return new int[] { 10, 40, 10, 40, 10, 40 };
 
             case DiceType.HighRoller:
-                return new int[] { 10, 10, 10, 30, 30, 30 };
+                return new int[] { 10, 10, 10, 40, 40, 40 };
 
-            case DiceType.Pinzoro:
-                return new int[] { 50, 10, 10, 10, 10, 10 };
+            case DiceType.LowRoller:
+                return new int[] { 40, 40, 40, 10, 10, 10 };
 
             case DiceType.Straight:
-                return new int[] { 10, 20, 20, 20, 20, 10 };
+                return new int[] { 10, 30, 30, 30, 30, 10 };
 
             case DiceType.Nomal:
             default:

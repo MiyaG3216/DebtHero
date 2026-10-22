@@ -20,24 +20,26 @@ public class GameDataManager : MonoBehaviour
 
     public BossTraitType CurrentFinalBossTrait = BossTraitType.None;
 
+    public bool HasSetupInitialSeals = false;  // 初期シール貼り終えたかフラグ
+
     public readonly List<StageData> StageRoute = new List<StageData>()
     {
         // Stage 1
-        new StageData { StageName = "取り立て屋のしたっぱ", Type = StageType.Battle, TargetQuota = 100, MaxTurns = 3, BossTrait = BossTraitType.None },
+        new StageData { StageName = "取り立て屋のしたっぱ", Type = StageType.Battle, TargetQuota = 300, MaxTurns = 3, BossTrait = BossTraitType.None },
         // Stage 2
-        new StageData { StageName = "ベテラン取り立て屋", Type = StageType.Battle, TargetQuota = 300, MaxTurns = 3, BossTrait = BossTraitType.None },
+        new StageData { StageName = "ベテラン取り立て屋", Type = StageType.Battle, TargetQuota = 600, MaxTurns = 3, BossTrait = BossTraitType.None },
         // Shop 1
         new StageData { StageName = "カジノショップ", Type = StageType.Shop },
         // Stage 3 (中ボス)     
-        new StageData { StageName = "用心棒【中ボス】", Type = StageType.Battle, TargetQuota = 600, MaxTurns = 4, BossTrait = BossTraitType.Fee75Percent },
+        new StageData { StageName = "用心棒【中ボス】", Type = StageType.Battle, TargetQuota = 1000, MaxTurns = 4, BossTrait = BossTraitType.Fee75Percent },
         // Stage 4
-        new StageData { StageName = "エリート取り立て屋", Type = StageType.Battle, TargetQuota = 1000, MaxTurns = 4, BossTrait = BossTraitType.None },
+        new StageData { StageName = "エリート取り立て屋", Type = StageType.Battle, TargetQuota = 2500, MaxTurns = 4, BossTrait = BossTraitType.None },
         // Stage 5
-        new StageData { StageName = "取り立てロボ", Type = StageType.Battle, TargetQuota = 2000, MaxTurns = 5, BossTrait = BossTraitType.None },
+        new StageData { StageName = "取り立てロボ", Type = StageType.Battle, TargetQuota = 4500, MaxTurns = 5, BossTrait = BossTraitType.None },
         //Shop 2
         new StageData { StageName = "裏カジノショップ", Type = StageType.Shop },
         // Stage 6 (ラスボス)
-        new StageData { StageName = "魔王城ボス", Type = StageType.Battle, TargetQuota = 5000, MaxTurns = 6, BossTrait = BossTraitType.None }
+        new StageData { StageName = "魔王城ボス", Type = StageType.Battle, TargetQuota = 15000, MaxTurns = 5, BossTrait = BossTraitType.None }
     };
 
     // ===== プロパティ =====
@@ -80,8 +82,9 @@ public class GameDataManager : MonoBehaviour
     // ===== メソッド =====
     public void InitializeNewGameData()
     {
-        Coins = 5;
+        Coins = 3;
         CurrentStageIndex = 0;
+        HasSetupInitialSeals = false;
 
         BossTraitType[] traits =
         {
@@ -99,10 +102,6 @@ public class GameDataManager : MonoBehaviour
         {
             PlayerDiceList.Add(new Dice(DiceType.Nomal));
         }
-
-
-        PlayerDiceList[0].AttachSeal(1, SealType.Fire);
-        PlayerDiceList[1].AttachSeal(1, SealType.Gamble);
     }
 
     public StageData GetCurrentStageData()
