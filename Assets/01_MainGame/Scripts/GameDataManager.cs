@@ -35,11 +35,11 @@ public class GameDataManager : MonoBehaviour
         // Stage 4
         new StageData { StageName = "エリート取り立て屋", Type = StageType.Battle, TargetQuota = 2500, MaxTurns = 4, BossTrait = BossTraitType.None },
         // Stage 5
-        new StageData { StageName = "取り立てロボ", Type = StageType.Battle, TargetQuota = 4500, MaxTurns = 5, BossTrait = BossTraitType.None },
+        new StageData { StageName = "取り立てロボ", Type = StageType.Battle, TargetQuota = 4000, MaxTurns = 5, BossTrait = BossTraitType.None },
         //Shop 2
         new StageData { StageName = "裏カジノショップ", Type = StageType.Shop },
         // Stage 6 (ラスボス)
-        new StageData { StageName = "魔王城ボス", Type = StageType.Battle, TargetQuota = 15000, MaxTurns = 5, BossTrait = BossTraitType.None }
+        new StageData { StageName = "魔王城ボス", Type = StageType.Battle, TargetQuota = 10000, MaxTurns = 5, BossTrait = BossTraitType.None }
     };
 
     // ===== プロパティ =====

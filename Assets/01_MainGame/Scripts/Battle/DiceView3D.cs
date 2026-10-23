@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 
 // Colorのα値の変更を行う為の拡張クラス
 public static class ColorExtensions
@@ -18,6 +19,7 @@ public class DiceView3D : MonoBehaviour
     [SerializeField] private Rigidbody _rb;
     [SerializeField] private DiceManager _diceManager;
     [SerializeField] private Renderer _diceRenderer;
+    [SerializeField] private BoxCollider _boxCollider;
 
     [Header("物理誘導パラメータ")]
     [SerializeField] private float _maxTorqueStrength = 30f;   // 目的面への最大誘導力
@@ -35,11 +37,14 @@ public class DiceView3D : MonoBehaviour
     [SerializeField] private float _shakeAmount = 0.3f;     // 位置揺れの大きさ
     [SerializeField] private float _rotateSpeed = 400f;     // 回転スピード
 
-    [Header("キープ演出用設定")]
-    [SerializeField] private float _keepLiftHight = 0.4f;
-
     [Header("状態")]
     [SerializeField] private int _diceIndex = 0;    // ダイススロットの何番目か(0~4)
+
+    [Header("キープエリア設定")]
+    [SerializeField] private float _keepAreaZ = -8f;
+    [SerializeField] private float _keepSlotSpacing = 2f;
+    [SerializeField] private float _fixedKeepHight = 1.5f;  // キープ時の高さ
+    [SerializeField] private float _fixedFloorHight = 0.7f; // キープ解除時の高さ
 
     public bool IsRolling = false;
     public bool IsKept = false;
@@ -68,6 +73,16 @@ public class DiceView3D : MonoBehaviour
         Vector3.back,
     };
 
+    private static readonly Quaternion[] FaceRotations = new Quaternion[6]
+    {
+        Quaternion.Euler(-90, 0, 0),
+        Quaternion.Euler(0, 0, 0),
+        Quaternion.Euler(0, 0, -90),
+        Quaternion.Euler(0, 0, 90),
+        Quaternion.Euler(0, 0, 180),
+        Quaternion.Euler(90, 0, 0),
+    };
+
     // ===== プロパティ =====
 
     // ===== Unityメッセージ =====
@@ -78,6 +93,9 @@ public class DiceView3D : MonoBehaviour
 
         // Rendererコンポーネントを取得
         if (_diceRenderer == null) _diceRenderer = GetComponentInChildren<Renderer>();
+
+        // BoxColliderコンポーネントを取得
+        if (_boxCollider == null) _boxCollider = GetComponent<BoxCollider>();
 
         // シール表示用パネル(Quad)を作成
         CreateSealFacePanels();
@@ -295,20 +313,26 @@ public class DiceView3D : MonoBehaviour
             }
             _rb.isKinematic = true;
 
+            // 各ダイスごとのキープ定位置を計算
+            Vector3 keepTargetPos = new Vector3((_diceIndex - 2) * _keepSlotSpacing, _fixedKeepHight, _keepAreaZ);
+
+            // カメラ正面を向く回転を計算
+            Quaternion frontTargetRot = FaceRotations[Mathf.Clamp(_targetValue - 1, 0, 5)];
+
             // ダイスの下に選択中マーカーを表示
             if (_keepMarkObj != null)
             {
                 // 位置：床から少し浮かす
-                _keepMarkObj.transform.position = new Vector3(_landedPosition.x, _landedPosition.y + 0.02f, _landedPosition.z);
+                _keepMarkObj.transform.position = new Vector3(keepTargetPos.x, 0.02f, keepTargetPos.z);
 
                 // 向き：床と水平かつダイスと同じ向き
-                _keepMarkObj.transform.rotation = Quaternion.Euler(90f, transform.eulerAngles.y, 0f);
+                _keepMarkObj.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
                 _keepMarkObj.SetActive(true);
             }
 
             // 浮遊アニメーション
-            _hoverCoroutine = StartCoroutine(KeepHoverRoutine());
+            _hoverCoroutine = StartCoroutine(KeepMoveAlignAndHoverRoutine(keepTargetPos, frontTargetRot));
         }
         else
         {
@@ -316,49 +340,65 @@ public class DiceView3D : MonoBehaviour
             if (_keepMarkObj != null) _keepMarkObj.SetActive(false);
 
             // ダイスを床に着地させる
-            StartCoroutine(ReturnToFloorRoutine());
+            StartCoroutine(DropToFloorInPlaceRoutine());
         }
     }
 
     // 浮遊アニメーション
-    private IEnumerator KeepHoverRoutine()
+    private IEnumerator KeepMoveAlignAndHoverRoutine(Vector3 targetPos, Quaternion targetRot)
     {
-        Vector3 baseLiftPos = _landedPosition + Vector3.up * _keepLiftHight;
-        float elapsed = 0f;
+        // 一時的に当たり判定を消す
+        if(_boxCollider != null) _boxCollider.enabled = false;
 
-        // まず浮き上がる
+        // 浮き上がりキープ定位置へ移動
         Vector3 startPos = transform.position;
-        while (elapsed < 0.15f)
+        Quaternion startRot = transform.rotation;
+        float elapsed = 0f;
+        float duration = 0.25f;
+
+        while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            transform.position = Vector3.Lerp(startPos, baseLiftPos, elapsed / 0.15f);
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            transform.position = Vector3.Lerp(startPos, targetPos, t);
+            transform.rotation = Quaternion.Slerp(startRot, targetRot, t);
             yield return null;
         }
+
+        transform.position = targetPos;
+        transform.rotation = targetRot;
+
+        // 当たり判定を戻す
+        if(_boxCollider != null) _boxCollider.enabled = true;
 
         // その後ゆっくり上下に揺れる
         while (IsKept)
         {
             float hoverOffset = Mathf.Sin(Time.time * 4f) * 0.1f;
-            transform.position = baseLiftPos + Vector3.up * hoverOffset;
+            transform.position = targetPos + Vector3.up * hoverOffset;
             yield return null;
         }
     }
 
     // ダイスを床に着地させるアニメーション
-    private IEnumerator ReturnToFloorRoutine()
+    private IEnumerator DropToFloorInPlaceRoutine()
     {
-        float elapsed = 0f;
-
         Vector3 startPos = transform.position;
+        Vector3 floorPos = new Vector3(startPos.x, _fixedFloorHight, startPos.z);
 
-        while (elapsed < 0.15f)
+        float elapsed = 0f;
+        float duration = 0.2f;
+
+        while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            transform.position = Vector3.Lerp(startPos, _landedPosition, elapsed / 0.15f);
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            transform.position = Vector3.Lerp(startPos, floorPos, t);
             yield return null;
         }
 
-        transform.position = _landedPosition;
+        transform.position = floorPos;
+        _landedPosition = floorPos;
         _rb.isKinematic = false;
     }
 
