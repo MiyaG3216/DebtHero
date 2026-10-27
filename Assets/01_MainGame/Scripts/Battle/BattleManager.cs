@@ -207,21 +207,21 @@ public class BattleManager : MonoBehaviour
                 return "<color=red>みかじめ料 (× 75 %)</color>";
 
             case BossTraitType.DisableEven:
-                if (handResult.UsedDice.Exists(x => x % 2 == 0)) return "<color=red>偶数無効 ( 0 G )</color>";
+                if (handResult.UsedDice.Exists(x => x % 2 == 0)) return "<color=red>偶数半減 (× 50 %)</color>";
                 break;
 
             case BossTraitType.DisableOdd:
-                if (handResult.UsedDice.Exists(x => x % 2 != 0)) return "<color=red>奇数無効 ( 0 G )</color>";
+                if (handResult.UsedDice.Exists(x => x % 2 != 0)) return "<color=red>奇数半減 (× 50 %)</color>";
                 break;
 
             case BossTraitType.DisableHighHand:
                 if (handResult.HandType == HandType.FullHouse ||
                     handResult.HandType == HandType.Straight ||
-                    handResult.HandType == HandType.FiveDice) return "<color=red>強役つぶし ( 0 G )</color>";
+                    handResult.HandType == HandType.FiveDice) return "<color=red>強役半減 (× 50 %)</color>";
                 break;
 
             case BossTraitType.HalfPair:
-                if (handResult.HandType != HandType.Straight) return "<color=red>ペア半減 (× 50 %)</color>";
+                if (handResult.HandType != HandType.Straight) return "<color=red>ペア軽減 (× 70 %)</color>";
                 break;
         }
 

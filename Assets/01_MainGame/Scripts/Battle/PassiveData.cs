@@ -35,8 +35,8 @@ public static class PassiveHelper
             case PassiveType.VipCard: return "ショップの全商品が【半額】になる";
             case PassiveType.MagicianSet: return "イカサマが【2回】まで使用できる";
             case PassiveType.FinalNotice: return "残り1ターンの時、返済金額が【3倍】になる";
-            case PassiveType.PassBook: return "返済金額が【所持コイン × 0.1倍】増加する";
-            case PassiveType.DiceCup: return "リロール回数が【3回】になる";
+            case PassiveType.PassBook: return "返済金額が【所持コイン × 0.05倍】増加する";
+            case PassiveType.DiceCup: return "リロール回数が【4回】になる";
             default: return "";
         }
     }
