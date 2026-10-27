@@ -354,12 +354,12 @@ public class RewardUIManager : MonoBehaviour
             case SealType.Fire: return "返済額に倍率\n(1.2 ～ 3.0)倍";
             case SealType.Ice: return "ボスの特性を無効化\n返済額に倍率\n( 1.1 ～ 1.5 )倍";
             case SealType.Gold: return "コインを獲得\n( 1 ～ 10 )C";
-            case SealType.Iron: return "返済額に加算\n( 50 ～ 450 )G";
+            case SealType.Iron: return "返済額を加算\n( 50 ～ 450 )G";
             case SealType.Solo: return "同じダイスに孤高シールのみなら返済額を2倍";
             case SealType.Gamble: return "役に使えば返済額を 2.5 倍、不使用で返済額を半減";
-            case SealType.Lightning: return "ゾロ目系役に使用されると返済額に加算\n( 100 ～ 700 )G";
-            case SealType.Odd: return "1,3,5に貼られていると返済額に倍率\n( 1.3 ～ 4.1 )倍";
-            case SealType.Even: return "2,4,6に貼られていると返済額に倍率\n( 1.3 ～ 4.1 )倍";
+            case SealType.Lightning: return "ゾロ目系役に使用で返済額を加算\n( 100 ～ 700 )G";
+            case SealType.Odd: return "1,3,5に貼ると\n返済額に倍率\n( 1.3 ～ 4.1 )倍";
+            case SealType.Even: return "2,4,6に貼ると\n返済額に倍率\n( 1.3 ～ 4.1 )倍";
             default: return "";
         }
     }

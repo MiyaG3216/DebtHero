@@ -118,16 +118,16 @@ public class GameDataManager : MonoBehaviour
         switch (CurrentFinalBossTrait)
         {
             case BossTraitType.DisableEven:
-                return "本社のボスは【偶数】が含まれる役を認めないらしい...";
+                return "本社のボスは【偶数】が含まれる役を【半減】らしい...";
 
             case BossTraitType.DisableOdd:
-                return "本社のボスは【奇数】が含まれる役を認めないらしい...";
+                return "本社のボスは【奇数】が含まれる役を【半減】らしい...";
 
             case BossTraitType.DisableHighHand:
-                return "本社のボスは【大技】を無効にしてくるぞ！";
+                return "本社のボスは【大技】を【半減】してくるらしい...";
 
             case BossTraitType.HalfPair:
-                return "本社のボスは【ペア系】の役を半減するらしい...";
+                return "本社のボスは【ペア系】の役を【65%】に押さえこんでしまうそうだ...";
 
             default:
                 return "ボスに関する情報はまだない...";

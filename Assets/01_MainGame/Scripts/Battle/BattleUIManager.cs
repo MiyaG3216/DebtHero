@@ -439,11 +439,11 @@ public class BattleUIManager : MonoBehaviour
     {
         switch (trait)
         {
-            case BossTraitType.Fee75Percent: return "みかじめ料(返済額 25％ カット)";
-            case BossTraitType.DisableEven: return "偶数無効（2,4,6を含む役で返済不可）";
-            case BossTraitType.DisableOdd: return "奇数無効（1,3,5を含む役で返済不可）";
-            case BossTraitType.DisableHighHand: return "強役つぶし（FH・St・FDで返済不可）";
-            case BossTraitType.HalfPair: return "ペア半減(St以外での返済額を50％カット)";
+            case BossTraitType.Fee75Percent: return "みかじめ料\n(返済額 75％)";
+            case BossTraitType.DisableEven: return "偶数半減\n(2,4,6を含むと返済額 50%)";
+            case BossTraitType.DisableOdd: return "奇数半減\n(1,3,5を含むと返済額 50%)";
+            case BossTraitType.DisableHighHand: return "強役半減\n(FH・St・FDでの返済額 50%)";
+            case BossTraitType.HalfPair: return "ペア軽減\n(St以外での返済額 65％)";
             default: return "";
         }
     }

@@ -78,7 +78,7 @@ public class DiceManager : MonoBehaviour
     {
         if (_cheatingManager != null) _cheatingManager.OnNewTurnStarted();
 
-        int maxRerolls = (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.DiceCup)) ? 3 : _maxRerollCount;
+        int maxRerolls = (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.DiceCup)) ? 4 : _maxRerollCount;
         RemainingRerolls = maxRerolls;
         IsTurnActive = true;
         IsWaitingForThrow = true;
