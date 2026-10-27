@@ -3,8 +3,6 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.ShaderKeywordFilter;
-using UnityEngine.Android;
 using System.Linq;
 
 public class RewardUIManager : MonoBehaviour
@@ -159,7 +157,7 @@ public class RewardUIManager : MonoBehaviour
 
                 SealType seal = _rewardManager.CurrentOfferSeals[i];
 
-                string isSelected = (_selectedSeal == seal) ? "\n【選択中】" : "";
+                string isSelected = (_selectedSeal == seal) ? "\n<color=green>【選択中】</color>" : "";
 
                 _sealCardText[i].text = $"<b>{GetSealDisplayName(seal)}</b>\n{GetSealDescription(seal)}{isSelected}";
 
@@ -178,7 +176,7 @@ public class RewardUIManager : MonoBehaviour
             {
                 var dice = _diceManager.DiceList[i];
 
-                string isCurrent = (i == _selectedDiceIndex) ? "▶" : "";
+                string isCurrent = (i == _selectedDiceIndex) ? "<color=green>▶</color>" : " ";
 
                 _diceTabTexts[i].text = $"{isCurrent}ダイス[{i + 1}]\n({GetDiceTypeName(dice.Type)})";
             }
@@ -353,15 +351,15 @@ public class RewardUIManager : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire: return "返済額を( 1.2 ～ 3.0 )倍";
-            case SealType.Ice: return "ボスの特性を無効化\n返済額を( 1.1 ～ 1.5 )倍";
-            case SealType.Gold: return "コインを( 1 ～ 10 )枚獲得";
-            case SealType.Iron: return "返済額に( 50 ～ 450 )G 加算";
+            case SealType.Fire: return "返済額に倍率\n(1.2 ～ 3.0)倍";
+            case SealType.Ice: return "ボスの特性を無効化\n返済額に倍率\n( 1.1 ～ 1.5 )倍";
+            case SealType.Gold: return "コインを獲得\n( 1 ～ 10 )C";
+            case SealType.Iron: return "返済額に加算\n( 50 ～ 450 )G";
             case SealType.Solo: return "同じダイスに孤高シールのみなら返済額を2倍";
-            case SealType.Gamble: return "役に使えば返済額を ( 1.5 ～ 3.5) 倍、不使用で返済額 0 G";
-            case SealType.Lightning: return "ゾロ目系役に使用されると返済額( 100 ～ 700 )G 加算";
-            case SealType.Odd: return "奇数目に貼られているなら、返済額を( 1.3 ～ 4.1 )倍";
-            case SealType.Even: return "偶数目に貼られているなら、返済額を( 1.3 ～ 4.1 )倍";
+            case SealType.Gamble: return "役に使えば返済額を 2.5 倍、不使用で返済額を半減";
+            case SealType.Lightning: return "ゾロ目系役に使用されると返済額に加算\n( 100 ～ 700 )G";
+            case SealType.Odd: return "1,3,5に貼られていると返済額に倍率\n( 1.3 ～ 4.1 )倍";
+            case SealType.Even: return "2,4,6に貼られていると返済額に倍率\n( 1.3 ～ 4.1 )倍";
             default: return "";
         }
     }
@@ -371,12 +369,12 @@ public class RewardUIManager : MonoBehaviour
     {
         switch (type)
         {
-            case DiceType.Odd: return "奇数";
-            case DiceType.Even: return "偶数";
-            case DiceType.HighRoller: return "高目";
-            case DiceType.LowRoller: return "低目";
-            case DiceType.Straight: return "連番";
-            default: return "通常";
+            case DiceType.Odd: return "奇数ダイス";
+            case DiceType.Even: return "偶数ダイス";
+            case DiceType.HighRoller: return "高目ダイス";
+            case DiceType.LowRoller: return "低目ダイス";
+            case DiceType.Straight: return "連番ダイス";
+            default: return "通常ダイス";
         }
     }
 }

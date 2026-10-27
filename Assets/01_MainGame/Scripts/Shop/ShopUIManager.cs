@@ -1,9 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
 using TMPro;
-using Unity.Collections.Tests.CoreCLR.TestJobs;
 
 public class ShopUIManager : MonoBehaviour
 {
@@ -138,7 +136,7 @@ public class ShopUIManager : MonoBehaviour
                     var pack = _shopManager.SealPacks[i];
                     int price = _shopManager.GetPackPrice(pack);
                     _packTexts[i].text = $"{pack.PackName}( {price} C )\n{pack.Description}";
-                    _packButtons[i].interactable = (coins >= pack.Price);
+                    _packButtons[i].interactable = (coins >= price);
                 }
                 else
                 {
@@ -304,7 +302,8 @@ public class ShopUIManager : MonoBehaviour
             else
             {
                 // 3枚すべて貼り付けたらコインを消費
-                _shopManager.SpendPackCoins(_currentPack.Price);
+                int price = _shopManager.GetPackPrice(_currentPack);
+                _shopManager.SpendPackCoins(price);
                 CloseModal();
             }
         }

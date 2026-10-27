@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using Unity.VisualScripting;
 
 // Colorのα値の変更を行う為の拡張クラス
 public static class ColorExtensions

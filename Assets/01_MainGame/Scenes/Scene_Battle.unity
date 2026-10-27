@@ -764,7 +764,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 50, y: -75}
-  m_SizeDelta: {x: 550, y: 500}
+  m_SizeDelta: {x: 750, y: 500}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &299944366
 MonoBehaviour:
@@ -786,7 +786,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u5F79\u4E00\u89A7\\n\u30EF\u30F3\u30DA\u30A2\uFF1A\u540C\u3058\u76EE2\u3064\\n\u30C4\u30FC\u30DA\u30A2\uFF1A\u30EF\u30F3\u30DA\u30A2\u30922\u3064\\n\u30B9\u30EA\u30FC\u30C0\u30A4\u30B9\uFF1A\u540C\u3058\u76EE3\u3064\\n\u30D5\u30A9\u30FC\u30C0\u30A4\u30B9\uFF1A\u540C\u3058\u76EE4\u3064\\n\u30D5\u30EB\u30CF\u30A6\u30B9\uFF1A\u30EF\u30F3\u30DA\u30A2 + \u30B9\u30EA\u30FC\u30C0\u30A4\u30B9\\n\u30B9\u30C8\u30EC\u30FC\u30C8\uFF1A1,2,3,4,5 or 2,3,4,5,6\\n\u30D5\u30A1\u30A4\u30D6\u30C0\u30A4\u30B9\uFF1A\u540C\u3058\u76EE5\u3064"
+  m_text: "\u5F79\u4E00\u89A7\n\u30EF\u30F3\u30DA\u30A2\uFF1A<color=green>50</color> (\u540C\u3058\u76EE2\u3064)\n\u30C4\u30FC\u30DA\u30A2\uFF1A<color=green>120</color> (\u30EF\u30F3\u30DA\u30A2\u30922\u3064)\n\u30B9\u30EA\u30FC\u30C0\u30A4\u30B9\uFF1A<color=green>200 </color>(\u540C\u3058\u76EE3\u3064)\n\u30D5\u30A9\u30FC\u30C0\u30A4\u30B9\uFF1A<color=green>700</color> (\u540C\u3058\u76EE4\u3064)\n\u30D5\u30EB\u30CF\u30A6\u30B9\uFF1A<color=green>400 & \xD71.5\u500D</color>( 1\u30DA\u30A2+ 3\u30C0\u30A4\u30B9)\n\u30B9\u30C8\u30EC\u30FC\u30C8\uFF1A<color=green>500 & 3 C & \xD72\u500D</color>(1~5 or 2~6)\n\u30D5\u30A1\u30A4\u30D6\u30C0\u30A4\u30B9\uFF1A<color=green>1000</color> (\u540C\u3058\u76EE5\u3064)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb779d5c1f115e44c82aa6f81b029f3f, type: 2}
   m_sharedMaterial: {fileID: -3649477919199228876, guid: bb779d5c1f115e44c82aa6f81b029f3f, type: 2}
@@ -795,8 +795,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -819,7 +819,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -4286,6 +4286,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceManager
   _battleManager: {fileID: 1956921563}
+  _cheatingManager: {fileID: 1956921567}
   _diceViews:
   - {fileID: 1324155904}
   - {fileID: 1324155903}

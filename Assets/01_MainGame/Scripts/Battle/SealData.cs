@@ -24,7 +24,6 @@ public static class SealCalculator
     private static readonly float[] IceMultipliers = { 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f };
     private static readonly float[] OddMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
     private static readonly float[] EvenMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
-    private static readonly float[] GambleMultipliers = { 1.0f, 2.5f, 4.0f, 5.5f, 7.0f, 8.5f };
     private static readonly int[] GoldCoins = { 0, 1, 3, 5, 7, 10 };
     private static readonly int[] IronAddScores = { 0, 50, 120, 210, 320, 450 };
     private static readonly int[] LightningAddScores = { 0, 100, 220, 360, 520, 700 };
@@ -198,11 +197,11 @@ public static class SealCalculator
         // 博打シールの適応
         if (isGambleBusted)
         {
-            totalMultiplier = 0.0f;
+            totalMultiplier *= 0.5f;
         }
         else if (gambleCount > 0)
         {
-            totalMultiplier *= GambleMultipliers[Mathf.Min(gambleCount, 5)];
+            totalMultiplier *= 2.5f;
         }
 
         // 孤高シール
@@ -258,7 +257,8 @@ public static class SealCalculator
         if(GameDataManager.Instance!= null && GameDataManager.Instance.HasPassive(PassiveType.PassBook))
         {
             int coins = GameDataManager.Instance.Coins;
-            totalMultiplier *= (1.0f + 0.1f * coins);
+            float bonus = (coins / 2) * 0.1f;
+            totalMultiplier *= (1.0f + bonus);
         }
 
         result.TotalMultiplier = totalMultiplier;
