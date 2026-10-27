@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 using System.Reflection;
@@ -12,6 +11,7 @@ public class DiceManager : MonoBehaviour
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private BattleManager _battleManager;
+    [SerializeField] private CheatingManager _cheatingManager;
 
     [Header("3Dダイスの表示オブジェクト")]
     [SerializeField] private List<DiceView3D> _diceViews = new List<DiceView3D>();
@@ -76,6 +76,8 @@ public class DiceManager : MonoBehaviour
     // ===== メソッド =====
     public void StartNewTurn()
     {
+        if (_cheatingManager != null) _cheatingManager.OnNewTurnStarted();
+
         int maxRerolls = (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.DiceCup)) ? 3 : _maxRerollCount;
         RemainingRerolls = maxRerolls;
         IsTurnActive = true;

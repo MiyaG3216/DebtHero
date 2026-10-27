@@ -354,7 +354,7 @@ public class BattleUIManager : MonoBehaviour
         _detailUnusedDiceScoreText.text = $"役未使用ダイス：<b>{breakdown.UnusedDiceScore} G</b>";
         _detailSealAddScoreText.text = $"シール加算：<b>{breakdown.SealAddScore} G</b>";
         _detailTotalBaseText.text = $"小計：<b>{breakdown.TotalBaseScore} G</b>";
-        _detailMultiplierText.text = $"シール倍率：<b>× {breakdown.Multiplier:F2} 倍</b>";
+        _detailMultiplierText.text = $"倍率：<b>× {breakdown.Multiplier:F2} 倍</b>";
         _detailBossModifierText.text = (breakdown.BossTraitText != "") ? $"ボス補正：<size=65>{breakdown.BossTraitText}</size>" : "";
         _detailCoinsText.text = (breakdown.EarnedCoins > 0) ? $"獲得コイン：+ {breakdown.EarnedCoins} 枚" : "";
         _detailFinalScoreText.text = $"返済金額：<color=yellow><size=80><b>+ {breakdown.FinalScore} G</b></size></color>";
@@ -376,9 +376,10 @@ public class BattleUIManager : MonoBehaviour
         // 残り回数テキストの更新
         if (_cheatRemainingText != null)
         {
+            string turnPrefix = _cheatingManager.IsBossBattle ? "今ターン" : "残り";
             if(hasRemaining)
             {
-                _cheatRemainingText.text = $"イカサマ <color=red>(残り {remaining} 回)</color>";
+                _cheatRemainingText.text = $"イカサマ <color=red>({turnPrefix} {remaining} 回)</color>";
             }
             else
             {

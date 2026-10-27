@@ -20,12 +20,27 @@ public class CheatingManager : MonoBehaviour
     public int RemainingCheats => Mathf.Max(0, MaxCheats - CheatUseCount);
     public bool CanCheatAny => RemainingCheats > 0;
 
+    public bool IsBossBattle
+    {
+        get
+        {
+            if (GameDataManager.Instance == null) return false;
+            return GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1;
+        }
+    }
+
     // ===== Unityメッセージ =====
 
     // ===== メソッド =====
     public void ResetCheating()
     {
         CheatUseCount = 0;
+    }
+
+    // ラスボス戦はターン開始時にイカサマ回数リセット
+    public void OnNewTurnStarted()
+    {
+        if (IsBossBattle) ResetCheating();
     }
 
     // イカサマが使用可能かの判定
