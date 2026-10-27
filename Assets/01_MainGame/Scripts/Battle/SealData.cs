@@ -20,8 +20,8 @@ public static class SealCalculator
 {
     // ===== フィールド =====
     // 重ね掛けボーナス定義
-    private static readonly float[] FireMultipliers = { 1.0f, 1.2f, 1.5f, 2.0f, 2.5f, 3.0f };
-    private static readonly float[] IceMultipliers = { 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f };
+    private static readonly float[] FireMultipliers = { 1.0f, 1.2f, 2.4f, 3.6f, 4.8f, 6.0f };
+    private static readonly float[] IceMultipliers = { 1.0f, 1.1f, 1.21f, 1.34f, 1.47f, 1.61f };
     private static readonly float[] OddMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
     private static readonly float[] EvenMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
     private static readonly int[] GoldCoins = { 0, 1, 3, 5, 7, 10 };

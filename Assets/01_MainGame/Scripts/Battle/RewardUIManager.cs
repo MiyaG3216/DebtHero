@@ -103,26 +103,28 @@ public class RewardUIManager : MonoBehaviour
     }
 
     // パッシブアイテム選択パネルを開く
-    public void OpenPassiveRewardUI()
+    public void OpenPassiveRewardUI(int bossTier)
     {
-        List<PassiveType> allPassives = new List<PassiveType>()
-        {
-            PassiveType.GoldCard,
-            PassiveType.VipCard,
-            PassiveType.MagicianSet,
-            PassiveType.FinalNotice,
-            PassiveType.PassBook,
-            PassiveType.DiceCup
-        };
+        _currentOfferedPassives.Clear();
 
-        _currentOfferedPassives = allPassives.OrderBy(x => Random.value).Take(3).ToList();
+        if (bossTier == 1)
+        {
+            _currentOfferedPassives.Add(PassiveType.VipCard);
+            _currentOfferedPassives.Add(PassiveType.PassBook);
+            _currentOfferedPassives.Add(PassiveType.MetalDerector);
+        }
+        else
+        {
+            _currentOfferedPassives.Add(PassiveType.GoldCard);
+            _currentOfferedPassives.Add(PassiveType.MagicianSet);
+            _currentOfferedPassives.Add(PassiveType.FinalNotice);
+            _currentOfferedPassives.Add(PassiveType.DiceCup);
+        }
+
         _selectedPassiveCardIndex = -1;
 
         // アイテムを選択するまで次へボタンは不活性に
-        if (_passiveConfirmButton != null)
-        {
-            _passiveConfirmButton.interactable = false;
-        }
+        if (_passiveConfirmButton != null) _passiveConfirmButton.interactable = false;
 
         UpdatePassiveCardsUI();
         _passiveSelectPanel.SetActive(true);
@@ -137,8 +139,8 @@ public class RewardUIManager : MonoBehaviour
 
         if (_initialSealSetup)
         {
-            _headerText.text = (remaining > 0) ? 
-                $"シールを選んでダイスに貼ってください。（残り：{remaining} 枚）":
+            _headerText.text = (remaining > 0) ?
+                $"シールを選んでダイスに貼ってください。（残り：{remaining} 枚）" :
                 "『次へ進む』ボタンを押してください。";
         }
         else
@@ -223,6 +225,10 @@ public class RewardUIManager : MonoBehaviour
 
                 _passiveCardButtons[i].gameObject.SetActive(true);
             }
+            else
+            {
+                _passiveCardButtons[i].gameObject.SetActive(false);
+            }
         }
     }
 
@@ -266,13 +272,13 @@ public class RewardUIManager : MonoBehaviour
         if (_initialSealSetup)
         {
             _initialSealSetup = false;
-            if(GameDataManager.Instance != null)
+            if (GameDataManager.Instance != null)
             {
                 GameDataManager.Instance.HasSetupInitialSeals = true;
             }
 
             var battleMgr = FindAnyObjectByType<BattleManager>();
-            if(battleMgr != null )
+            if (battleMgr != null)
             {
                 battleMgr.StartFirstStageBattle();
             }
@@ -351,8 +357,8 @@ public class RewardUIManager : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire: return "返済額に倍率\n(1.2 ～ 3.0)倍";
-            case SealType.Ice: return "ボスの特性を無効化\n返済額に倍率\n( 1.1 ～ 1.5 )倍";
+            case SealType.Fire: return "返済額に倍率\n(1.2 ～ 6.0)倍";
+            case SealType.Ice: return "ボスの特性を無効化\n返済額に倍率\n( 1.1 ～ 1.61 )倍";
             case SealType.Gold: return "コインを獲得\n( 1 ～ 10 )C";
             case SealType.Iron: return "返済額を加算\n( 50 ～ 450 )G";
             case SealType.Solo: return "同じダイスに孤高シールのみなら返済額を2倍";

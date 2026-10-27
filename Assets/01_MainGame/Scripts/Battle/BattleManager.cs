@@ -34,9 +34,9 @@ public class BattleManager : MonoBehaviour
             StageData stage = GameDataManager.Instance.GetCurrentStageData();
 
             // Stage 1開始時は先にシール貼り付けを開く
-            if(GameDataManager.Instance.CurrentStageIndex == 0 && !GameDataManager.Instance.HasSetupInitialSeals)
+            if (GameDataManager.Instance.CurrentStageIndex == 0 && !GameDataManager.Instance.HasSetupInitialSeals)
             {
-                if(stage != null)
+                if (stage != null)
                 {
                     _targetQuota = stage.TargetQuota;
                     _maxTurn = stage.MaxTurns;
@@ -44,18 +44,18 @@ public class BattleManager : MonoBehaviour
                     CurrentScore = 0;
                     RemainingTurns = _maxTurn;
 
-                    if(_battleUIManager != null)
+                    if (_battleUIManager != null)
                     {
                         _battleUIManager.SetupStageInfo(stage.StageName, _currentBossTrait);
                     }
                 }
 
-                if(_rewardManager != null)
+                if (_rewardManager != null)
                 {
                     _rewardManager.PrepareRewardSeals();
 
                     var rewardUI = FindAnyObjectByType<RewardUIManager>();
-                    if(rewardUI != null)
+                    if (rewardUI != null)
                     {
                         rewardUI.OpenInitialSealUI();
 
@@ -110,7 +110,7 @@ public class BattleManager : MonoBehaviour
         if (!IsBattleActive || handResult == null) return;
 
         // シール効果計算
-        var calcResult = SealCalculator.Calculate(handResult, _diceManager.DiceList,RemainingTurns);
+        var calcResult = SealCalculator.Calculate(handResult, _diceManager.DiceList, RemainingTurns);
 
         // ボス特性によるスコア補正
         int finalScore = BossManager.Instance.ApplyBossTrait(
@@ -171,15 +171,25 @@ public class BattleManager : MonoBehaviour
             int baseCoins = 0;
             int bonusCoins = 0;
 
+            // ラスボス戦以外でコイン獲得
             if (!isFinalBoss)
             {
                 baseCoins = 5;
                 bonusCoins = missionCleared ? 3 : 0;
+
+                // パッシブ【金属探知機】適応
+                if (GameDataManager.Instance != null &&
+                    GameDataManager.Instance.HasPassive(PassiveType.MetalDerector))
+                {
+                    bonusCoins += 3;
+                }
+
+                // コイン付与
                 if (GameDataManager.Instance != null) GameDataManager.Instance.Coins += (baseCoins + bonusCoins);
             }
 
             // リザルトパネルを表示
-            if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(true, baseCoins, bonusCoins, missionCleared,isFinalBoss);
+            if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(true, baseCoins, bonusCoins, missionCleared, isFinalBoss);
         }
         else if (RemainingTurns <= 0)
         {
@@ -230,11 +240,11 @@ public class BattleManager : MonoBehaviour
 
     public void StartFirstStageBattle()
     {
-        if(GameDataManager.Instance != null)
+        if (GameDataManager.Instance != null)
         {
             StageData stage = GameDataManager.Instance.GetCurrentStageData();
 
-            if(stage != null)
+            if (stage != null)
             {
                 StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
 

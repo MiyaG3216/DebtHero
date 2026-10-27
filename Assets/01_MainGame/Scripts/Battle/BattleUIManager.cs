@@ -260,14 +260,12 @@ public class BattleUIManager : MonoBehaviour
         }
 
         // 中ボス戦クリア時はパッシブアイテム獲得パネルを先に開く
-        bool isMidBoss = false;
+        int midBossTier = 0;
         if (GameDataManager.Instance != null)
         {
-            StageData stage = GameDataManager.Instance.GetCurrentStageData();
-            if (stage != null && stage.BossTrait == BossTraitType.Fee75Percent)
-            {
-                isMidBoss = true;
-            }
+            int stageIndex = GameDataManager.Instance.CurrentStageIndex;
+            if (stageIndex == 3) midBossTier = 1;
+            else if (stageIndex == 6) midBossTier = 2;
         }
 
         if (_rewardManager != null)
@@ -276,12 +274,12 @@ public class BattleUIManager : MonoBehaviour
             _rewardManager.PrepareRewardSeals();
 
             // 中ボス戦の場合は先にパッシブ獲得を開く
-            if (isMidBoss)
+            if (midBossTier > 0)
             {
                 var rewardUI = FindAnyObjectByType<RewardUIManager>();
                 if (rewardUI != null)
                 {
-                    rewardUI.OpenPassiveRewardUI();
+                    rewardUI.OpenPassiveRewardUI(midBossTier);
                     return;
                 }
             }
@@ -377,7 +375,7 @@ public class BattleUIManager : MonoBehaviour
         if (_cheatRemainingText != null)
         {
             string turnPrefix = _cheatingManager.IsBossBattle ? "今ターン" : "残り";
-            if(hasRemaining)
+            if (hasRemaining)
             {
                 _cheatRemainingText.text = $"イカサマ <color=red>({turnPrefix} {remaining} 回)</color>";
             }
@@ -425,7 +423,7 @@ public class BattleUIManager : MonoBehaviour
             List<string> passiveInfos = new List<string>();
             foreach (var p in GameDataManager.Instance.AcquiredPassive)
             {
-                passiveInfos.Add($"【{PassiveHelper.GetName(p)}】\n\n{PassiveHelper.GetDescription(p)}");
+                passiveInfos.Add($"【{PassiveHelper.GetName(p)}】\n{PassiveHelper.GetDescription(p)}");
             }
             _passiveDisplayText.text = string.Join("", passiveInfos);
         }
