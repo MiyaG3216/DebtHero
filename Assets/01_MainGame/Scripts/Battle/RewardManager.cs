@@ -7,7 +7,6 @@ public class RewardManager : MonoBehaviour
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private DiceManager _diceManager;
-    [SerializeField] private BattleManager _battleManager;
     [SerializeField] private RewardUIManager _rewardUIManager;
 
     // 報酬でドロップするシール(9種類)
@@ -42,6 +41,11 @@ public class RewardManager : MonoBehaviour
     // 報酬フェーズの開始
     public void OpenRewardPhaseUI()
     {
+        if (CurrentOfferSeals == null || CurrentOfferSeals.Count == 0 || RemainingPicks <= 0)
+        {
+            PrepareRewardSeals();
+        }
+
         if (_rewardUIManager != null)
         {
             _rewardUIManager.OpenRewardUI();
@@ -61,7 +65,7 @@ public class RewardManager : MonoBehaviour
 
         CurrentOfferSeals.Remove(seal);
 
-        _diceManager.UpdateAllDiceVisuals();
+        if (_diceManager != null) _diceManager.UpdateAllDiceVisuals();
 
         return true;
     }

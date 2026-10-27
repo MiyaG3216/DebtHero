@@ -6,8 +6,9 @@ public enum PassiveType
     VipCard,        // VIP会員証(ショップ半額)
     MagicianSet,    // マジシャンセット(イカサマ2回)
     FinalNotice,    // 督促状(残り1ターン3倍)
-    PassBook,       // 預金通帳(所持コイン*0.1倍UP)
-    DiceCup         // 高級ダイスカップ(リロール+1回)
+    PassBook,       // 預金通帳(所持コイン*0.05倍UP)
+    DiceCup,        // 高級ダイスカップ(リロール+2回)
+    MetalDerector   // 金属探知機(戦闘後獲得コイン+3)
 }
 
 public static class PassiveHelper
@@ -23,6 +24,7 @@ public static class PassiveHelper
             case PassiveType.FinalNotice: return "督促状";
             case PassiveType.PassBook: return "預金通帳";
             case PassiveType.DiceCup: return "高級ダイスカップ";
+            case PassiveType.MetalDerector:return "金属探知機";
             default: return "";
         }
     }
@@ -37,6 +39,7 @@ public static class PassiveHelper
             case PassiveType.FinalNotice: return "残り1ターンの時、返済金額が【3倍】になる";
             case PassiveType.PassBook: return "返済金額が【所持コイン × 0.05倍】増加する";
             case PassiveType.DiceCup: return "リロール回数が【4回】になる";
+            case PassiveType.MetalDerector: return "勝利時の獲得コイン【+3枚】増加";
             default: return "";
         }
     }
