@@ -84,7 +84,7 @@ public class GameDataManager : MonoBehaviour
     // ===== メソッド =====
     public void InitializeNewGameData()
     {
-        Coins = 3;
+        Coins = 1;
         CurrentStageIndex = 0;
         HasSetupInitialSeals = false;
 

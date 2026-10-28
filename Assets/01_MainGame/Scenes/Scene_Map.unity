@@ -714,8 +714,9 @@ MonoBehaviour:
   - {fileID: 1079701480}
   - {fileID: 2002548610}
   - {fileID: 639042225}
-  - {fileID: 1461674265}
   - {fileID: 1203475380}
+  - {fileID: 1461674265}
+  - {fileID: 1254666877}
   _currentDestinationText: {fileID: 766715100}
   _coinsText: {fileID: 867841418}
   _enterStageButton: {fileID: 806313038}

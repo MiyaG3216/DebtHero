@@ -28,62 +28,73 @@ public class BattleManager : MonoBehaviour
     // ===== Unityメッセージ =====
     private void Start()
     {
-        // GameDataManagerから現在のステージデータを読み込む
         if (GameDataManager.Instance != null)
         {
             StageData stage = GameDataManager.Instance.GetCurrentStageData();
-
-            // Stage 1開始時は先にシール貼り付けを開く
-            if (GameDataManager.Instance.CurrentStageIndex == 0 && !GameDataManager.Instance.HasSetupInitialSeals)
+            if (stage != null)
             {
-                if (stage != null)
+                bool isFinalBoss = (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1);
+
+                // ラスボス以外はミッションを生成してパネルを開く
+                if (!isFinalBoss)
                 {
                     _targetQuota = stage.TargetQuota;
                     _maxTurn = stage.MaxTurns;
-                    _currentBossTrait = stage.BossTrait;
+                    _currentBossTrait  =stage.BossTrait;
                     CurrentScore = 0;
                     RemainingTurns = _maxTurn;
 
-                    if (_battleUIManager != null)
+                    // UIにステージ情報を反映
+                    if(_battleUIManager != null)
                     {
                         _battleUIManager.SetupStageInfo(stage.StageName, _currentBossTrait);
+                        _battleUIManager.UpdateUI();
                     }
-                }
 
-                if (_rewardManager != null)
-                {
-                    _rewardManager.PrepareRewardSeals();
+                    // ミッションを生成
+                    if (MissionManager.Instance != null) MissionManager.Instance.GenerateMissions(stage.MaxTurns);
 
-                    var rewardUI = FindAnyObjectByType<RewardUIManager>();
-                    if (rewardUI != null)
+                    // ミッションパネルを開く
+                    if (_battleUIManager != null)
                     {
-                        rewardUI.OpenInitialSealUI();
-
-                        return;
+                        _battleUIManager.OpenMissionPanel(() =>
+                        {
+                            // パネルを閉じた後の処理
+                            if (GameDataManager.Instance.CurrentStageIndex == 0 && !GameDataManager.Instance.HasSetupInitialSeals)
+                            {
+                                // ステージ1 かつ 初期シール未設定なら初期シール画面を開く
+                                OpenInitialSealFlow();
+                            }
+                            else
+                            {
+                                // それ以外ならバトル開始
+                                StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
+                            }
+                        });
+                        return;     // パネルが閉じるまで待機
                     }
                 }
-            }
 
-            if (stage != null)
-            {
-                BossTraitType trait = stage.BossTrait;
-
-                if (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1)
-                {
-                    trait = GameDataManager.Instance.CurrentFinalBossTrait;
-                }
-
-                StartBattle(stage.TargetQuota, stage.MaxTurns, trait, stage.StageName);
-
+                // ラスボス戦
+                StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
                 return;
             }
         }
-
         // 単体テスト用のフォールバック
         StartBattle(_targetQuota, _maxTurn, _currentBossTrait, "取り立て屋");
     }
 
     // ===== メソッド =====
+    private void OpenInitialSealFlow()
+    {
+        if (_rewardManager != null)
+        {
+            _rewardManager.PrepareRewardSeals();
+            var rewardUI = FindAnyObjectByType<RewardUIManager>();
+            if (rewardUI != null) rewardUI.OpenInitialSealUI();
+        }
+    }
+
     public void StartBattle(int quota, int turns, BossTraitType bossTrait = BossTraitType.None, string stageName = "取り立て屋")
     {
         _targetQuota = quota;
@@ -108,6 +119,11 @@ public class BattleManager : MonoBehaviour
     public void OnHandSubmitted(HandEvaluationResult handResult)
     {
         if (!IsBattleActive || handResult == null) return;
+
+        if (MissionManager.Instance != null)
+        {
+            MissionManager.Instance.OnHandSubmitted(handResult, _diceManager.DiceList);
+        }
 
         // シール効果計算
         var calcResult = SealCalculator.Calculate(handResult, _diceManager.DiceList, RemainingTurns);
@@ -161,41 +177,44 @@ public class BattleManager : MonoBehaviour
             // ノルマ達成
             IsBattleActive = false;
 
-            bool isFinalBoss = false;
-            if (GameDataManager.Instance != null)
-            {
-                isFinalBoss = (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1);
-            }
+            bool isFinalBoss = GameDataManager.Instance != null &&
+                               GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1;
 
-            bool missionCleared = RemainingTurns >= 1;
             int baseCoins = 0;
-            int bonusCoins = 0;
+            int missionBobus = 0;
+            int passiveCoins = 0;
 
             // ラスボス戦以外でコイン獲得
             if (!isFinalBoss)
             {
                 baseCoins = 5;
-                bonusCoins = missionCleared ? 3 : 0;
 
-                // パッシブ【金属探知機】適応
+                // ミッションボーナス判定
+                if (MissionManager.Instance != null)
+                {
+                    MissionManager.Instance.CheckTrunMission(RemainingTurns);
+                    missionBobus = MissionManager.Instance.GetTotalBonusCoins();
+                }
+
+                // パッシブ【金属探知機】
                 if (GameDataManager.Instance != null &&
                     GameDataManager.Instance.HasPassive(PassiveType.MetalDerector))
                 {
-                    bonusCoins += 3;
+                    passiveCoins = 3;
                 }
 
                 // コイン付与
-                if (GameDataManager.Instance != null) GameDataManager.Instance.Coins += (baseCoins + bonusCoins);
+                if (GameDataManager.Instance != null) GameDataManager.Instance.Coins += (baseCoins + missionBobus + passiveCoins);
             }
 
             // リザルトパネルを表示
-            if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(true, baseCoins, bonusCoins, missionCleared, isFinalBoss);
+            if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(true, baseCoins, missionBobus, passiveCoins, isFinalBoss);
         }
         else if (RemainingTurns <= 0)
         {
             // 残りターン無し
             IsBattleActive = false;
-            if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(false, 0, 0, false);
+            if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(false, 0, 0, 0, false);
         }
         else
         {
