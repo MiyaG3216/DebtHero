@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System;
 
 public class BattleUIManager : MonoBehaviour
 {
@@ -64,20 +65,32 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private Button[] _cheatFaceButtons;
 
     [Header("リザルト画面")]
-    [SerializeField] private GameObject _battleResultPanel;
-    [SerializeField] private TextMeshProUGUI _resultTitleText;
-    [SerializeField] private TextMeshProUGUI _resultDescText;
-    [SerializeField] private GameObject _resultCoinGroup;
-    [SerializeField] private TextMeshProUGUI _resultBaseCoinText;
-    [SerializeField] private TextMeshProUGUI _resultBonusCoinText;
-    [SerializeField] private TextMeshProUGUI _resultTotalCoinText;
-    [SerializeField] private Button _resultNextButton;
-    [SerializeField] private Button _resultRetryButton;             // リスタートボタン
+    [SerializeField] private GameObject _battleResultPanel;                 // リザルトパネル
+    [SerializeField] private TextMeshProUGUI _resultTitleText;              // 見出し
+    [SerializeField] private TextMeshProUGUI _resultDescText;               // 説明
+    [SerializeField] private GameObject _resultCoinGroup;                   // ラスボス撃破後コイン表示をオフにするためのグループ
+    [SerializeField] private TextMeshProUGUI _resultMissionClearStatusText; // ミッションクリア状況
+    [SerializeField] private TextMeshProUGUI _resultBaseCoinText;           // クリア報酬コイン
+    [SerializeField] private TextMeshProUGUI _resultBonusCoinText;          // ミッション獲得コイン
+    [SerializeField] private TextMeshProUGUI _resultPassiveCoinText;        // パッシブアイテム獲得コイン
+    [SerializeField] private TextMeshProUGUI _resultTotalCoinText;          // 合計獲得コイン
+    [SerializeField] private Button _resultNextButton;      // 次へボタン
+    [SerializeField] private Button _resultRetryButton;     // リスタートボタン
+
+    [Header("ミッションパネル")]
+    [SerializeField] private GameObject _missionPanel;          // ミッションパネル
+    [SerializeField] private TextMeshProUGUI _turnMissionText;  // ターン数ミッション
+    [SerializeField] private TextMeshProUGUI _handMissionText;  // 役ミッション
+    [SerializeField] private TextMeshProUGUI _numberMissionText;// 数字ミッション
+    [SerializeField] private Button _closeMissionPanelButton;   // 閉じるボタン
+    [SerializeField] private Button _openMissionPanelButton;    // 表示ボタン
 
     private CheatMode _currentCheatMode = CheatMode.None;
     private int _targetDiceIndex = -1;
 
     private bool _isFinalBossDefeated = false;  // ラスボス撃破フラグ
+
+    private Action _onMissionPanelClosedCallback;   // 閉じた後のコールバック
 
     // ===== プロパティ =====
 
@@ -126,10 +139,16 @@ public class BattleUIManager : MonoBehaviour
         if (_resultNextButton != null) _resultNextButton.onClick.AddListener(OnResultNextClicked);
         if (_resultRetryButton != null) _resultRetryButton.onClick.AddListener(OnResultRetryClicked);
 
+        // ミッションパネル用ボタン
+        if (_openMissionPanelButton != null) _openMissionPanelButton.onClick.AddListener(() => OpenMissionPanel());
+        if (_closeMissionPanelButton != null) _closeMissionPanelButton.onClick.AddListener(OnCloseMissionPanel);
+
         // 初期UIの更新
         if (_scoreDetailPanel != null) _scoreDetailPanel.SetActive(false);
         if (_cheatBunnerPanel != null) _cheatBunnerPanel.SetActive(false);
         if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
+        if (_battleResultPanel != null) _battleResultPanel.SetActive(false);
+
         UpdateUI();
     }
 
@@ -152,19 +171,19 @@ public class BattleUIManager : MonoBehaviour
 
         if (_quotaText != null)
         {
-            _quotaText.text = $"返済額：<b>{_battleManager.CurrentScore}</b> / {_battleManager.TargetQuota} G";
+            _quotaText.text = $"返済額：{_battleManager.CurrentScore} / {_battleManager.TargetQuota} G";
         }
 
         // 残りターン数
         if (_turnsText != null)
         {
-            _turnsText.text = $"残りターン：<b>{_battleManager.RemainingTurns}</b>";
+            _turnsText.text = $"残りターン：{_battleManager.RemainingTurns}";
         }
 
         // 所持コイン
         if (_coinsText != null && PlayerManager.Instance != null)
         {
-            _coinsText.text = $"所持コイン：<b>{PlayerManager.Instance.Coins} C</b>";
+            _coinsText.text = $"所持コイン：{PlayerManager.Instance.Coins} C";
         }
 
         // リロール・役確定ボタン(ダイスロール中、詳細パネルOP中、イカサマ中は非表示にする)
@@ -172,16 +191,26 @@ public class BattleUIManager : MonoBehaviour
         bool isWaitingThrow = _diceManager.IsWaitingForThrow;
         bool isDetailOpen = _scoreDetailPanel != null && _scoreDetailPanel.activeSelf;
         bool isCheating = _currentCheatMode != CheatMode.None;
+        bool isMissionOpen = _missionPanel != null && _missionPanel.activeSelf;
 
         if (_throwButton != null)
         {
-            _throwButton.gameObject.SetActive(_battleManager.IsBattleActive && isWaitingThrow && !isDetailOpen && !isCheating);
+            _throwButton.gameObject.SetActive(_battleManager.IsBattleActive && isWaitingThrow && !isDetailOpen && !isCheating && !isMissionOpen);
         }
 
-        bool showControls = _battleManager.IsBattleActive && !isRolling && !isWaitingThrow && !isDetailOpen && !isCheating;
+        bool showControls = _battleManager.IsBattleActive && !isRolling && !isWaitingThrow && !isDetailOpen && !isCheating && !isMissionOpen;
 
-        _rerollButton.gameObject.SetActive(showControls);
-        _submitButton.gameObject.SetActive(showControls);
+        if (_rerollButton != null) _rerollButton.gameObject.SetActive(showControls);
+        if (_submitButton != null) _submitButton.gameObject.SetActive(showControls);
+        if (_openMissionPanelButton)
+        {
+            bool isFinalBoss = false;
+            if (GameDataManager.Instance != null)
+            {
+                isFinalBoss = (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1);
+            }
+            _openMissionPanelButton.gameObject.SetActive(showControls && !isFinalBoss);
+        }
 
         if (showControls)
         {
@@ -296,7 +325,7 @@ public class BattleUIManager : MonoBehaviour
         UpdateUI();
     }
 
-    public void ShowBattleResultPanel(bool isWin, int baseCoin, int bonusCoin, bool missionCleared, bool isFinalBoss = false)
+    public void ShowBattleResultPanel(bool isWin, int baseCoins, int missionBonus, int passiveCoins, bool isFinalBoss = false)
     {
         if (_battleResultPanel == null) return;
         _isFinalBossDefeated = isFinalBoss && isWin;
@@ -305,7 +334,7 @@ public class BattleUIManager : MonoBehaviour
         {
             if (_isFinalBossDefeated)
             {
-                _resultTitleText.text = "借金完全返済！ GAME CLEAR";
+                _resultTitleText.text = "借金完全返済！";
                 _resultDescText.text = "魔王城本社のボスをダイスで粉砕した！";
 
                 if (_resultCoinGroup != null) _resultCoinGroup.SetActive(false);
@@ -313,14 +342,33 @@ public class BattleUIManager : MonoBehaviour
             }
             else
             {
-                _resultTitleText.text = "返済完了！ STAGE CLEAR";
+                _resultTitleText.text = "返済完了！";
                 _resultDescText.text = "取り立て屋を追い返した！";
 
                 // コイン内訳表示
                 if (_resultCoinGroup != null) _resultCoinGroup.SetActive(true);
-                if (_resultBaseCoinText != null) _resultBaseCoinText.text = $"・返済報酬：+ <b><color=yellow>{baseCoin}</color></b> C";
-                if (_resultBonusCoinText != null) _resultBonusCoinText.text = missionCleared ? $"・ミッションボーナス：+  <b><color=yellow>{bonusCoin}</color></b> C" : "・ミッションボーナス：未達成";
-                if (_resultTotalCoinText != null) _resultTotalCoinText.text = $"・合計獲得コイン：+  <b><color=yellow>{baseCoin + bonusCoin}</color></b> C";
+
+                // ミッションクリア状況
+                int clearCount = MissionManager.Instance != null ? MissionManager.Instance.GetClearedCount() : 0;
+                if (_resultMissionClearStatusText != null) _resultMissionClearStatusText.text = $"ミッション達成  :  <color=yellow>{clearCount}</color> / 3";
+
+                // 基礎クリア報酬
+                if (_resultBaseCoinText != null) _resultBaseCoinText.text = $"返済報酬  :  + <color=yellow>{baseCoins}</color> C";
+
+                // ミッションボーナス
+                if (_resultBonusCoinText != null) _resultBonusCoinText.text = (missionBonus > 0) ? $"ミッションボーナス  :  +  <color=yellow>{missionBonus}</color> C" : "・ミッションボーナス：+ 0 C";
+
+                // パッシブアイテム（所持時のみ表示）
+                if (_resultPassiveCoinText != null)
+                {
+                    bool hasPassive = passiveCoins > 0;
+                    _resultPassiveCoinText.gameObject.SetActive(hasPassive);
+                    if (hasPassive) _resultPassiveCoinText.text = $"金属探知機  :  <color=yellow>{passiveCoins}</color> C 発見！";
+                }
+
+                // 獲得合計
+                int totalCoins = baseCoins + missionBonus + passiveCoins;
+                if (_resultTotalCoinText != null) _resultTotalCoinText.text = $"獲得総額    + <color=yellow>{totalCoins}</color> C";
 
                 _resultNextButton.GetComponentInChildren<TextMeshProUGUI>().text = "次へ";
             }
@@ -359,6 +407,46 @@ public class BattleUIManager : MonoBehaviour
 
         _scoreDetailPanel.SetActive(true);
         UpdateUI();
+    }
+
+    // ミッションパネルを開く
+    public void OpenMissionPanel(Action onCloseCallback = null)
+    {
+        _onMissionPanelClosedCallback = onCloseCallback;
+        UpdateMissionPanelTexts();
+        _missionPanel.SetActive(true);
+    }
+
+    // ミッションパネルの閉じるボタン
+    private void OnCloseMissionPanel()
+    {
+        _missionPanel.SetActive(false);
+
+        // コールバックがあれば実行(初期シール画面やバトル開始へつなぐ)
+        _onMissionPanelClosedCallback?.Invoke();
+        _onMissionPanelClosedCallback = null;
+    }
+
+    // ミッション進捗を反映
+    public void UpdateMissionPanelTexts()
+    {
+        var mm = MissionManager.Instance;
+        if (mm == null) return;
+
+        // ターンミッション
+        int turnsLeftForBonus = (_battleManager.IsBattleActive) ? (_battleManager.RemainingTurns - 1) : (mm.StageMaxTurns - 1);
+        string color = (turnsLeftForBonus > 0) ? "white" : "#555555";
+        string numColor = (turnsLeftForBonus > 0) ? "red" : "#555555";
+        string turnStatus = mm.IsTurnMissionCleared ? "<color=yellow>★</color>" : "☆";
+        _turnMissionText.text = $"<color={color}>{turnStatus} : 残り <color={numColor}>{turnsLeftForBonus}</color> ターン以内に返済 ( + {mm.TurnMissionReward} C )</color>";
+
+        // 役ミッション
+        string handStatus = mm.IsHandMissionCleared ? "<color=yellow>★</color>" : "☆";
+        _handMissionText.text = $"{handStatus} :【{mm.TargetHandName}】を成立 ( + {mm.HandMissionReward} C )";
+
+        // 数字ミッション
+        string numberStatus = mm.IsNumberMissionCleared ? "<color=yellow>★</color>" : "☆";
+        _numberMissionText.text = $"{numberStatus} :【{mm.TargetNumber}】を <color=red>{mm.CurrentNumberCount}</color> / {mm.RequiredNumberCount} 回出す ( + {mm.NumberMissionReward} C )";
     }
 
     // イカサマボタン群の制御
@@ -430,19 +518,6 @@ public class BattleUIManager : MonoBehaviour
         else
         {
             _passiveDisplayObject.SetActive(false);
-        }
-    }
-
-    private string GetTraitName(BossTraitType trait)
-    {
-        switch (trait)
-        {
-            case BossTraitType.Fee75Percent: return "みかじめ料\n(返済額 75％)";
-            case BossTraitType.DisableEven: return "偶数半減\n(2,4,6を含むと返済額 50%)";
-            case BossTraitType.DisableOdd: return "奇数半減\n(1,3,5を含むと返済額 50%)";
-            case BossTraitType.DisableHighHand: return "強役半減\n(FH・St・FDでの返済額 50%)";
-            case BossTraitType.HalfPair: return "ペア軽減\n(St以外での返済額 65％)";
-            default: return "";
         }
     }
 
@@ -531,5 +606,18 @@ public class BattleUIManager : MonoBehaviour
         if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
 
         UpdateUI();
+    }
+
+    private string GetTraitName(BossTraitType trait)
+    {
+        switch (trait)
+        {
+            case BossTraitType.Fee75Percent: return "みかじめ料\n(返済額 75％)";
+            case BossTraitType.DisableEven: return "偶数半減\n(2,4,6を含むと返済額 50%)";
+            case BossTraitType.DisableOdd: return "奇数半減\n(1,3,5を含むと返済額 50%)";
+            case BossTraitType.DisableHighHand: return "強役半減\n(FH・St・FDでの返済額 50%)";
+            case BossTraitType.HalfPair: return "ペア軽減\n(St以外での返済額 65％)";
+            default: return "";
+        }
     }
 }
