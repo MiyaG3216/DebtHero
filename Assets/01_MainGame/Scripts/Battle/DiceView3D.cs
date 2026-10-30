@@ -203,6 +203,16 @@ public class DiceView3D : MonoBehaviour
         // 転がっている最中は非表示
         if (IsRolling) return;
 
+        // パネル表示中は非表示
+        if(BattleUIManager.Instance != null && BattleUIManager.Instance.IsAnyPanelOpen)
+        {
+            if (DiceTooltipUI.Instance != null)
+            {
+                DiceTooltipUI.Instance.Hide();
+                return;
+            }
+        }
+
         // 自身のダイスデータを取得してダイス詳細パネルを表示
         if (DiceTooltipUI.Instance != null && _diceManager != null)
         {

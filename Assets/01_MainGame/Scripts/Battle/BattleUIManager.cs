@@ -93,6 +93,23 @@ public class BattleUIManager : MonoBehaviour
     private Action _onMissionPanelClosedCallback;   // 閉じた後のコールバック
 
     // ===== プロパティ =====
+    // 何らかのポップアップパネルが開いているかを取得
+    public bool IsAnyPanelOpen 
+    {
+        get
+        {
+            if (_missionPanel != null && _missionPanel.activeSelf) return true;
+            if (_scoreDetailPanel != null && _scoreDetailPanel.activeSelf) return true;
+            if (_battleResultPanel != null && _battleResultPanel.activeSelf) return true;
+
+            var rewardUI = FindAnyObjectByType<RewardUIManager>();
+            if (rewardUI != null && rewardUI.IsAnyPanelOpen) return true;
+
+            return false;
+        }
+    }
+
+
 
     // ===== Unityメッセージ =====
     private void Awake()

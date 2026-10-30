@@ -110,7 +110,11 @@ public class GameDataManager : MonoBehaviour
     {
         if (CurrentStageIndex >= 0 && CurrentStageIndex < StageRoute.Count)
         {
-            return StageRoute[CurrentStageIndex];
+            StageData stage = StageRoute[CurrentStageIndex];
+
+            if (CurrentStageIndex == StageRoute.Count - 1) stage.BossTrait = CurrentFinalBossTrait;
+
+            return stage;
         }
         return null;
     }
