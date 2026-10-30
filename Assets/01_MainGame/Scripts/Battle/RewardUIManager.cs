@@ -45,6 +45,16 @@ public class RewardUIManager : MonoBehaviour
     private bool _initialSealSetup = false;     // 初期シール貼り付けフラグ
 
     // ===== プロパティ =====
+    public bool IsAnyPanelOpen
+    {
+        get
+        {
+            if (_rewardPanel != null && _rewardPanel.activeSelf) return true;
+            if (_passiveSelectPanel != null && _passiveSelectPanel.activeSelf) return true;
+            
+            return false;
+        }
+    }
 
     // ===== Unityメッセージ =====
     private void Start()
