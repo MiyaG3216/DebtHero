@@ -621,14 +621,14 @@ public class DiceView3D : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire: return WithAlpha(Color.red, 0.6f);
-            case SealType.Ice: return WithAlpha(Color.cyan, 0.6f);
-            case SealType.Gold: return WithAlpha(Color.yellow, 0.6f);
-            case SealType.Iron: return WithAlpha(Color.gray, 0.6f);
-            case SealType.Lightning: return WithAlpha(Color.white, 0.6f);
-            case SealType.Solo: return WithAlpha(Color.green, 0.6f);
-            case SealType.Odd: return WithAlpha(Color.blue, 0.6f);
-            case SealType.Even: return WithAlpha(Color.magenta, 0.6f);
+            case SealType.Blaze: return WithAlpha(Color.red, 0.6f);
+            case SealType.Frost: return WithAlpha(Color.cyan, 0.6f);
+            case SealType.Treasure: return WithAlpha(Color.yellow, 0.6f);
+            case SealType.Legion: return WithAlpha(Color.gray, 0.6f);
+            case SealType.Spark: return WithAlpha(Color.white, 0.6f);
+            case SealType.Maverick: return WithAlpha(Color.green, 0.6f);
+            case SealType.Asymmetry: return WithAlpha(Color.blue, 0.6f);
+            case SealType.Symmetry: return WithAlpha(Color.magenta, 0.6f);
             case SealType.Gamble: return WithAlpha(Color.black, 0.6f);
             default: return Color.clear;
         }

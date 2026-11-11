@@ -30,23 +30,23 @@ public class ShopManager : MonoBehaviour
         new SealPackData
         {
             PackName = "エレメントパック",
-            Description = "炎・氷・雷の属性セット",
+            Description = "ブレイズ・フロスト・スパークの属性セット",
             Price = 6,
-            Seals = new List<SealType>(){SealType.Fire,SealType.Ice,SealType.Lightning}
+            Seals = new List<SealType>(){SealType.Blaze,SealType.Frost,SealType.Spark}
         },
         new SealPackData
         {
             PackName = "鉱物パック",
-            Description = "鉄・金箔・孤高の堅実セット",
+            Description = "レギオン・トレジャー・マーベリックの堅実セット",
             Price = 6,
-            Seals = new List<SealType>(){SealType.Iron,SealType.Gold,SealType.Solo}
+            Seals = new List<SealType>(){SealType.Legion,SealType.Treasure,SealType.Maverick}
         },
         new SealPackData
         {
             PackName = "ギャンブルパック",
-            Description = "奇数・偶数・博打の賭け狂いセット",
+            Description = "シンメトリー・アシンメトリー・ギャンブルの賭け狂いセット",
             Price = 6,
-            Seals = new List<SealType>(){SealType.Odd,SealType.Even,SealType.Gamble}
+            Seals = new List<SealType>(){SealType.Symmetry,SealType.Asymmetry,SealType.Gamble}
         }
     };
 

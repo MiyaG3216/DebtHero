@@ -337,15 +337,15 @@ public class ShopUIManager : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire: return "炎シール";
-            case SealType.Ice: return "氷シール";
-            case SealType.Gold: return "金箔シール";
-            case SealType.Iron: return "鉄シール";
-            case SealType.Solo: return "孤高シール";
+            case SealType.Blaze: return "炎シール";
+            case SealType.Frost: return "氷シール";
+            case SealType.Treasure: return "金箔シール";
+            case SealType.Legion: return "鉄シール";
+            case SealType.Maverick: return "孤高シール";
             case SealType.Gamble: return "博打シール";
-            case SealType.Lightning: return "雷シール";
-            case SealType.Odd: return "奇数シール";
-            case SealType.Even: return "偶数シール";
+            case SealType.Spark: return "雷シール";
+            case SealType.Asymmetry: return "奇数シール";
+            case SealType.Symmetry: return "偶数シール";
             default: return "";
         }
     }

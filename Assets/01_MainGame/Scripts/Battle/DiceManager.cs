@@ -66,10 +66,6 @@ public class DiceManager : MonoBehaviour
                 DiceType type = (1 < _initialDiceTypes.Count) ? _initialDiceTypes[i] : DiceType.Nomal;
                 DiceList.Add(new Dice(type));
             }
-
-            // テスト用
-            DiceList[0].AttachSeal(1, SealType.Fire);
-            DiceList[1].AttachSeal(1, SealType.Gamble);
         }
     }
 

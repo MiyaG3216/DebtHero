@@ -12,15 +12,15 @@ public class RewardManager : MonoBehaviour
     // 報酬でドロップするシール(9種類)
     private readonly List<SealType> _allSealPool = new List<SealType>()
     {
-        SealType.Fire,
-        SealType.Ice,
-        SealType.Gold,
-        SealType.Iron,
-        SealType.Solo,
+        SealType.Blaze,
+        SealType.Frost,
+        SealType.Treasure,
+        SealType.Legion,
+        SealType.Maverick,
         SealType.Gamble,
-        SealType.Odd,
-        SealType.Even,
-        SealType.Lightning
+        SealType.Asymmetry,
+        SealType.Symmetry,
+        SealType.Spark
     };
 
     // ===== プロパティ =====

@@ -88,15 +88,15 @@ public class DiceTooltipUI : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire:return "炎";
-            case SealType.Ice:return "氷";
-            case SealType.Gold:return "金箔";
-            case SealType.Iron:return "鉄";
-            case SealType.Solo:return "孤高";
-            case SealType.Gamble:return "博打";
-            case SealType.Lightning:return "雷";
-            case SealType.Odd:return "奇数";
-            case SealType.Even:return "偶数";
+            case SealType.Blaze:return "ブレイズ";
+            case SealType.Frost:return "フロスト";
+            case SealType.Treasure:return "トレジャー";
+            case SealType.Legion:return "レギオン";
+            case SealType.Maverick:return "マーベリック";
+            case SealType.Gamble:return "ギャンブル";
+            case SealType.Spark:return "スパーク";
+            case SealType.Asymmetry:return "アシンメトリー";
+            case SealType.Symmetry:return "シンメトリー";
             default:return "";
         }
     }
