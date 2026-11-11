@@ -349,15 +349,15 @@ public class RewardUIManager : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire: return "炎シール";
-            case SealType.Ice: return "氷シール";
-            case SealType.Gold: return "金箔シール";
-            case SealType.Iron: return "鉄シール";
-            case SealType.Solo: return "孤高シール";
-            case SealType.Gamble: return "博打シール";
-            case SealType.Lightning: return "雷シール";
-            case SealType.Odd: return "奇数シール";
-            case SealType.Even: return "偶数シール";
+            case SealType.Blaze: return "ブレイズ";
+            case SealType.Frost: return "フロスト";
+            case SealType.Treasure: return "トレジャー";
+            case SealType.Legion: return "レギオン";
+            case SealType.Maverick: return "マーベリック";
+            case SealType.Gamble: return "ギャンブル";
+            case SealType.Spark: return "スパーク";
+            case SealType.Asymmetry: return "アシンメトリー";
+            case SealType.Symmetry: return "シンメトリー";
             default: return "なし";
         }
     }
@@ -367,15 +367,15 @@ public class RewardUIManager : MonoBehaviour
     {
         switch (seal)
         {
-            case SealType.Fire: return "返済額に倍率\n(1.2 ～ 6.0)倍";
-            case SealType.Ice: return "ボスの特性を無効化\n返済額に倍率\n( 1.1 ～ 1.61 )倍";
-            case SealType.Gold: return "コインを獲得\n( 1 ～ 10 )C";
-            case SealType.Iron: return "返済額を加算\n( 50 ～ 450 )G";
-            case SealType.Solo: return "同じダイスに孤高シールのみなら返済額を2倍";
+            case SealType.Blaze: return "返済額に倍率\n(1.2 ～ 6.0)倍";
+            case SealType.Frost: return "ボスの特性を無効化\n返済額に倍率\n( 1.1 ～ 1.61 )倍";
+            case SealType.Treasure: return "コインを獲得\n( 1 ～ 10 )C";
+            case SealType.Legion: return "鉄シールの枚数 × 50G 加算";
+            case SealType.Maverick: return "同じダイスに孤高シールのみなら返済額を2倍";
             case SealType.Gamble: return "役に使えば返済額を 2.5 倍、不使用で返済額を半減";
-            case SealType.Lightning: return "ゾロ目系役に使用で返済額を加算\n( 100 ～ 700 )G";
-            case SealType.Odd: return "1,3,5に貼ると\n返済額に倍率\n( 1.3 ～ 4.1 )倍";
-            case SealType.Even: return "2,4,6に貼ると\n返済額に倍率\n( 1.3 ～ 4.1 )倍";
+            case SealType.Spark: return "ゾロ目系役に使用で返済額を加算\n( 100 ～ 700 )G";
+            case SealType.Symmetry: return "1,3,5に貼ると\n返済額に倍率\n( 1.3 ～ 4.1 )倍";
+            case SealType.Asymmetry: return "2,4,6に貼ると\n返済額に倍率\n( 1.3 ～ 4.1 )倍";
             default: return "";
         }
     }

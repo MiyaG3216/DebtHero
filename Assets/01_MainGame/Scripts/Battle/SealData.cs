@@ -5,28 +5,27 @@ using System;
 public enum SealType
 {
     None,       // なし
-    Fire,       // 炎（倍率UP）
-    Ice,        // 氷（特性無効+倍率）
-    Gold,       // 金箔（コイン獲得）
-    Iron,       // 鉄（基礎スコア加算）
-    Lightning,  // 雷（3ダイス以上のゾロ目強化）
-    Solo,       // 孤高（ダイスに孤高シールのみで2倍）
-    Odd,        // 奇数（奇数のみ倍率UP）
-    Even,       // 偶数（偶数のみ倍率UP）
-    Gamble      // 博打（役アリ1.5倍/役無し0倍）
+    Blaze,      // ブレイズ（倍率UP）
+    Frost,      // フロスト（特性無効+倍率）
+    Treasure,   // トレジャー（コイン獲得）
+    Legion,     // レギオン（基礎スコア加算）
+    Spark,      // スパーク（3ダイス以上のゾロ目強化）
+    Maverick,   // マーベリック（ダイスに孤高シールのみで2倍）
+    Symmetry,   // シンメトリー（偶数のみ倍率UP）
+    Asymmetry,  // アシンメトリー（奇数のみ倍率UP）
+    Gamble      // ギャンブル（役アリ1.5倍/役無し0倍）
 }
 
 public static class SealCalculator
 {
     // ===== フィールド =====
     // 重ね掛けボーナス定義
-    private static readonly float[] FireMultipliers = { 1.0f, 1.2f, 2.4f, 3.6f, 4.8f, 6.0f };
-    private static readonly float[] IceMultipliers = { 1.0f, 1.1f, 1.21f, 1.34f, 1.47f, 1.61f };
-    private static readonly float[] OddMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
-    private static readonly float[] EvenMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
-    private static readonly int[] GoldCoins = { 0, 1, 3, 5, 7, 10 };
-    private static readonly int[] IronAddScores = { 0, 50, 120, 210, 320, 450 };
-    private static readonly int[] LightningAddScores = { 0, 100, 220, 360, 520, 700 };
+    private static readonly float[] BlazeMultipliers = { 1.0f, 1.2f, 2.4f, 3.6f, 4.8f, 6.0f };
+    private static readonly float[] FrostMultipliers = { 1.0f, 1.1f, 1.21f, 1.34f, 1.47f, 1.61f };
+    private static readonly float[] AsymmetryMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
+    private static readonly float[] SymmetryMultipliers = { 1.0f, 1.3f, 1.8f, 2.5f, 3.2f, 4.1f };
+    private static readonly int[] TreasureCoins = { 0, 1, 3, 5, 7, 10 };
+    private static readonly int[] SparkAddScores = { 0, 100, 220, 360, 520, 700 };
 
     // シール効果を反映した最終スコアと獲得コインを計算するクラス
     public class CalculationResult
@@ -38,8 +37,8 @@ public static class SealCalculator
         public float TotalMultiplier = 1.0f;    // シール倍率総計
         public int FinalScore = 0;              // 最終スコア
         public int EarnedCoins = 0;             // 獲得コイン
-        public bool DisableBossPassive = false; // 氷シール使用したかどうか
-        public bool IsSoloTriggers = false;     // 孤高シール判定
+        public bool DisableBossPassive = false; // フロストシール判定
+        public bool IsSoloTriggers = false;     // マーベリックシール判定
     }
 
     // ===== メソッド =====
@@ -85,11 +84,25 @@ public static class SealCalculator
         }
         result.UnusedDiceScore = unusedDiceSum;
 
-        // 加算系シール（鉄・雷）の適応
-        int ironCount = Mathf.Min(sealCounts[SealType.Iron], 5);
-        int sealAdd = IronAddScores[ironCount];
+        // 加算系シールの適応
+        // レギオンシール
+        int totalLegionOnAllDice = 0;
+        int addScore = 50;
+        foreach(var dice in diceList)
+        {
+            for (int f = 1; f < 6; f++)
+            {
+                if(dice.GetSealOnFace(f) == SealType.Legion)
+                {
+                    totalLegionOnAllDice++;
+                }
+            }
+        }
+        int activeLgionCount = sealCounts[SealType.Legion];
+        int LegionAdd = (totalLegionOnAllDice * addScore) * activeLgionCount;
 
-        int lightningCount = 0;
+        // スパークシール
+        int sparkCount = 0;
         if (handResult.HandType != HandType.NoHand && handResult.HandType != HandType.Straight)
         {
             // 役に使われた出目をコピー
@@ -105,52 +118,53 @@ public static class SealCalculator
                     remainingUseDice.Remove(dice.Value);
 
                     // かつ、その出目に雷シールが貼られていればカウント
-                    if (dice.GetSealOnFace(dice.Value) == SealType.Lightning)
+                    if (dice.GetSealOnFace(dice.Value) == SealType.Spark)
                     {
-                        lightningCount++;
+                        sparkCount++;
                     }
                 }
             }
         }
-        sealAdd += LightningAddScores[Mathf.Min(lightningCount, 5)];
+        int sparkAdd = SparkAddScores[Mathf.Min(sparkCount, 5)];
 
-        result.SealAddScore = sealAdd;
+        // 加算合計
+        result.SealAddScore = LegionAdd + sparkAdd;
 
         // 基礎点の小計
         result.TotalBaseScore = result.HandBaseScore + result.UnusedDiceScore + result.SealAddScore;
 
-        // 乗算系シール（炎・奇数・偶数・博打）の適応
+        // 乗算系シールの適応
         float totalMultiplier = 1.0f;
 
-        // 炎シール
-        totalMultiplier *= FireMultipliers[Mathf.Min(sealCounts[SealType.Fire], 5)];
+        // ブレイズシール
+        totalMultiplier *= BlazeMultipliers[Mathf.Min(sealCounts[SealType.Blaze], 5)];
 
-        // 氷シール
-        totalMultiplier *= IceMultipliers[Mathf.Min(sealCounts[SealType.Ice], 5)];
+        // フロストシール
+        totalMultiplier *= FrostMultipliers[Mathf.Min(sealCounts[SealType.Frost], 5)];
 
-        // 奇数シール
-        int oddCount = 0;
+        // アシンメトリーシール
+        int AsymmetryCount = 0;
         foreach (var dice in diceList)
         {
-            if (dice.GetSealOnFace(dice.Value) == SealType.Odd && (dice.Value % 2 != 0))
+            if (dice.GetSealOnFace(dice.Value) == SealType.Asymmetry && (dice.Value % 2 != 0))
             {
-                oddCount++;
+                AsymmetryCount++;
             }
         }
-        totalMultiplier *= OddMultipliers[Mathf.Min(oddCount, 5)];
+        totalMultiplier *= AsymmetryMultipliers[Mathf.Min(AsymmetryCount, 5)];
 
-        // 偶数シール
-        int evenCount = 0;
+        // シンメトリーシール
+        int SymmetryCount = 0;
         foreach (var dice in diceList)
         {
-            if (dice.GetSealOnFace(dice.Value) == SealType.Even && (dice.Value % 2 == 0))
+            if (dice.GetSealOnFace(dice.Value) == SealType.Symmetry && (dice.Value % 2 == 0))
             {
-                evenCount++;
+                SymmetryCount++;
             }
         }
-        totalMultiplier *= EvenMultipliers[Mathf.Min(evenCount, 5)];
+        totalMultiplier *= SymmetryMultipliers[Mathf.Min(SymmetryCount, 5)];
 
-        // 博打シール
+        // ギャンブルシール
         int gambleCount = 0;
         bool isGambleBusted = false;
 
@@ -181,7 +195,7 @@ public static class SealCalculator
                 {
                     if (remainingDice.Contains(dice.Value))
                     {
-                        // 貼られているのが博打シールかつ使用ダイスリストに含まれているならリストから削除
+                        // 貼られているのがギャンブルシールかつ使用ダイスリストに含まれているならリストから削除
                         remainingDice.Remove(dice.Value);
                         gambleCount++;
                     }
@@ -194,7 +208,7 @@ public static class SealCalculator
             }
         }
 
-        // 博打シールの適応
+        // ギャンブルシールの適応
         if (isGambleBusted)
         {
             totalMultiplier *= 0.5f;
@@ -204,36 +218,36 @@ public static class SealCalculator
             totalMultiplier *= 2.5f;
         }
 
-        // 孤高シール
-        bool soloTriggered = false;
+        // マーベリックシール
+        bool maverickTriggered = false;
         foreach (var dice in diceList)
         {
             // 孤高シールが出目になっているダイスをチェック
-            if (dice.GetSealOnFace(dice.Value) == SealType.Solo)
+            if (dice.GetSealOnFace(dice.Value) == SealType.Maverick)
             {
                 // そのダイスの3面全てチェック
-                bool isPureSolo = true;
-                int soloFaceCount = 0;
+                bool isPureMaverick = true;
+                int maverickFaceCount = 0;
                 for (int f = 0; f < 6; f++)
                 {
                     SealType s = dice.GetSealOnFace(f);
-                    if (s == SealType.Solo) soloFaceCount++;
-                    else if (s != SealType.None) isPureSolo = false;
+                    if (s == SealType.Maverick) maverickFaceCount++;
+                    else if (s != SealType.None) isPureMaverick = false;
                 }
 
-                if (isPureSolo && soloFaceCount > 0)
+                if (isPureMaverick && maverickFaceCount > 0)
                 {
-                    soloTriggered = true;
+                    maverickTriggered = true;
                     break;
                 }
             }
         }
 
-        if (soloTriggered)
+        if (maverickTriggered)
         {
             totalMultiplier *= 2.0f;
         }
-        result.IsSoloTriggers = soloTriggered;
+        result.IsSoloTriggers = maverickTriggered;
 
         // フルハウス成立時の効果適応
         if(handResult.HandType == HandType.FullHouse)
@@ -264,10 +278,10 @@ public static class SealCalculator
         result.TotalMultiplier = totalMultiplier;
 
         // その他シール（金箔・氷）の適応
-        int goldCount = Mathf.Min(sealCounts[SealType.Gold], 5);
+        int goldCount = Mathf.Min(sealCounts[SealType.Treasure], 5);
 
-        result.EarnedCoins = GoldCoins[goldCount];
-        result.DisableBossPassive = sealCounts[SealType.Ice] > 0;
+        result.EarnedCoins = TreasureCoins[goldCount];
+        result.DisableBossPassive = sealCounts[SealType.Frost] > 0;
 
         // ストレート成立時のコイン獲得
         if(handResult.HandType == HandType.Straight)
