@@ -3419,6 +3419,18 @@ PrefabInstance:
       value: Dices
       objectReference: {fileID: 0}
     - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshHL
+      value: 
+      objectReference: {fileID: 2926317099329542001, guid: 074c2e111cdfa734a9db8dd8ecc52d98, type: 3}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshNS
+      value: 
+      objectReference: {fileID: 4465508454606068364, guid: 7eba5cbe1f812224e88ed83a2c4640db, type: 3}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshOE
+      value: 
+      objectReference: {fileID: 3189561962152464628, guid: 2d4d52ca5e59d234eb330cc3c09d968e, type: 3}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepAreaY
       value: 3
       objectReference: {fileID: 0}
@@ -3459,6 +3471,14 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _oddDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: f4b386ddd356a244c815bb5efb0e0a04, type: 3}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _evenDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: c283ad72375bc6e46bc23cb53cc90244, type: 3}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepSlotSpacing
       value: 2
       objectReference: {fileID: 0}
@@ -3470,6 +3490,26 @@ PrefabInstance:
       propertyPath: _maxTorqueStrength
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _normalDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: cbfbfbc281f60ed4a9435111d84fc041, type: 3}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _hirollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 680ac906ec771e642a1d8316af8ba988, type: 3}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _straightDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 7798c279f71fec9488e90f2e99c539f8, type: 3}
+    - target: {fileID: 221389454911035316, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _lowrollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: bd0fdee922df3a74da791b3e5fe02456, type: 3}
+    - target: {fileID: 540823875867652423, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2926317099329542001, guid: 074c2e111cdfa734a9db8dd8ecc52d98, type: 3}
     - target: {fileID: 609561583820329739, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Materials.Array.size
       value: 1
@@ -3477,7 +3517,19 @@ PrefabInstance:
     - target: {fileID: 609561583820329739, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 5c2aae14c178b844e9832f8c08374b7b, type: 2}
+      objectReference: {fileID: 2100000, guid: 7ba800a79e1e0d143b628485619c157c, type: 2}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshHL
+      value: 
+      objectReference: {fileID: 2926317099329542001, guid: 074c2e111cdfa734a9db8dd8ecc52d98, type: 3}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshNS
+      value: 
+      objectReference: {fileID: 4465508454606068364, guid: 7eba5cbe1f812224e88ed83a2c4640db, type: 3}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshOE
+      value: 
+      objectReference: {fileID: 3189561962152464628, guid: 2d4d52ca5e59d234eb330cc3c09d968e, type: 3}
     - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepAreaY
       value: 3
@@ -3519,6 +3571,14 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _oddDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: f4b386ddd356a244c815bb5efb0e0a04, type: 3}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _evenDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: c283ad72375bc6e46bc23cb53cc90244, type: 3}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepSlotSpacing
       value: 2
       objectReference: {fileID: 0}
@@ -3529,6 +3589,34 @@ PrefabInstance:
     - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _maxTorqueStrength
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _normalDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: cbfbfbc281f60ed4a9435111d84fc041, type: 3}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _hirollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 680ac906ec771e642a1d8316af8ba988, type: 3}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _straightDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 7798c279f71fec9488e90f2e99c539f8, type: 3}
+    - target: {fileID: 681046262683735812, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _lowrollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: bd0fdee922df3a74da791b3e5fe02456, type: 3}
+    - target: {fileID: 858787160765839968, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.x
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 858787160765839968, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.y
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 858787160765839968, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.z
+      value: 2.01
       objectReference: {fileID: 0}
     - target: {fileID: 858787160765839968, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Enabled
@@ -3543,16 +3631,56 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1747033658814507108, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -4
+      propertyPath: m_LocalScale.x
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1747033658814507108, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747033658814507108, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747033658814507108, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747033658814507108, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747033658814507108, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1747033658814507108, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2029275585113322533, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3189561962152464628, guid: 2d4d52ca5e59d234eb330cc3c09d968e, type: 3}
     - target: {fileID: 2334433863292732813, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 5c2aae14c178b844e9832f8c08374b7b, type: 2}
+      objectReference: {fileID: 2100000, guid: 7ba800a79e1e0d143b628485619c157c, type: 2}
     - target: {fileID: 2363655732159717690, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078683669391807217, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.x
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078683669391807217, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.y
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 3078683669391807217, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.z
+      value: 2.01
       objectReference: {fileID: 0}
     - target: {fileID: 3078683669391807217, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Enabled
@@ -3563,8 +3691,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: 3fbe4168cdb61f44fb0b7ee840968c34, type: 2}
     - target: {fileID: 3136393141515615104, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3136393141515615104, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3136393141515615104, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3136393141515615104, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3136393141515615104, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3136393141515615104, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3136393141515615104, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3270657202268091415, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Mass
@@ -3574,6 +3726,18 @@ PrefabInstance:
       propertyPath: m_LinearDamping
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshHL
+      value: 
+      objectReference: {fileID: 2926317099329542001, guid: 074c2e111cdfa734a9db8dd8ecc52d98, type: 3}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshNS
+      value: 
+      objectReference: {fileID: 4465508454606068364, guid: 7eba5cbe1f812224e88ed83a2c4640db, type: 3}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshOE
+      value: 
+      objectReference: {fileID: 3189561962152464628, guid: 2d4d52ca5e59d234eb330cc3c09d968e, type: 3}
     - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepAreaY
       value: 3
@@ -3615,6 +3779,14 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _oddDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: f4b386ddd356a244c815bb5efb0e0a04, type: 3}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _evenDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: c283ad72375bc6e46bc23cb53cc90244, type: 3}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepSlotSpacing
       value: 2
       objectReference: {fileID: 0}
@@ -3626,9 +3798,53 @@ PrefabInstance:
       propertyPath: _maxTorqueStrength
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _normalDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: cbfbfbc281f60ed4a9435111d84fc041, type: 3}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _hirollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 680ac906ec771e642a1d8316af8ba988, type: 3}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _straightDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 7798c279f71fec9488e90f2e99c539f8, type: 3}
+    - target: {fileID: 3360124323475507699, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _lowrollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: bd0fdee922df3a74da791b3e5fe02456, type: 3}
+    - target: {fileID: 3427642072730249153, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4465508454606068364, guid: 7eba5cbe1f812224e88ed83a2c4640db, type: 3}
+    - target: {fileID: 3471923358808620770, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471923358808620770, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471923358808620770, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3471923358808620770, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471923358808620770, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471923358808620770, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471923358808620770, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4217171503703072741, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Mass
@@ -3645,7 +3861,7 @@ PrefabInstance:
     - target: {fileID: 4309267738714276079, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 5c2aae14c178b844e9832f8c08374b7b, type: 2}
+      objectReference: {fileID: 2100000, guid: 7ba800a79e1e0d143b628485619c157c, type: 2}
     - target: {fileID: 4543837177299420437, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Mass
       value: 8
@@ -3654,13 +3870,65 @@ PrefabInstance:
       propertyPath: m_LinearDamping
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4789120955453690317, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789120955453690317, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789120955453690317, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789120955453690317, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789120955453690317, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789120955453690317, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789120955453690317, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5277568462322010999, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5882778251338007497, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.x
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882778251338007497, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.y
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882778251338007497, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.z
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882778251338007497, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882778251338007497, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Center.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882778251338007497, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Center.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882778251338007497, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Center.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5882778251338007497, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Material
@@ -3669,7 +3937,23 @@ PrefabInstance:
     - target: {fileID: 5925977339370252962, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 5c2aae14c178b844e9832f8c08374b7b, type: 2}
+      objectReference: {fileID: 2100000, guid: 7ba800a79e1e0d143b628485619c157c, type: 2}
+    - target: {fileID: 6091984451095852793, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3189561962152464628, guid: 2d4d52ca5e59d234eb330cc3c09d968e, type: 3}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshHL
+      value: 
+      objectReference: {fileID: 2926317099329542001, guid: 074c2e111cdfa734a9db8dd8ecc52d98, type: 3}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshNS
+      value: 
+      objectReference: {fileID: 4465508454606068364, guid: 7eba5cbe1f812224e88ed83a2c4640db, type: 3}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshOE
+      value: 
+      objectReference: {fileID: 3189561962152464628, guid: 2d4d52ca5e59d234eb330cc3c09d968e, type: 3}
     - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepAreaY
       value: 3
@@ -3711,6 +3995,14 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _oddDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: f4b386ddd356a244c815bb5efb0e0a04, type: 3}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _evenDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: c283ad72375bc6e46bc23cb53cc90244, type: 3}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepSlotSpacing
       value: 2
       objectReference: {fileID: 0}
@@ -3722,6 +4014,34 @@ PrefabInstance:
       propertyPath: _maxTorqueStrength
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _normalDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: cbfbfbc281f60ed4a9435111d84fc041, type: 3}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _hirollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 680ac906ec771e642a1d8316af8ba988, type: 3}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _straightDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 7798c279f71fec9488e90f2e99c539f8, type: 3}
+    - target: {fileID: 6212269068460142068, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _lowrollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: bd0fdee922df3a74da791b3e5fe02456, type: 3}
+    - target: {fileID: 7069475539281317933, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.x
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7069475539281317933, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.y
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7069475539281317933, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.z
+      value: 2.01
+      objectReference: {fileID: 0}
     - target: {fileID: 7069475539281317933, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -3731,8 +4051,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: 3fbe4168cdb61f44fb0b7ee840968c34, type: 2}
     - target: {fileID: 7144054818335258972, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7144054818335258972, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7144054818335258972, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7144054818335258972, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7144054818335258972, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7144054818335258972, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7144054818335258972, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7194931260315432293, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_LocalScale.x
@@ -3791,6 +4135,18 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshHL
+      value: 
+      objectReference: {fileID: 2926317099329542001, guid: 074c2e111cdfa734a9db8dd8ecc52d98, type: 3}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshNS
+      value: 
+      objectReference: {fileID: 4465508454606068364, guid: 7eba5cbe1f812224e88ed83a2c4640db, type: 3}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _meshOE
+      value: 
+      objectReference: {fileID: 3189561962152464628, guid: 2d4d52ca5e59d234eb330cc3c09d968e, type: 3}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepAreaY
       value: 3
       objectReference: {fileID: 0}
@@ -3831,6 +4187,14 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _oddDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: f4b386ddd356a244c815bb5efb0e0a04, type: 3}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _evenDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: c283ad72375bc6e46bc23cb53cc90244, type: 3}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: _keepSlotSpacing
       value: 2
       objectReference: {fileID: 0}
@@ -3842,6 +4206,22 @@ PrefabInstance:
       propertyPath: _maxTorqueStrength
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _normalDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: cbfbfbc281f60ed4a9435111d84fc041, type: 3}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _hirollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 680ac906ec771e642a1d8316af8ba988, type: 3}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _straightDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: 7798c279f71fec9488e90f2e99c539f8, type: 3}
+    - target: {fileID: 7521519732293776094, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: _lowrollerDiceTexture
+      value: 
+      objectReference: {fileID: 2800000, guid: bd0fdee922df3a74da791b3e5fe02456, type: 3}
     - target: {fileID: 7525260634682434534, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -3857,7 +4237,11 @@ PrefabInstance:
     - target: {fileID: 8318118674797265459, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 5c2aae14c178b844e9832f8c08374b7b, type: 2}
+      objectReference: {fileID: 2100000, guid: 7ba800a79e1e0d143b628485619c157c, type: 2}
+    - target: {fileID: 8492024970765753960, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2926317099329542001, guid: 074c2e111cdfa734a9db8dd8ecc52d98, type: 3}
     - target: {fileID: 8744025285214525451, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Mass
       value: 8
@@ -3865,6 +4249,18 @@ PrefabInstance:
     - target: {fileID: 8744025285214525451, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_LinearDamping
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8769592161948947791, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.x
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8769592161948947791, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.y
+      value: 2.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8769592161948947791, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
+      propertyPath: m_Size.z
+      value: 2.01
       objectReference: {fileID: 0}
     - target: {fileID: 8769592161948947791, guid: c8cee610d21b6474ca856445a6a3ac5f, type: 3}
       propertyPath: m_Enabled
