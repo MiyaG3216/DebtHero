@@ -1,15 +1,6 @@
 using UnityEngine;
 using System.Collections;
 
-// Colorのα値の変更を行う為の拡張クラス
-public static class ColorExtensions
-{
-    public static Color WhithAlpha(this Color color, float alpha)
-    {
-        return new Color(color.r, color.g, color.b, alpha);
-    }
-}
-
 [RequireComponent(typeof(Rigidbody))]
 public class DiceView3D : MonoBehaviour
 {
@@ -19,6 +10,20 @@ public class DiceView3D : MonoBehaviour
     [SerializeField] private DiceManager _diceManager;
     [SerializeField] private Renderer _diceRenderer;
     [SerializeField] private BoxCollider _boxCollider;
+    [SerializeField] private MeshFilter _diceMeshFilter;
+
+    [Header("3DモデルMesh")]
+    [SerializeField] private Mesh _meshNS;
+    [SerializeField] private Mesh _meshHL;
+    [SerializeField] private Mesh _meshOE;
+
+    [Header("ダイス用テクスチャ")]
+    [SerializeField] private Texture2D _normalDiceTexture;
+    [SerializeField] private Texture2D _oddDiceTexture;
+    [SerializeField] private Texture2D _evenDiceTexture;
+    [SerializeField] private Texture2D _hirollerDiceTexture;
+    [SerializeField] private Texture2D _lowrollerDiceTexture;
+    [SerializeField] private Texture2D _straightDiceTexture;
 
     [Header("物理誘導パラメータ")]
     [SerializeField] private float _maxTorqueStrength = 30f;   // 目的面への最大誘導力
@@ -64,22 +69,22 @@ public class DiceView3D : MonoBehaviour
     // 各出目がダイスのローカル座標でどの方向を向いているか
     private static readonly Vector3[] LocalFaceDirections = new Vector3[6]
     {
-        Vector3.forward,
         Vector3.up,
+        Vector3.back,
         Vector3.left,
         Vector3.right,
+        Vector3.forward,
         Vector3.down,
-        Vector3.back,
     };
 
     private static readonly Quaternion[] FaceRotations = new Quaternion[6]
     {
-        Quaternion.Euler(-90, 0, 0),
-        Quaternion.Euler(0, 0, 0),
-        Quaternion.Euler(0, 0, -90),
-        Quaternion.Euler(0, 0, 90),
-        Quaternion.Euler(0, 0, 180),
-        Quaternion.Euler(90, 0, 0),
+        Quaternion.Euler(0, 0, 0),      // 上
+        Quaternion.Euler(90, 0, 0),    // 正面
+        Quaternion.Euler(0, 0, -90),    // 左
+        Quaternion.Euler(0, 0, 90),     // 右
+        Quaternion.Euler(-90, 0, 0),     // 後ろ
+        Quaternion.Euler(0, 0, 180),    // 下
     };
 
     // ===== プロパティ =====
@@ -95,6 +100,9 @@ public class DiceView3D : MonoBehaviour
 
         // BoxColliderコンポーネントを取得
         if (_boxCollider == null) _boxCollider = GetComponent<BoxCollider>();
+
+        // MeshFilterを取得
+        if (_diceMeshFilter == null) _diceMeshFilter = GetComponentInChildren<MeshFilter>();
 
         // シール表示用パネル(Quad)を作成
         CreateSealFacePanels();
@@ -204,7 +212,7 @@ public class DiceView3D : MonoBehaviour
         if (IsRolling) return;
 
         // パネル表示中は非表示
-        if(BattleUIManager.Instance != null && BattleUIManager.Instance.IsAnyPanelOpen)
+        if (BattleUIManager.Instance != null && BattleUIManager.Instance.IsAnyPanelOpen)
         {
             if (DiceTooltipUI.Instance != null)
             {
@@ -357,7 +365,7 @@ public class DiceView3D : MonoBehaviour
     private IEnumerator KeepMoveAlignAndHoverRoutine(Vector3 targetPos, Quaternion targetRot)
     {
         // 一時的に当たり判定を消す
-        if(_boxCollider != null) _boxCollider.enabled = false;
+        if (_boxCollider != null) _boxCollider.enabled = false;
 
         // 浮き上がりキープ定位置へ移動
         Vector3 startPos = transform.position;
@@ -378,7 +386,7 @@ public class DiceView3D : MonoBehaviour
         transform.rotation = targetRot;
 
         // 当たり判定を戻す
-        if(_boxCollider != null) _boxCollider.enabled = true;
+        if (_boxCollider != null) _boxCollider.enabled = true;
 
         // その後ゆっくり上下に揺れる
         while (IsKept)
@@ -479,22 +487,22 @@ public class DiceView3D : MonoBehaviour
         // 各面のローカル位置と回転(表面の0.505の厚みに貼る)
         Vector3[] facePotisions = new Vector3[6]
         {
-            new Vector3(0,0,_faceDistance),
-            new Vector3(0,_faceDistance,0),
-            new Vector3(-_faceDistance,0,0),
-            new Vector3(_faceDistance,0,0),
-            new Vector3(0,-_faceDistance,0),
-            new Vector3(0,0,-_faceDistance)
+            new Vector3(0,_faceDistance,0),     // 上
+            new Vector3(0,0,-_faceDistance),     // 正面
+            new Vector3(-_faceDistance,0,0),    // 左
+            new Vector3(_faceDistance,0,0),     // 右
+            new Vector3(0,0,_faceDistance),    // 後ろ
+            new Vector3(0,-_faceDistance,0),    // 下
         };
 
         Vector3[] faceScales = new Vector3[6]
         {
-            new Vector3(_sealSize,_sealSize,_sealThickness),
-            new Vector3(_sealSize,_sealThickness,_sealSize),
-            new Vector3(_sealThickness,_sealSize,_sealSize),
-            new Vector3(_sealThickness,_sealSize,_sealSize),
-            new Vector3(_sealSize,_sealThickness,_sealSize),
-            new Vector3(_sealSize,_sealSize,_sealThickness)
+            new Vector3(_sealSize,_sealThickness,_sealSize),    // 上・下
+            new Vector3(_sealSize,_sealSize,_sealThickness),    // 正面・後ろ
+            new Vector3(_sealThickness,_sealSize,_sealSize),    // 右・左
+            new Vector3(_sealThickness,_sealSize,_sealSize),    // 右・左
+            new Vector3(_sealSize,_sealSize,_sealThickness),    // 正面・後ろ
+            new Vector3(_sealSize,_sealThickness,_sealSize),    // 上・下
         };
 
         for (int i = 0; i < 6; i++)
@@ -523,11 +531,29 @@ public class DiceView3D : MonoBehaviour
     {
         if (diceData == null) return;
 
-        // ダイス本体の色を変更
+        // 3Dモデルの切り替え
+        if (_diceMeshFilter != null)
+        {
+            Mesh targetMesh = GetDiceMesh(diceData.Type);
+            if (targetMesh != null)
+            {
+                _diceMeshFilter.sharedMesh = targetMesh;
+            }
+        }
+
+        // ダイス本体のテクスチャを変更
         if (_diceRenderer != null)
         {
-            Color targetColor = GetDiceColor(diceData.Type);
-            _diceRenderer.material.SetColor("_BaseColor", targetColor);
+            Texture2D targetTex = GetDiceTexture(diceData.Type);
+            if (targetTex != null)
+            {
+                // ダイスのベースカラーを白に
+                _diceRenderer.material.SetColor("_BaseColor", Color.white);
+
+                // URP LitのBase Mapテクスチャを差し替え
+                _diceRenderer.material.SetTexture("_BaseMap", targetTex);
+                _diceRenderer.material.mainTexture = targetTex; // フォールバック用
+            }
         }
 
         // 各面のシールの色と表示を更新
@@ -557,16 +583,37 @@ public class DiceView3D : MonoBehaviour
         }
     }
 
-    private Color GetDiceColor(DiceType type)
+    // ダイスの種類に応じたMeshを取得
+    private Mesh GetDiceMesh(DiceType type)
     {
         switch (type)
         {
-            case DiceType.Odd: return Color.blue;           // 青
-            case DiceType.Even: return Color.red;           // 赤
-            case DiceType.Straight: return Color.green;     // 緑
-            case DiceType.HighRoller: return Color.orange;  // オレンジ
-            case DiceType.LowRoller: return Color.violet;     // 紫
-            default: return Color.white;
+            case DiceType.Odd:
+            case DiceType.Even:
+                return _meshOE != null ? _meshOE : _meshNS;
+
+            case DiceType.HighRoller: 
+            case DiceType.LowRoller: 
+                return _meshHL != null ? _meshHL : _meshNS;
+
+            case DiceType.Straight: 
+            case DiceType.Nomal:
+            default:
+                return _meshNS;
+        }
+    }
+
+    // ダイスの種類に応じたテクスチャを取得
+    private Texture2D GetDiceTexture(DiceType type)
+    {
+        switch (type)
+        {
+            case DiceType.Odd: return _oddDiceTexture != null ? _oddDiceTexture : _normalDiceTexture;
+            case DiceType.Even: return _evenDiceTexture != null ? _evenDiceTexture : _normalDiceTexture;
+            case DiceType.Straight: return _straightDiceTexture != null ? _straightDiceTexture : _normalDiceTexture;
+            case DiceType.HighRoller: return _hirollerDiceTexture != null ? _hirollerDiceTexture : _normalDiceTexture;
+            case DiceType.LowRoller: return _lowrollerDiceTexture != null ? _lowrollerDiceTexture : _normalDiceTexture;
+            default: return _normalDiceTexture;
         }
     }
 
