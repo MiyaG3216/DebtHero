@@ -1,13 +1,43 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// ※デバッグ用
+[System.Serializable]
+public class DebugDiceSlot
+{
+    public string SlotName = "ダイス";
+    public DiceType Type = DiceType.Nomal;
+    public SealType Face1 = SealType.None;
+    public SealType Face2 = SealType.None;
+    public SealType Face3 = SealType.None;
+    public SealType Face4 = SealType.None;
+    public SealType Face5 = SealType.None;
+    public SealType Face6 = SealType.None;
+}
+
 public class GameDataManager : MonoBehaviour
 {
     // ===== フィールド =====
     public static GameDataManager _instance;
 
-    [Header("所持コイン")]
+    [Header("デバッグ用")]
+    [SerializeField] private bool _useDebugSetup = false;
+    [SerializeField]
+    private List<DebugDiceSlot> _debugDiceSlots =
+        new List<DebugDiceSlot>()
+        {
+            new DebugDiceSlot{SlotName = "ダイス 1"},
+            new DebugDiceSlot{SlotName = "ダイス 2"},
+            new DebugDiceSlot{SlotName = "ダイス 3"},
+            new DebugDiceSlot{SlotName = "ダイス 4"},
+            new DebugDiceSlot{SlotName = "ダイス 5"}
+        };
+    public bool UseDebugSetup => _useDebugSetup;
+
+    [Header("初期設定")]
+    public int MaxCoins = 999;
     public int Coins = 5;
+    public int MaxCheats = 5;
 
     [Header("ダイス編成")]
     public List<Dice> PlayerDiceList = new List<Dice>();
@@ -84,9 +114,10 @@ public class GameDataManager : MonoBehaviour
     // ===== メソッド =====
     public void InitializeNewGameData()
     {
-        Coins = 1;
+        Coins = MaxCoins;
         CurrentStageIndex = 0;
-        HasSetupInitialSeals = false;
+        AcquiredPassive.Clear();
+        PlayerDiceList.Clear();
 
         BossTraitType[] traits =
         {
@@ -97,12 +128,32 @@ public class GameDataManager : MonoBehaviour
         };
         CurrentFinalBossTrait = traits[Random.Range(0, traits.Length)];
 
-        PlayerDiceList.Clear();
-        AcquiredPassive.Clear();
-
-        for (int i = 0; i < 5; i++)
+        // シールデザインデバッグ用（確認終わったらelseの中以外消す）
+        if (_useDebugSetup && _debugDiceSlots != null && _debugDiceSlots.Count >= 5)
         {
-            PlayerDiceList.Add(new Dice(DiceType.Nomal));
+            HasSetupInitialSeals = true;
+            for (int i = 0; i < 5; i++)
+            {
+                var slot = _debugDiceSlots[i];
+                var dice = new Dice(slot.Type);
+
+                if(slot.Face1 != SealType.None)dice.AttachSeal(1,slot.Face1);
+                if(slot.Face2 != SealType.None)dice.AttachSeal(2,slot.Face2);
+                if(slot.Face3 != SealType.None)dice.AttachSeal(3,slot.Face3);
+                if(slot.Face4 != SealType.None)dice.AttachSeal(4,slot.Face4);
+                if(slot.Face5 != SealType.None)dice.AttachSeal(5,slot.Face5);
+                if(slot.Face6 != SealType.None)dice.AttachSeal(6,slot.Face6);
+
+                PlayerDiceList.Add(dice);
+            }
+        }
+        else
+        {
+            HasSetupInitialSeals = false;
+            for (int i = 0; i < 5; i++)
+            {
+                PlayerDiceList.Add(new Dice(DiceType.Nomal));
+            }
         }
     }
 

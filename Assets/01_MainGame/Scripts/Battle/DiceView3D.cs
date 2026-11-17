@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody))]
 public class DiceView3D : MonoBehaviour
@@ -25,6 +26,17 @@ public class DiceView3D : MonoBehaviour
     [SerializeField] private Texture2D _lowrollerDiceTexture;
     [SerializeField] private Texture2D _straightDiceTexture;
 
+    [Header("エンチャントシール用テクスチャ")]
+    [SerializeField] private Texture2D _blazeSealTexture;
+    [SerializeField] private Texture2D _frostSealTexture;
+    [SerializeField] private Texture2D _sparkSealTexture;
+    [SerializeField] private Texture2D _treasureSealTexture;
+    [SerializeField] private Texture2D _legionSealTexture;
+    [SerializeField] private Texture2D _maverickSealTexture;
+    [SerializeField] private Texture2D _gambleSealTexture;
+    [SerializeField] private Texture2D _asymmetrySealTexture;
+    [SerializeField] private Texture2D _symmetrySealTexture;
+
     [Header("物理誘導パラメータ")]
     [SerializeField] private float _maxTorqueStrength = 30f;   // 目的面への最大誘導力
     [SerializeField] private float _angularDamping = 1f;    // 回転の減速
@@ -35,7 +47,7 @@ public class DiceView3D : MonoBehaviour
     [SerializeField] private Material _sealBaseMaterial;
     [SerializeField] private float _faceDistance = 0.52f;
     [SerializeField] private float _sealSize = 0.85f;
-    [SerializeField] private float _sealThickness = 0.02f;
+    //[SerializeField] private float _sealThickness = 0.02f;
 
     [Header("ジャラジャラ用パラメータ")]
     [SerializeField] private float _shakeAmount = 0.3f;     // 位置揺れの大きさ
@@ -47,7 +59,7 @@ public class DiceView3D : MonoBehaviour
     [Header("キープエリア設定")]
     [SerializeField] private float _keepAreaZ = -8f;
     [SerializeField] private float _keepSlotSpacing = 2f;
-    [SerializeField] private float _fixedKeepHight = 1.5f;  // キープ時の高さ
+    [SerializeField] private float _fixedKeepHight = 2f;  // キープ時の高さ
     [SerializeField] private float _fixedFloorHight = 0.7f; // キープ解除時の高さ
 
     public bool IsRolling = false;
@@ -71,8 +83,8 @@ public class DiceView3D : MonoBehaviour
     {
         Vector3.up,
         Vector3.back,
-        Vector3.left,
         Vector3.right,
+        Vector3.left,
         Vector3.forward,
         Vector3.down,
     };
@@ -80,11 +92,21 @@ public class DiceView3D : MonoBehaviour
     private static readonly Quaternion[] FaceRotations = new Quaternion[6]
     {
         Quaternion.Euler(0, 0, 0),      // 上
-        Quaternion.Euler(90, 0, 0),    // 正面
-        Quaternion.Euler(0, 0, -90),    // 左
+        Quaternion.Euler(90, 0, 0),     // 正面
         Quaternion.Euler(0, 0, 90),     // 右
-        Quaternion.Euler(-90, 0, 0),     // 後ろ
+        Quaternion.Euler(0, 0, -90),    // 左
+        Quaternion.Euler(-90, 0, 0),    // 後ろ
         Quaternion.Euler(0, 0, 180),    // 下
+    };
+
+    private static readonly Vector3[] _keepEulerAngles = new Vector3[6]
+    {
+        new Vector3 (0,0,0),        // 1
+        new Vector3 (90,0,0),       // 2
+        new Vector3 (0,90,90),      // 3
+        new Vector3 (0,-90,-90),    // 4
+        new Vector3 (-90,0,180),    // 5
+        new Vector3 (0,180,180)     // 6
     };
 
     // ===== プロパティ =====
@@ -309,6 +331,7 @@ public class DiceView3D : MonoBehaviour
         return alignRotation * transform.rotation;
     }
 
+    // キープ状態の切り替え
     public void SetKeepState(bool Kept)
     {
         IsKept = Kept;
@@ -334,7 +357,8 @@ public class DiceView3D : MonoBehaviour
             Vector3 keepTargetPos = new Vector3((_diceIndex - 2) * _keepSlotSpacing, _fixedKeepHight, _keepAreaZ);
 
             // カメラ正面を向く回転を計算
-            Quaternion frontTargetRot = FaceRotations[Mathf.Clamp(_targetValue - 1, 0, 5)];
+            // Quaternion frontTargetRot = FaceRotations[Mathf.Clamp(_targetValue - 1, 0, 5)];
+            Quaternion frontTargetRot = GetKeepUprightRotation(_targetValue);
 
             // ダイスの下に選択中マーカーを表示
             if (_keepMarkObj != null)
@@ -424,6 +448,7 @@ public class DiceView3D : MonoBehaviour
         StartCoroutine(CheatAnimateRoutine(newValue));
     }
 
+    // イカサマ発動時の演出
     private IEnumerator CheatAnimateRoutine(int newValue)
     {
         IsRolling = true;
@@ -444,7 +469,8 @@ public class DiceView3D : MonoBehaviour
         // 空中で回転
         _targetValue = newValue;
         Quaternion startRot = transform.rotation;
-        Quaternion targetRot = CalculateTargetRotationPreservingYaw(_targetValue);
+        //Quaternion targetRot = CalculateTargetRotationPreservingYaw(_targetValue);
+        Quaternion targetRot = GetKeepUprightRotation(_targetValue);
 
         elapsed = 0f;
         while (elapsed < 0.3f)
@@ -475,44 +501,43 @@ public class DiceView3D : MonoBehaviour
         BoxCollider boxCol = GetComponent<BoxCollider>();
         if (boxCol != null)
         {
-            // コライダの半径の少し外側を基準にする
-            float autoDist = (boxCol.size.z * 0.5f) + 0.02f;
-            if (autoDist > 0.1f)
-            {
-                _faceDistance = autoDist;
-                _sealSize = boxCol.size.x * 0.75f;
-            }
+            // ダイスの表面から少し浮かせた位置に配置
+            _faceDistance = (boxCol.size.x * 0.5f) + 0.005f;
+
+            // シールサイズを少し小さくしてダイス内に収まるようにする
+            _sealSize = boxCol.size.x * 0.9f;
         }
 
-        // 各面のローカル位置と回転(表面の0.505の厚みに貼る)
+        // 各面のローカル位置と回転
         Vector3[] facePotisions = new Vector3[6]
         {
             new Vector3(0,_faceDistance,0),     // 上
-            new Vector3(0,0,-_faceDistance),     // 正面
-            new Vector3(-_faceDistance,0,0),    // 左
+            new Vector3(0,0,-_faceDistance),    // 正面
             new Vector3(_faceDistance,0,0),     // 右
-            new Vector3(0,0,_faceDistance),    // 後ろ
+            new Vector3(-_faceDistance,0,0),    // 左
+            new Vector3(0,0,_faceDistance),     // 後ろ
             new Vector3(0,-_faceDistance,0),    // 下
         };
 
-        Vector3[] faceScales = new Vector3[6]
+        // 各面のQuadがサイコロの外側を向く回転角
+        Vector3[] faceRotations = new Vector3[6]
         {
-            new Vector3(_sealSize,_sealThickness,_sealSize),    // 上・下
-            new Vector3(_sealSize,_sealSize,_sealThickness),    // 正面・後ろ
-            new Vector3(_sealThickness,_sealSize,_sealSize),    // 右・左
-            new Vector3(_sealThickness,_sealSize,_sealSize),    // 右・左
-            new Vector3(_sealSize,_sealSize,_sealThickness),    // 正面・後ろ
-            new Vector3(_sealSize,_sealThickness,_sealSize),    // 上・下
+            new Vector3(90,0,0),
+            new Vector3(0,0,0),
+            new Vector3(0,-90,0),
+            new Vector3(0,90,0),
+            new Vector3(0,180,0),
+            new Vector3(-90,0,0)
         };
 
         for (int i = 0; i < 6; i++)
         {
-            GameObject sealObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject sealObj = GameObject.CreatePrimitive(PrimitiveType.Quad);
             sealObj.name = $"SealPanel_Face_{i + 1}";
             sealObj.transform.SetParent(transform);
             sealObj.transform.localPosition = facePotisions[i];
-            sealObj.transform.localRotation = Quaternion.identity;
-            sealObj.transform.localScale = faceScales[i];
+            sealObj.transform.localRotation = Quaternion.Euler(faceRotations[i]);
+            sealObj.transform.localScale = new Vector3(_sealSize, _sealSize, 1f);
 
             DestroyImmediate(sealObj.GetComponent<Collider>());
 
@@ -556,7 +581,7 @@ public class DiceView3D : MonoBehaviour
             }
         }
 
-        // 各面のシールの色と表示を更新
+        // 各面のシールの表示を更新
         for (int i = 0; i < 6; i++)
         {
             int faceVal = i + 1;
@@ -572,15 +597,25 @@ public class DiceView3D : MonoBehaviour
                 {
                     _sealFaceRenderers[i].gameObject.SetActive(true);
 
-                    Color sealColor = GetSealColor(seal);
-                    _sealFaceRenderers[i].material.color = sealColor;
-                    if (_sealFaceRenderers[i].material.HasProperty("_BaseColor"))
+                    Texture2D sealTex = GetSealTexture(seal);
+                    if (sealTex != null)
                     {
-                        _sealFaceRenderers[i].material.SetColor("_BaseColor", sealColor);
+                        _sealFaceRenderers[i].material.SetColor("_BaseColor", Color.white);
+                        _sealFaceRenderers[i].material.SetTexture("_BaseMap", sealTex);
                     }
                 }
             }
         }
+    }
+
+    private Quaternion GetKeepUprightRotation(int faceValue)
+    {
+        int index = Mathf.Clamp(faceValue - 1, 0, 5);
+        if (_keepEulerAngles != null && index < _keepEulerAngles.Length)
+        {
+            return Quaternion.Euler(_keepEulerAngles[index]);
+        }
+        return Quaternion.identity;
     }
 
     // ダイスの種類に応じたMeshを取得
@@ -592,11 +627,11 @@ public class DiceView3D : MonoBehaviour
             case DiceType.Even:
                 return _meshOE != null ? _meshOE : _meshNS;
 
-            case DiceType.HighRoller: 
-            case DiceType.LowRoller: 
+            case DiceType.HighRoller:
+            case DiceType.LowRoller:
                 return _meshHL != null ? _meshHL : _meshNS;
 
-            case DiceType.Straight: 
+            case DiceType.Straight:
             case DiceType.Nomal:
             default:
                 return _meshNS;
@@ -617,20 +652,20 @@ public class DiceView3D : MonoBehaviour
         }
     }
 
-    private Color GetSealColor(SealType seal)
+    private Texture2D GetSealTexture(SealType seal)
     {
         switch (seal)
         {
-            case SealType.Blaze: return WithAlpha(Color.red, 0.6f);
-            case SealType.Frost: return WithAlpha(Color.cyan, 0.6f);
-            case SealType.Treasure: return WithAlpha(Color.yellow, 0.6f);
-            case SealType.Legion: return WithAlpha(Color.gray, 0.6f);
-            case SealType.Spark: return WithAlpha(Color.white, 0.6f);
-            case SealType.Maverick: return WithAlpha(Color.green, 0.6f);
-            case SealType.Asymmetry: return WithAlpha(Color.blue, 0.6f);
-            case SealType.Symmetry: return WithAlpha(Color.magenta, 0.6f);
-            case SealType.Gamble: return WithAlpha(Color.black, 0.6f);
-            default: return Color.clear;
+            case SealType.Blaze: return _blazeSealTexture;
+            case SealType.Frost: return _frostSealTexture;
+            case SealType.Treasure: return _treasureSealTexture;
+            case SealType.Legion: return _legionSealTexture;
+            case SealType.Spark: return _sparkSealTexture;
+            case SealType.Maverick: return _maverickSealTexture;
+            case SealType.Asymmetry: return _asymmetrySealTexture;
+            case SealType.Symmetry: return _symmetrySealTexture;
+            case SealType.Gamble: return _gambleSealTexture;
+            default: return null;
         }
     }
 

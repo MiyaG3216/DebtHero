@@ -68,6 +68,7 @@ public class BattleManager : MonoBehaviour
                             else
                             {
                                 // それ以外ならバトル開始
+                                // デバッグモード中も初期シールスキップ
                                 StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
                             }
                         });

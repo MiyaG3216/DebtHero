@@ -16,7 +16,8 @@ public class CheatingManager : MonoBehaviour
     public int CheatUseCount = 0;
 
     // ===== プロパティ =====
-    public int MaxCheats => (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.MagicianSet)) ? 2 : 1;
+    public int MaxCheats => (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.MagicianSet)) ?
+        GameDataManager.Instance.MaxCheats + 1 : GameDataManager.Instance.MaxCheats;
     public int RemainingCheats => Mathf.Max(0, MaxCheats - CheatUseCount);
     public bool CanCheatAny => RemainingCheats > 0;
 
