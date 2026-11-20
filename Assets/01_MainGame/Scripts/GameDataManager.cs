@@ -108,6 +108,7 @@ public class GameDataManager : MonoBehaviour
         else if (_instance != this)
         {
             Destroy(gameObject);
+            return;
         }
     }
 
