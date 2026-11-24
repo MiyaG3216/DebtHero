@@ -51,7 +51,7 @@ public class RewardUIManager : MonoBehaviour
         {
             if (_rewardPanel != null && _rewardPanel.activeSelf) return true;
             if (_passiveSelectPanel != null && _passiveSelectPanel.activeSelf) return true;
-            
+
             return false;
         }
     }
@@ -269,7 +269,11 @@ public class RewardUIManager : MonoBehaviour
 
         if (success)
         {
-            _selectedSeal = SealType.None;  // 貼れたら選択を解除
+            // シール貼り付け音
+            if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.SealAttach);
+
+            // 貼れたら選択を解除
+            _selectedSeal = SealType.None;  
 
             UpdateRewardUI();
         }

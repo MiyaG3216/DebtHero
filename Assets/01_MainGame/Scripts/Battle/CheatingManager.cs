@@ -63,7 +63,11 @@ public class CheatingManager : MonoBehaviour
         if (!PlayerManager.Instance.TrySpendCoins(_extraRollCost)) return false;
 
         _diceManager.RemainingRerolls++;
+
         CheatUseCount++;
+
+        // イカサマ音
+        if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.CheatUse);
 
         return true;
     }
@@ -89,6 +93,9 @@ public class CheatingManager : MonoBehaviour
 
         CheatUseCount++;
 
+        // イカサマ音
+        if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.CheatUse);
+
         return true;
     }
 
@@ -110,6 +117,9 @@ public class CheatingManager : MonoBehaviour
         _diceManager.AnimateDiceCheat(diceIndex, targetValue);
 
         CheatUseCount++;
+
+        // イカサマ音
+        if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.CheatUse);
 
         return true;
     }

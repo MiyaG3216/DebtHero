@@ -94,6 +94,12 @@ public class DiceManager : MonoBehaviour
                 _diceViews[i].PrepareRoll(spawnPos);
             }
         }
+
+        // ジャラジャラ音を再生
+        if(SoundManager.Instance != null)
+        {
+            SoundManager.Instance.StartDiceShake();
+        }
     }
 
     // リロール（キープされていないダイスだけ振り直す）
@@ -207,6 +213,12 @@ public class DiceManager : MonoBehaviour
                 }
             }
         }
+
+        // ジャラジャラ音を再生
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.StartDiceShake();
+        }
     }
 
     public void ThrowDice()
@@ -223,6 +235,13 @@ public class DiceManager : MonoBehaviour
                     _diceViews[i].ThrowDice(DiceList[i].Value);
                 }
             }
+        }
+
+        // ジャラジャラ音停止 + 投げる音を再生
+        if(SoundManager.Instance != null)
+        {
+            SoundManager.Instance.StopDiceShake();
+            SoundManager.Instance.PlaySE(SeType.DiceThrow);
         }
     }
 }
