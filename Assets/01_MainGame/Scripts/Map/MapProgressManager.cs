@@ -30,6 +30,9 @@ public class MapProgressManager : MonoBehaviour
     // ===== Unityメッセージ =====
     private void Start()
     {
+        // BGMを再生
+        if (SoundManager.Instance != null) SoundManager.Instance.PlayBGM(BgmType.Map);
+
         _enterStageButton.onClick.AddListener(OnEnterStageClicked);
         _enterStageButton.gameObject.SetActive(false);
 
@@ -59,6 +62,9 @@ public class MapProgressManager : MonoBehaviour
         // 初期位置に配置
         _playerPiece.position = _tileNodes[fromNodeIndex].position;
         yield return new WaitForSeconds(0.3f);
+
+        // ジャンプ音を再生
+        if (GameDataManager.Instance != null) SoundManager.Instance.PlaySE(SeType.MapJump);
 
         // 前のマスから次のマスへジャンプ
         Vector3 startPos = _tileNodes[fromNodeIndex].position;

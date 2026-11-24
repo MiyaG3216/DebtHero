@@ -40,12 +40,12 @@ public class BattleManager : MonoBehaviour
                 {
                     _targetQuota = stage.TargetQuota;
                     _maxTurn = stage.MaxTurns;
-                    _currentBossTrait  =stage.BossTrait;
+                    _currentBossTrait = stage.BossTrait;
                     CurrentScore = 0;
                     RemainingTurns = _maxTurn;
 
                     // UIにステージ情報を反映
-                    if(_battleUIManager != null)
+                    if (_battleUIManager != null)
                     {
                         _battleUIManager.SetupStageInfo(stage.StageName, _currentBossTrait);
                         _battleUIManager.UpdateUI();
@@ -107,6 +107,8 @@ public class BattleManager : MonoBehaviour
 
         if (_cheatingManager != null) _cheatingManager.ResetCheating();
 
+        PlayStageBattleBGM();
+
         // UIに適名と特性を反映
         if (_battleUIManager != null)
         {
@@ -121,10 +123,31 @@ public class BattleManager : MonoBehaviour
     {
         if (!IsBattleActive || handResult == null) return;
 
-        if (MissionManager.Instance != null)
+        // 役に応じてSEを再生
+        PlayHandSE(handResult.HandType);
+
+        // 役に応じた画面揺れ
+        if (CameraShake.Instance != null)
         {
-            MissionManager.Instance.OnHandSubmitted(handResult, _diceManager.DiceList);
+            switch (handResult.HandType)
+            {
+                case HandType.ThreeDice:
+                case HandType.FourDice:
+                    CameraShake.Instance.Shake(0.1f, 0.15f);
+                    break;
+
+                case HandType.FullHouse:
+                case HandType.Straight:
+                    CameraShake.Instance.Shake(0.3f, 0.35f);
+                    break;
+
+                case HandType.FiveDice:
+                    CameraShake.Instance.Shake(0.55f, 0.55f);
+                    break;
+            }
         }
+
+        if (MissionManager.Instance != null) MissionManager.Instance.OnHandSubmitted(handResult, _diceManager.DiceList);
 
         // シール効果計算
         var calcResult = SealCalculator.Calculate(handResult, _diceManager.DiceList, RemainingTurns);
@@ -154,6 +177,9 @@ public class BattleManager : MonoBehaviour
         if (_battleUIManager != null)
         {
             _battleUIManager.ShowScoreDetailPanel(_lastBreakdown);
+
+            // トレジャーシールでコイン獲得している場合、コイン獲得音
+            if (_lastBreakdown.EarnedCoins > 0 && SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.CoinGet);
         }
     }
 
@@ -177,6 +203,9 @@ public class BattleManager : MonoBehaviour
         {
             // ノルマ達成
             IsBattleActive = false;
+
+            // ステージクリア音
+            if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.StageClear);
 
             bool isFinalBoss = GameDataManager.Instance != null &&
                                GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1;
@@ -206,6 +235,9 @@ public class BattleManager : MonoBehaviour
 
                 // コイン付与
                 if (GameDataManager.Instance != null) GameDataManager.Instance.Coins += (baseCoins + missionBobus + passiveCoins);
+
+                // コイン獲得音
+                if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.CoinGet);
             }
 
             // リザルトパネルを表示
@@ -215,6 +247,10 @@ public class BattleManager : MonoBehaviour
         {
             // 残りターン無し
             IsBattleActive = false;
+
+            // ゲームオーバー音
+            if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.GameOver);
+
             if (_battleUIManager != null) _battleUIManager.ShowBattleResultPanel(false, 0, 0, 0, false);
         }
         else
@@ -223,6 +259,69 @@ public class BattleManager : MonoBehaviour
         }
 
         _lastBreakdown = null;
+    }
+
+    // ステージ進行度に応じたBGMを再生
+    private void PlayStageBattleBGM()
+    {
+        if (SoundManager.Instance == null || GameDataManager.Instance == null) return;
+
+        int stageIndex = GameDataManager.Instance.CurrentStageIndex;
+
+        BgmType type = BgmType.None;
+        switch (stageIndex)
+        {
+            case 0:
+            case 1:
+                type = BgmType.Battle_Downtown_1;
+                break;
+            case 2:
+                type = BgmType.Battle_Downtown_2;
+                break;
+            case 4:
+            case 5:
+                type = BgmType.Battle_Casino_1;
+                break;
+            case 6:
+                type = BgmType.Battle_Casino_2;
+                break;
+            case 8:
+                type = BgmType.Battle_FinalBoss;
+                break;
+        }
+
+        SoundManager.Instance.PlayBGM(type);
+    }
+
+    // 役に応じたSEを再生
+    private void PlayHandSE(HandType handType)
+    {
+        if (SoundManager.Instance == null) return;
+
+        SeType type = SeType.HandNone;
+        switch (handType)
+        {
+            case HandType.NoHand:
+                type = SeType.HandNone;
+                break;
+
+            case HandType.OnePair:
+            case HandType.TwoPair:
+            case HandType.ThreeDice:
+                type = SeType.HandCommon;
+                break;
+
+            case HandType.FourDice:
+            case HandType.FullHouse:
+            case HandType.Straight:
+                type = SeType.HandBig;
+                break;
+
+            case HandType.FiveDice:
+                type = SeType.HandJackpot;
+                break;
+        }
+        SoundManager.Instance.PlaySE(type);
     }
 
     private string GetBossModifierText(BossTraitType trait, HandEvaluationResult handResult, bool isIceActive)

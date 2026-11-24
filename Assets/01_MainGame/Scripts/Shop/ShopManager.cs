@@ -61,11 +61,20 @@ public class ShopManager : MonoBehaviour
     // ===== Unityメッセージ =====
     private void Start()
     {
+        // ラスボスのヒントを取得
         string hint = "ボスの情報はまだない...";
-
         if (GameDataManager.Instance != null)
         {
             hint = GameDataManager.Instance.GetBossHintText();
+
+            // ショップ訪問回数を取得
+            if (GameDataManager.Instance.CurrentStageIndex > 4) ShopVisitCount = 1;
+        }
+
+        // BGMを再生
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayBGM(ShopVisitCount == 0 ? BgmType.Shop_1 : BgmType.Shop_2);
         }
 
         OpenShop(hint);
@@ -138,7 +147,7 @@ public class ShopManager : MonoBehaviour
         }
 
         // VIP会員証を適応
-        if(GameDataManager.Instance != null&&GameDataManager.Instance.HasPassive(PassiveType.VipCard))
+        if (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.VipCard))
         {
             price = Mathf.CeilToInt(price * 0.5f);
         }
@@ -150,7 +159,7 @@ public class ShopManager : MonoBehaviour
     public int GetPackPrice(SealPackData pack)
     {
         int price = pack.Price;
-        if(GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.VipCard))
+        if (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.VipCard))
         {
             price = Mathf.CeilToInt(price * 0.5f);
         }

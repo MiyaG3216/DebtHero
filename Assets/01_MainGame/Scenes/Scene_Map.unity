@@ -774,6 +774,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[PersistentGameManager]'
       objectReference: {fileID: 0}
+    - target: {fileID: 6051770760387687092, guid: 087a86125c30f1a4d879f8f38cbfbe24, type: 3}
+      propertyPath: BGMVolume
+      value: 0.194
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections.Generic;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 public class BattleUIManager : MonoBehaviour
 {
@@ -92,9 +93,12 @@ public class BattleUIManager : MonoBehaviour
 
     private Action _onMissionPanelClosedCallback;   // 閉じた後のコールバック
 
+    private Coroutine _countUpCoroutine;    // スコアカウントアップ用
+    private Coroutine _sliderAnimeCroutine; // スライダーモーション用
+
     // ===== プロパティ =====
     // 何らかのポップアップパネルが開いているかを取得
-    public bool IsAnyPanelOpen 
+    public bool IsAnyPanelOpen
     {
         get
         {
@@ -108,8 +112,6 @@ public class BattleUIManager : MonoBehaviour
             return false;
         }
     }
-
-
 
     // ===== Unityメッセージ =====
     private void Awake()
@@ -338,7 +340,15 @@ public class BattleUIManager : MonoBehaviour
     private void OnDetailConfirmClicked()
     {
         _scoreDetailPanel.SetActive(false);
+
+        // スライダーを徐々に増加させる演出
+        int startVal = _battleManager.CurrentScore;
         _battleManager.ConfirmScoreAndAdvanceTurn();
+        int targetVal = _battleManager.CurrentScore;
+
+        if (_sliderAnimeCroutine != null) StopCoroutine(_sliderAnimeCroutine );
+        _sliderAnimeCroutine = StartCoroutine(AnimateQuotaSliderRoutine(startVal, targetVal));
+
         UpdateUI();
     }
 
@@ -420,7 +430,10 @@ public class BattleUIManager : MonoBehaviour
         _detailMultiplierText.text = $"倍率：<b>× {breakdown.Multiplier:F2} 倍</b>";
         _detailBossModifierText.text = (breakdown.BossTraitText != "") ? $"ボス補正：<size=65>{breakdown.BossTraitText}</size>" : "";
         _detailCoinsText.text = (breakdown.EarnedCoins > 0) ? $"獲得コイン：+ {breakdown.EarnedCoins} 枚" : "";
-        _detailFinalScoreText.text = $"返済金額：<color=yellow><size=80><b>+ {breakdown.FinalScore} G</b></size></color>";
+
+        // スコアをカウントアップさせる
+        if (_countUpCoroutine != null) StopCoroutine(_countUpCoroutine);
+        _countUpCoroutine = StartCoroutine(CountUpScoreRoutine(breakdown.FinalScore));
 
         _scoreDetailPanel.SetActive(true);
         UpdateUI();
@@ -623,6 +636,56 @@ public class BattleUIManager : MonoBehaviour
         if (_cheatFaceSelectGroup != null) _cheatFaceSelectGroup.SetActive(false);
 
         UpdateUI();
+    }
+
+    // スコアのカウントアップ演出
+    private IEnumerator CountUpScoreRoutine(int targetScore)
+    {
+        _detailFinalScoreText.text = $"返済金額：<color=yellow><size=80><b>+ 0 G</b></size></color>";
+        yield return new WaitForSeconds(0.15f);
+
+        float duration = 0.45f;
+        float elapsed = 0f;
+        int soundInterval = 0;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            int current = Mathf.RoundToInt(Mathf.Lerp(0, targetScore, t));
+
+            _detailFinalScoreText.text = $"返済金額：<color=yellow><size=80><b>+ {current} G</b></size></color>";
+
+            soundInterval++;
+            if (soundInterval % 3 == 0 && SoundManager.Instance != null)
+                SoundManager.Instance.PlaySE(SeType.ScoreCount,0.4f);
+
+            yield return null;
+        }
+
+        _detailFinalScoreText.text = $"返済金額：<color=yellow><size=80><b>+ {targetScore} G</b></size></color>";
+    }
+
+    // スライダー増加アニメーション
+    private IEnumerator AnimateQuotaSliderRoutine(int startScore,int targetScore)
+    {
+        float duration = 0.35f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f,1f,elapsed / duration);
+
+            int currentVal = Mathf.RoundToInt(Mathf.Lerp(startScore, targetScore, t));
+
+            if(_quotaSlider != null) _quotaSlider.value = currentVal;
+            if(_quotaText !=null) _quotaText.text = $"返済額：{currentVal} / {_battleManager.TargetQuota} G";
+            
+            yield return null;
+        }
+        if (_quotaSlider != null) _quotaSlider.value = targetScore;
+        if (_quotaText != null) _quotaText.text = $"返済額：{targetScore} / {_battleManager.TargetQuota} G";
     }
 
     private string GetTraitName(BossTraitType trait)

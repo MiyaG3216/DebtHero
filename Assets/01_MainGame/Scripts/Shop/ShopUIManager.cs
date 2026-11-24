@@ -283,6 +283,9 @@ public class ShopUIManager : MonoBehaviour
         {
             if (_shopManager.TryBuyDice(_pendingDiceType, _selectedDiceIndex))
             {
+                // ショップ購入音
+                if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.ShopBuy);
+
                 CloseModal();
             }
         }
@@ -290,12 +293,15 @@ public class ShopUIManager : MonoBehaviour
         {
             // 現在のシールを張り付け
             SealType seal = _currentPack.Seals[_packSealStepIndex];
-            _shopManager.ApplySeal(seal,_selectedDiceIndex,_selectedFaceValue);
+            _shopManager.ApplySeal(seal, _selectedDiceIndex, _selectedFaceValue);
 
             _packSealStepIndex++;
 
-            if(_packSealStepIndex < _currentPack.Seals.Count)
+            if (_packSealStepIndex < _currentPack.Seals.Count)
             {
+                // シール貼り付け音
+                if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.SealAttach);
+
                 // まだ貼り付けできるシールが残っているなら次のシール貼り付けへ
                 SetupPackSealStep();
             }
@@ -304,6 +310,10 @@ public class ShopUIManager : MonoBehaviour
                 // 3枚すべて貼り付けたらコインを消費
                 int price = _shopManager.GetPackPrice(_currentPack);
                 _shopManager.SpendPackCoins(price);
+
+                // ショップ購入音
+                if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.ShopBuy);
+
                 CloseModal();
             }
         }

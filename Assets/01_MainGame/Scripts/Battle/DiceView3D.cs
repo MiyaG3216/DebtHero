@@ -213,6 +213,14 @@ public class DiceView3D : MonoBehaviour
                     // 最初の2回は跳ねさせる
                     Vector3 bounce = Vector3.up * (_bounceForce / _bounceCount);
                     _rb.AddForce(bounce, ForceMode.Impulse);
+
+                    // バウンド音を再生
+                    if(SoundManager.Instance != null)
+                    {
+                        // 連続で鳴りすぎないように音量0.7倍
+                        SoundManager.Instance.PlaySE(SeType.DiceBounce, 0.7f);
+                    }
+
                     break;
                 }
             }
@@ -372,6 +380,12 @@ public class DiceView3D : MonoBehaviour
                 _keepMarkObj.SetActive(true);
             }
 
+            // キープ音を再生
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySE(SeType.DiceLock);
+            }
+
             // 浮遊アニメーション
             _hoverCoroutine = StartCoroutine(KeepMoveAlignAndHoverRoutine(keepTargetPos, frontTargetRot));
         }
@@ -379,6 +393,12 @@ public class DiceView3D : MonoBehaviour
         {
             // 選択中マーカーを非表示
             if (_keepMarkObj != null) _keepMarkObj.SetActive(false);
+
+            // キープ解除音を再生
+            if(SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySE(SeType.DiceUnLock);
+            }
 
             // ダイスを床に着地させる
             StartCoroutine(DropToFloorInPlaceRoutine());
