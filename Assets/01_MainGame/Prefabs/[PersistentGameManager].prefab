@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1577984932960389419}
   - component: {fileID: 3806218561097663025}
   - component: {fileID: 6051770760387687092}
+  - component: {fileID: 7641257288570739106}
   m_Layer: 0
   m_Name: '[PersistentGameManager]'
   m_TagString: Untagged
@@ -45,51 +46,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f3a4f89296da61419f2b8da7945989b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameDataManager
-  _useDebugSetup: 1
+  _useDebugSetup: 0
   _debugDiceSlots:
   - SlotName: "\u30C0\u30A4\u30B9 1"
     Type: 0
-    Face1: 6
-    Face2: 6
-    Face3: 6
-    Face4: 6
-    Face5: 6
-    Face6: 6
+    Face1: 0
+    Face2: 0
+    Face3: 0
+    Face4: 0
+    Face5: 0
+    Face6: 0
   - SlotName: "\u30C0\u30A4\u30B9 2"
     Type: 0
-    Face1: 6
-    Face2: 6
-    Face3: 6
-    Face4: 6
-    Face5: 6
-    Face6: 6
+    Face1: 0
+    Face2: 0
+    Face3: 0
+    Face4: 0
+    Face5: 0
+    Face6: 0
   - SlotName: "\u30C0\u30A4\u30B9 3"
     Type: 0
-    Face1: 6
-    Face2: 6
-    Face3: 6
-    Face4: 6
-    Face5: 6
-    Face6: 6
+    Face1: 0
+    Face2: 0
+    Face3: 0
+    Face4: 0
+    Face5: 0
+    Face6: 0
   - SlotName: "\u30C0\u30A4\u30B9 4"
     Type: 0
-    Face1: 6
-    Face2: 6
-    Face3: 6
-    Face4: 6
-    Face5: 6
-    Face6: 6
+    Face1: 0
+    Face2: 0
+    Face3: 0
+    Face4: 0
+    Face5: 0
+    Face6: 0
   - SlotName: "\u30C0\u30A4\u30B9 5"
     Type: 0
-    Face1: 6
-    Face2: 6
-    Face3: 6
-    Face4: 6
-    Face5: 6
-    Face6: 6
-  MaxCoins: 999
+    Face1: 0
+    Face2: 0
+    Face3: 0
+    Face4: 0
+    Face5: 0
+    Face6: 0
+  MaxCoins: 1
   Coins: 0
-  MaxCheats: 5
+  MaxCheats: 1
   PlayerDiceList: []
   CurrentStageIndex: 0
   AcquiredPassive: 
@@ -108,7 +109,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   BGMVolume: 0.6
-  SEVolume: 0.8
+  SEVolume: 1
   _bgmDowntown1: {fileID: 8300000, guid: 7c571cf5f7385dc4d9742725acf14596, type: 3}
   _bgmDowntown2: {fileID: 8300000, guid: 7406bcb3fefdba5499f805345eb6e93c, type: 3}
   _bgmCasino1: {fileID: 8300000, guid: 736a992249bf12843b42125f56f39f14, type: 3}
@@ -129,11 +130,24 @@ MonoBehaviour:
   _seHandBig: {fileID: 8300000, guid: 990b377ccd6821b469bc1b74d0c4b0cc, type: 3}
   _seHandJackpot: {fileID: 8300000, guid: efcb2f1054981064b81e95f80d071d44, type: 3}
   _seScoreCount: {fileID: 8300000, guid: 3531e142f52f3c6438f4fa1feab01b1c, type: 3}
-  _seCheatUse: {fileID: 8300000, guid: 2bc18798d5a0578478f2c60da6895f13, type: 3}
-  _seCoinGet: {fileID: 8300000, guid: b2f5033646cffbc408b3d25e9ca484ea, type: 3}
+  _seCheatUse: {fileID: 8300000, guid: 2833eeb7f86cc8f449c37c8369677f79, type: 3}
+  _seCoinGet: {fileID: 8300000, guid: 96d03fc78b20a0e4b99aceaf20af576e, type: 3}
   _seMapJump: {fileID: 8300000, guid: e213a90afddb26e40b01d5326a55d54f, type: 3}
   _seSealAttach: {fileID: 8300000, guid: 8400fbe229985b841b89bdbb331c5dd8, type: 3}
   _seStageClear: {fileID: 8300000, guid: be75f5f067b11d14f92d4f0aa1ce5058, type: 3}
   _seGameOver: {fileID: 8300000, guid: 2e659a79391400947a513ee20c57f966, type: 3}
   _seShopBuy: {fileID: 8300000, guid: d37aa4feff47e6f469a66bb38dcaf678, type: 3}
   _seChoice: {fileID: 8300000, guid: e37b2dfb2fdaf9b468a9cdaf158be9a2, type: 3}
+--- !u!114 &7641257288570739106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5583601754264777581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 578a3cc2725a2f44895963c7d9c9eabc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoryScenarioManager
+  _scenarioList: []
