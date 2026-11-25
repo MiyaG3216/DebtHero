@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 597b8a6169462fa4695eaeb78801d150
+guid: d00eb6c7e711f5242b88ce1eb6a83920
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4658189192654258396
-    second: Img_Background_CasinoBar_02_0
+      213: -1331986698392862746
+    second: Item_MetalDetector_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -128,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Img_Background_CasinoBar_02_0
+      name: Item_MetalDetector_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1920
-        height: 1080
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 42f77430c99ca5fb0800000000000000
-      internalID: -4658189192654258396
+      spriteID: 6ef7fbca725d38de0800000000000000
+      internalID: -1331986698392862746
       vertices: []
       indices: 
       edges: []
