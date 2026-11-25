@@ -262,13 +262,13 @@ public static class SealCalculator
         }
 
         // パッシブ（督促状）の適応
-        if (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.FinalNotice))
+        if (GameDataManager.Instance != null && GameDataManager.Instance.HasPassive(PassiveType.ShowdownMedal))
         {
             if (remainingTurns == 1) totalMultiplier *= 3.0f;
         }
 
         // パッシブ（預金通帳）の適応
-        if(GameDataManager.Instance!= null && GameDataManager.Instance.HasPassive(PassiveType.PassBook))
+        if(GameDataManager.Instance!= null && GameDataManager.Instance.HasPassive(PassiveType.PlatinumBank))
         {
             int coins = GameDataManager.Instance.Coins;
             float bonus = (coins / 2) * 0.1f;

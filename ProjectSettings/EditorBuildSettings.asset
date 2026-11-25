@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01_MainGame/Scenes/Scene_Dialog.unity
     guid: c6022438d39a5bd4f8c8b35f3628b96b
+  - enabled: 1
+    path: Assets/01_MainGame/Scenes/Scene_Reward.unity
+    guid: 16ff22e804c258e49b391015eaeaf140
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

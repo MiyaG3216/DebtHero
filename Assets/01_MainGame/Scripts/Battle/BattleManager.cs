@@ -33,48 +33,48 @@ public class BattleManager : MonoBehaviour
             StageData stage = GameDataManager.Instance.GetCurrentStageData();
             if (stage != null)
             {
-                bool isFinalBoss = (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1);
+                //bool isFinalBoss = (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1);
 
-                // ラスボス以外はミッションを生成してパネルを開く
-                if (!isFinalBoss)
-                {
-                    _targetQuota = stage.TargetQuota;
-                    _maxTurn = stage.MaxTurns;
-                    _currentBossTrait = stage.BossTrait;
-                    CurrentScore = 0;
-                    RemainingTurns = _maxTurn;
+                //// ラスボス以外はミッションを生成してパネルを開く
+                //if (!isFinalBoss)
+                //{
+                //    _targetQuota = stage.TargetQuota;
+                //    _maxTurn = stage.MaxTurns;
+                //    _currentBossTrait = stage.BossTrait;
+                //    CurrentScore = 0;
+                //    RemainingTurns = _maxTurn;
 
-                    // UIにステージ情報を反映
-                    if (_battleUIManager != null)
-                    {
-                        _battleUIManager.SetupStageInfo(stage.StageName, _currentBossTrait);
-                        _battleUIManager.UpdateUI();
-                    }
+                //    // UIにステージ情報を反映
+                //    if (_battleUIManager != null)
+                //    {
+                //        _battleUIManager.SetupStageInfo(stage.StageName, _currentBossTrait);
+                //        _battleUIManager.UpdateUI();
+                //    }
 
-                    // ミッションを生成
-                    if (MissionManager.Instance != null) MissionManager.Instance.GenerateMissions(stage.MaxTurns);
+                //    // ミッションを生成
+                //    if (MissionManager.Instance != null) MissionManager.Instance.GenerateMissions(stage.MaxTurns);
 
-                    // ミッションパネルを開く
-                    if (_battleUIManager != null)
-                    {
-                        _battleUIManager.OpenMissionPanel(() =>
-                        {
-                            // パネルを閉じた後の処理
-                            if (GameDataManager.Instance.CurrentStageIndex == 0 && !GameDataManager.Instance.HasSetupInitialSeals)
-                            {
-                                // ステージ1 かつ 初期シール未設定なら初期シール画面を開く
-                                OpenInitialSealFlow();
-                            }
-                            else
-                            {
-                                // それ以外ならバトル開始
-                                // デバッグモード中も初期シールスキップ
-                                StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
-                            }
-                        });
-                        return;     // パネルが閉じるまで待機
-                    }
-                }
+                //    // ミッションパネルを開く
+                //    if (_battleUIManager != null)
+                //    {
+                //        _battleUIManager.OpenMissionPanel(() =>
+                //        {
+                //            // パネルを閉じた後の処理
+                //            if (GameDataManager.Instance.CurrentStageIndex == 0 && !GameDataManager.Instance.HasSetupInitialSeals)
+                //            {
+                //                // ステージ1 かつ 初期シール未設定なら初期シール画面を開く
+                //                OpenInitialSealFlow();
+                //            }
+                //            else
+                //            {
+                //                // それ以外ならバトル開始
+                //                // デバッグモード中も初期シールスキップ
+                //                StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
+                //            }
+                //        });
+                //        return;     // パネルが閉じるまで待機
+                //    }
+                //}
 
                 // ラスボス戦
                 StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);

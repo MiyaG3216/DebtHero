@@ -4,6 +4,17 @@ using TMPro;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+using System.Linq;
+using NUnit.Framework.Internal.Execution;
+
+[System.Serializable]
+public class PassiveSlotUI
+{
+    public GameObject RootObject;   // 親オブジェクト
+    public Image ItemImage;         // アイテム画像
+    public Image FrameImage;        // フレーム画像
+}
 
 public class BattleUIManager : MonoBehaviour
 {
@@ -29,8 +40,8 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private Slider _quotaSlider;               // 返済メーター(スライダー)
     [SerializeField] private TextMeshProUGUI _quotaText;        // 目標スコア
     [SerializeField] private TextMeshProUGUI _turnsText;        // 残りターン
-    [SerializeField] private GameObject _passiveDisplayObject;  // 所持パッシブ表示アイコン
-    [SerializeField] private TextMeshProUGUI _passiveDisplayText;
+    [SerializeField] private PassiveSlotUI[] _passiveSlots = new PassiveSlotUI[2];  // 所持パッシブ表示アイコン
+    //[SerializeField] private TextMeshProUGUI _passiveDisplayText;
 
     [Header("画面下部")]
     [SerializeField] private Button _rerollButton;              // リロールボタン
@@ -85,6 +96,19 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _numberMissionText;// 数字ミッション
     [SerializeField] private Button _closeMissionPanelButton;   // 閉じるボタン
     [SerializeField] private Button _openMissionPanelButton;    // 表示ボタン
+
+    [Header("敵キャラ画像")]
+    [SerializeField] private Image _enemyPortraitImage;
+    [SerializeField] private List<Sprite> _enemySpriteList;
+
+    [Header("パッシブアイテム")]
+    [SerializeField] private Sprite _iconGoldCard;
+    [SerializeField] private Sprite _iconVipCard;
+    [SerializeField] private Sprite _iconMagicianSet;
+    [SerializeField] private Sprite _iconPlatinumBank;
+    [SerializeField] private Sprite _iconShowdownMedal;
+    [SerializeField] private Sprite _iconDIceCup;
+    [SerializeField] private Sprite _iconMetalDetector;
 
     private CheatMode _currentCheatMode = CheatMode.None;
     private int _targetDiceIndex = -1;
@@ -304,37 +328,13 @@ public class BattleUIManager : MonoBehaviour
         // ラスボス戦後はエンディングへ（未実装）
         if (_isFinalBossDefeated)
         {
+            DialogController.CurrentTiming = DialogTiming.Ending;
+            SceneManager.LoadScene("Scene_Dialog");
             return;
         }
 
-        // 中ボス戦クリア時はパッシブアイテム獲得パネルを先に開く
-        int midBossTier = 0;
-        if (GameDataManager.Instance != null)
-        {
-            int stageIndex = GameDataManager.Instance.CurrentStageIndex;
-            if (stageIndex == 3) midBossTier = 1;
-            else if (stageIndex == 6) midBossTier = 2;
-        }
-
-        if (_rewardManager != null)
-        {
-            // 報酬シールを決定
-            _rewardManager.PrepareRewardSeals();
-
-            // 中ボス戦の場合は先にパッシブ獲得を開く
-            if (midBossTier > 0)
-            {
-                var rewardUI = FindAnyObjectByType<RewardUIManager>();
-                if (rewardUI != null)
-                {
-                    rewardUI.OpenPassiveRewardUI(midBossTier);
-                    return;
-                }
-            }
-
-            // それ以外はシール報酬を開く
-            _rewardManager.OpenRewardPhaseUI();
-        }
+        DialogController.CurrentTiming = DialogTiming.AfterBattle;
+        SceneManager.LoadScene("Scene_Dialog");
     }
 
     private void OnDetailConfirmClicked()
@@ -346,7 +346,7 @@ public class BattleUIManager : MonoBehaviour
         _battleManager.ConfirmScoreAndAdvanceTurn();
         int targetVal = _battleManager.CurrentScore;
 
-        if (_sliderAnimeCroutine != null) StopCoroutine(_sliderAnimeCroutine );
+        if (_sliderAnimeCroutine != null) StopCoroutine(_sliderAnimeCroutine);
         _sliderAnimeCroutine = StartCoroutine(AnimateQuotaSliderRoutine(startVal, targetVal));
 
         UpdateUI();
@@ -515,39 +515,50 @@ public class BattleUIManager : MonoBehaviour
     {
         if (_stageNameText != null) _stageNameText.text = $"【{stageName}】";
 
+        // ボス特性表示
         if (_bossTraitText != null)
         {
-            if (trait != BossTraitType.None)
-            {
-                _bossTraitText.gameObject.SetActive(true);
-                _bossTraitText.text = $"<color=red>【特性】\n{GetTraitName(trait)}</color>";
-            }
-            else
-            {
-                _bossTraitText.gameObject.SetActive(false);
-            }
+            bool hasTrait = trait != BossTraitType.None;
+            _bossTraitText.gameObject.SetActive(hasTrait);
+            _bossTraitText.text = $"<color=red>【特性】\n{GetTraitName(trait)}</color>";
+        }
+
+        // 立ち絵切り替え
+        if (_enemyPortraitImage != null && _enemySpriteList != null && _enemySpriteList.Count > 0)
+        {
+            int spriteIndex = GetCurrentEnemySpriteIndex();
+            bool hasSprite = _enemySpriteList[spriteIndex] != null;
+
+            _enemyPortraitImage.sprite = _enemySpriteList[spriteIndex];
+            _enemyPortraitImage.gameObject.SetActive(hasSprite);
         }
     }
 
     private void UpdatePassiveDisplay()
     {
-        if (_passiveDisplayObject == null || _passiveDisplayText == null) return;
+        var passives = (GameDataManager.Instance != null) ? GameDataManager.Instance.AcquiredPassive : null;
 
-        // パッシブを所持していれば表示、なければ非表示
-        if (GameDataManager.Instance != null && GameDataManager.Instance.AcquiredPassive.Count > 0)
+        for (int i = 0; i < _passiveSlots.Length; i++)
         {
-            _passiveDisplayObject.SetActive(true);
+            var slot = _passiveSlots[i];
+            if (slot == null || slot.RootObject == null) continue;
 
-            List<string> passiveInfos = new List<string>();
-            foreach (var p in GameDataManager.Instance.AcquiredPassive)
+            // i番目のアイテムを持っているか
+            if (passives != null || i < passives.Count)
             {
-                passiveInfos.Add($"【{PassiveHelper.GetName(p)}】\n{PassiveHelper.GetDescription(p)}");
+                PassiveType type = passives[i];
+                Sprite icon = GetPassiveIcon(type);
+
+                if (slot.ItemImage != null && icon != null)
+                {
+                    slot.ItemImage.sprite = icon;
+                }
+                slot.RootObject.SetActive(true);
             }
-            _passiveDisplayText.text = string.Join("", passiveInfos);
-        }
-        else
-        {
-            _passiveDisplayObject.SetActive(false);
+            else
+            {
+                slot.RootObject.SetActive(false);
+            }
         }
     }
 
@@ -658,7 +669,7 @@ public class BattleUIManager : MonoBehaviour
 
             soundInterval++;
             if (soundInterval % 3 == 0 && SoundManager.Instance != null)
-                SoundManager.Instance.PlaySE(SeType.ScoreCount,0.4f);
+                SoundManager.Instance.PlaySE(SeType.ScoreCount, 0.4f);
 
             yield return null;
         }
@@ -667,7 +678,7 @@ public class BattleUIManager : MonoBehaviour
     }
 
     // スライダー増加アニメーション
-    private IEnumerator AnimateQuotaSliderRoutine(int startScore,int targetScore)
+    private IEnumerator AnimateQuotaSliderRoutine(int startScore, int targetScore)
     {
         float duration = 0.35f;
         float elapsed = 0f;
@@ -675,17 +686,50 @@ public class BattleUIManager : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.SmoothStep(0f,1f,elapsed / duration);
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
 
             int currentVal = Mathf.RoundToInt(Mathf.Lerp(startScore, targetScore, t));
 
-            if(_quotaSlider != null) _quotaSlider.value = currentVal;
-            if(_quotaText !=null) _quotaText.text = $"返済額：{currentVal} / {_battleManager.TargetQuota} G";
-            
+            if (_quotaSlider != null) _quotaSlider.value = currentVal;
+            if (_quotaText != null) _quotaText.text = $"返済額：{currentVal} / {_battleManager.TargetQuota} G";
+
             yield return null;
         }
         if (_quotaSlider != null) _quotaSlider.value = targetScore;
         if (_quotaText != null) _quotaText.text = $"返済額：{targetScore} / {_battleManager.TargetQuota} G";
+    }
+
+    // 現在のStageIndexから_enemySpriteListの対応画像のIndexを返す
+    private int GetCurrentEnemySpriteIndex()
+    {
+        if (GameDataManager.Instance == null) return 0;
+
+        int stageIndex = GameDataManager.Instance.CurrentStageIndex;
+
+        if (stageIndex <= 1) return stageIndex;
+        if (stageIndex == 3) return 2;
+        if (stageIndex == 4) return 3;
+        if (stageIndex == 5) return 4;
+        if (stageIndex == 6) return 5;
+        if (stageIndex == 8) return 6;
+
+        return 0;
+    }
+
+    // PassiveTypeに対応する画像を返す
+    public Sprite GetPassiveIcon(PassiveType type)
+    {
+        switch (type)
+        {
+            case PassiveType.GoldCard: return _iconGoldCard;
+            case PassiveType.VipCard: return _iconVipCard;
+            case PassiveType.MagicianSet: return _iconMagicianSet;
+            case PassiveType.PlatinumBank: return _iconPlatinumBank;
+            case PassiveType.ShowdownMedal: return _iconShowdownMedal;
+            case PassiveType.DiceCup: return _iconDIceCup;
+            case PassiveType.MetalDerector: return _iconMetalDetector;
+            default: return null;
+        }
     }
 
     private string GetTraitName(BossTraitType trait)

@@ -157,8 +157,8 @@ public class DialogController : MonoBehaviour
                 break;
 
             case DialogTiming.AfterBattle:
-                if (GameDataManager.Instance != null) GameDataManager.Instance.CurrentStageIndex++;
-                SceneManager.LoadScene("Scene_Map");
+                //if (GameDataManager.Instance != null) GameDataManager.Instance.CurrentStageIndex++;
+                SceneManager.LoadScene("Scene_Reward");
                 break;
 
             case DialogTiming.Ending:
