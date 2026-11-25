@@ -10,7 +10,7 @@ public class RewardUIManager : MonoBehaviour
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private RewardManager _rewardManager;
-    [SerializeField] private DiceManager _diceManager;
+    //[SerializeField] private DiceManager _diceManager;
 
     [Header("パネル")]
     [SerializeField] private GameObject _rewardPanel;       // パネル
@@ -32,8 +32,9 @@ public class RewardUIManager : MonoBehaviour
     [Header("パッシブ選択パネル")]
     [SerializeField] private GameObject _passiveSelectPanel;
     [SerializeField] private Button[] _passiveCardButtons;
-    [SerializeField] private TextMeshProUGUI[] _passiveCardTexts;
-    [SerializeField] private TextMeshProUGUI[] _passiveCardDescs;
+    [SerializeField] private Image[] _passiveCardIcons;
+    //[SerializeField] private TextMeshProUGUI[] _passiveCardTexts;
+    //[SerializeField] private TextMeshProUGUI[] _passiveCardDescs;
     [SerializeField] private Button _passiveConfirmButton;
 
     private SealType _selectedSeal = SealType.None;
@@ -120,14 +121,14 @@ public class RewardUIManager : MonoBehaviour
         if (bossTier == 1)
         {
             _currentOfferedPassives.Add(PassiveType.VipCard);
-            _currentOfferedPassives.Add(PassiveType.PassBook);
+            _currentOfferedPassives.Add(PassiveType.PlatinumBank);
             _currentOfferedPassives.Add(PassiveType.MetalDerector);
         }
         else
         {
             _currentOfferedPassives.Add(PassiveType.GoldCard);
             _currentOfferedPassives.Add(PassiveType.MagicianSet);
-            _currentOfferedPassives.Add(PassiveType.FinalNotice);
+            _currentOfferedPassives.Add(PassiveType.ShowdownMedal);
             _currentOfferedPassives.Add(PassiveType.DiceCup);
         }
 
@@ -142,7 +143,10 @@ public class RewardUIManager : MonoBehaviour
 
     public void UpdateRewardUI()
     {
-        if (_rewardManager == null || _diceManager == null) return;
+        if (_rewardManager == null) return;
+
+        var diceList = (GameDataManager.Instance!=null)?GameDataManager.Instance.PlayerDiceList : null;
+        if(diceList == null) return;
 
         // ヘッダーテキスト
         int remaining = _rewardManager.RemainingPicks;
@@ -184,9 +188,9 @@ public class RewardUIManager : MonoBehaviour
         // ダイスタブの表示
         for (int i = 0; i < _diceTabButtons.Count; i++)
         {
-            if (i < _diceManager.DiceList.Count)
+            if (i < diceList.Count)
             {
-                var dice = _diceManager.DiceList[i];
+                var dice = diceList[i];
 
                 string isCurrent = (i == _selectedDiceIndex) ? "<color=green>▶</color>" : " ";
 
@@ -195,7 +199,7 @@ public class RewardUIManager : MonoBehaviour
         }
 
         // 選択中ダイスの1-6の面表示
-        var currentDice = _diceManager.DiceList[_selectedDiceIndex];
+        var currentDice = diceList[_selectedDiceIndex];
 
         for (int i = 0; i < _faceButtons.Count; i++)
         {
@@ -226,12 +230,22 @@ public class RewardUIManager : MonoBehaviour
             if (i < _currentOfferedPassives.Count)
             {
                 PassiveType type = _currentOfferedPassives[i];
-                bool isSelected = (i == _selectedPassiveCardIndex);
 
-                string highlightTag = isSelected ? "<color=green>【選択中】</color>" : "";
+                // アイコン画像を切り替え
+                if(_passiveCardIcons!=null && i < _passiveCardIcons.Length && _passiveCardIcons[i] != null)
+                {
+                    var battleUI = FindAnyObjectByType<BattleUIManager>();
+                    if (battleUI != null)
+                    {
+                        _passiveCardIcons[i].sprite = battleUI.GetPassiveIcon(type);
+                        _passiveCardIcons[i].gameObject.SetActive(true);
+                    }
+                }
 
-                _passiveCardTexts[i].text = PassiveHelper.GetName(type);
-                _passiveCardDescs[i].text = $"{PassiveHelper.GetDescription(type)}\n{highlightTag}";
+                //bool isSelected = (i == _selectedPassiveCardIndex);
+                //string highlightTag = isSelected ? "<color=green>【選択中】</color>" : "";
+                //_passiveCardTexts[i].text = PassiveHelper.GetName(type);
+                //_passiveCardDescs[i].text = $"{PassiveHelper.GetDescription(type)}\n{highlightTag}";
 
                 _passiveCardButtons[i].gameObject.SetActive(true);
             }
@@ -273,7 +287,7 @@ public class RewardUIManager : MonoBehaviour
             if (SoundManager.Instance != null) SoundManager.Instance.PlaySE(SeType.SealAttach);
 
             // 貼れたら選択を解除
-            _selectedSeal = SealType.None;  
+            _selectedSeal = SealType.None;
 
             UpdateRewardUI();
         }
@@ -283,28 +297,28 @@ public class RewardUIManager : MonoBehaviour
     private void OnNextStageClicked()
     {
         _rewardPanel.SetActive(false);
-        if (_initialSealSetup)
-        {
-            _initialSealSetup = false;
-            if (GameDataManager.Instance != null)
-            {
-                GameDataManager.Instance.HasSetupInitialSeals = true;
-            }
+        //if (_initialSealSetup)
+        //{
+        //    _initialSealSetup = false;
+        //    if (GameDataManager.Instance != null)
+        //    {
+        //        GameDataManager.Instance.HasSetupInitialSeals = true;
+        //    }
 
-            var battleMgr = FindAnyObjectByType<BattleManager>();
-            if (battleMgr != null)
-            {
-                battleMgr.StartFirstStageBattle();
-            }
-            return;
-        }
+        //    var battleMgr = FindAnyObjectByType<BattleManager>();
+        //    if (battleMgr != null)
+        //    {
+        //        battleMgr.StartFirstStageBattle();
+        //    }
+        //    return;
+        //}
 
         if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.CurrentStageIndex++;
-
-            SceneManager.LoadScene("Scene_Map");
         }
+
+        SceneManager.LoadScene("Scene_Map");
     }
 
     // パッシブアイテムが選択されたとき
@@ -374,8 +388,8 @@ public class RewardUIManager : MonoBehaviour
             case SealType.Blaze: return "返済額に倍率\n(1.2 ～ 6.0)倍";
             case SealType.Frost: return "ボスの特性を無効化\n返済額に倍率\n( 1.1 ～ 1.61 )倍";
             case SealType.Treasure: return "コインを獲得\n( 1 ～ 10 )C";
-            case SealType.Legion: return "鉄シールの枚数 × 50G 加算";
-            case SealType.Maverick: return "同じダイスに孤高シールのみなら返済額を2倍";
+            case SealType.Legion: return "レギオンの数 × 50G 加算";
+            case SealType.Maverick: return "同じダイスにマーベリックのみで返済額を2倍";
             case SealType.Gamble: return "役に使えば返済額を 2.5 倍、不使用で返済額を半減";
             case SealType.Spark: return "ゾロ目系役に使用で返済額を加算\n( 100 ～ 700 )G";
             case SealType.Symmetry: return "1,3,5に貼ると\n返済額に倍率\n( 1.3 ～ 4.1 )倍";

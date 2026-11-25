@@ -6,7 +6,6 @@ public class RewardManager : MonoBehaviour
 {
     // ===== フィールド =====
     [Header("参照")]
-    [SerializeField] private DiceManager _diceManager;
     [SerializeField] private RewardUIManager _rewardUIManager;
 
     // 報酬でドロップするシール(9種類)
@@ -28,6 +27,29 @@ public class RewardManager : MonoBehaviour
     public int RemainingPicks { get; private set; } = 0;
 
     // ===== Unityメッセージ =====
+    private void Start()
+    {
+        // 中ボス撃破後か判定
+        int midBossTier = 0;
+        if (GameDataManager.Instance != null)
+        {
+            int stageIndex = GameDataManager.Instance.CurrentStageIndex;
+            if (stageIndex == 3) midBossTier = 1;
+            else if (stageIndex == 6) midBossTier = 2;
+        }
+
+        PrepareRewardSeals();
+
+        // 中ボス後ならパッシブ選択を先に開く
+        if (midBossTier > 0 && _rewardUIManager != null)
+        {
+            _rewardUIManager.OpenPassiveRewardUI(midBossTier);
+        }
+        else
+        {
+            OpenRewardPhaseUI();
+        }
+    }
 
     // ===== メソッド =====
     // 報酬シールを決定する
@@ -56,16 +78,17 @@ public class RewardManager : MonoBehaviour
     public bool ApplySealToDice(SealType seal, int diceIndex, int faceValue)
     {
         if (RemainingPicks <= 0) return false;
-        if (diceIndex < 0 || diceIndex >= _diceManager.DiceList.Count) return false;
+
+        var diceList = (GameDataManager.Instance != null) ? GameDataManager.Instance.PlayerDiceList : null;
+
+        if (diceList == null || diceIndex < 0 || diceIndex >= diceList.Count) return false;
         if (faceValue < 1 || faceValue > 6) return false;
 
         // ダイスにシールを張り付ける
-        _diceManager.DiceList[diceIndex].AttachSeal(faceValue, seal);
+        diceList[diceIndex].AttachSeal(faceValue, seal);
         RemainingPicks--;
 
         CurrentOfferSeals.Remove(seal);
-
-        if (_diceManager != null) _diceManager.UpdateAllDiceVisuals();
 
         return true;
     }

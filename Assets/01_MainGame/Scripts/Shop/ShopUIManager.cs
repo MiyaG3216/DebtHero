@@ -16,6 +16,11 @@ public class ShopUIManager : MonoBehaviour
     [Header("参照")]
     [SerializeField] private ShopManager _shopManager;
 
+    [Header("背景画像")]
+    [SerializeField] private Image _shopBackgroundImage;
+    [SerializeField] private Sprite _shopBg1;
+    [SerializeField] private Sprite _shopBg2;
+
     [Header("ショップパネル")]
     [SerializeField] private GameObject _shopPanel;         // ショップパネル
     [SerializeField] private TextMeshProUGUI _shopTitleText;// ショップ名
@@ -103,6 +108,9 @@ public class ShopUIManager : MonoBehaviour
     // ===== メソッド =====
     public void OpenShopUI(string hint, int visitCount)
     {
+        // 訪問回数に応じて背景を変更
+        if (_shopBackgroundImage != null) _shopBackgroundImage.sprite = (visitCount == 1) ? _shopBg1 : _shopBg2;
+
         _shopPanel.SetActive(true);
         if (_customizeModalPanel != null) _customizeModalPanel.SetActive(false);
 
