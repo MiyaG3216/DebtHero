@@ -3,14 +3,13 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using TMPro;
-using System.Linq;
+using UnityEngine.Rendering;
 
 public class RewardUIManager : MonoBehaviour
 {
     // ===== フィールド =====
     [Header("参照")]
     [SerializeField] private RewardManager _rewardManager;
-    //[SerializeField] private DiceManager _diceManager;
 
     [Header("パネル")]
     [SerializeField] private GameObject _rewardPanel;       // パネル
@@ -33,8 +32,9 @@ public class RewardUIManager : MonoBehaviour
     [SerializeField] private GameObject _passiveSelectPanel;
     [SerializeField] private Button[] _passiveCardButtons;
     [SerializeField] private Image[] _passiveCardIcons;
-    //[SerializeField] private TextMeshProUGUI[] _passiveCardTexts;
-    //[SerializeField] private TextMeshProUGUI[] _passiveCardDescs;
+    [SerializeField] private Image[] _passiveCardFrames;
+    [SerializeField] private TextMeshProUGUI[] _passiveCardTexts;
+    [SerializeField] private TextMeshProUGUI[] _passiveCardDescs;
     [SerializeField] private Button _passiveConfirmButton;
 
     private SealType _selectedSeal = SealType.None;
@@ -145,8 +145,8 @@ public class RewardUIManager : MonoBehaviour
     {
         if (_rewardManager == null) return;
 
-        var diceList = (GameDataManager.Instance!=null)?GameDataManager.Instance.PlayerDiceList : null;
-        if(diceList == null) return;
+        var diceList = (GameDataManager.Instance != null) ? GameDataManager.Instance.PlayerDiceList : null;
+        if (diceList == null) return;
 
         // ヘッダーテキスト
         int remaining = _rewardManager.RemainingPicks;
@@ -230,22 +230,26 @@ public class RewardUIManager : MonoBehaviour
             if (i < _currentOfferedPassives.Count)
             {
                 PassiveType type = _currentOfferedPassives[i];
+                bool isSelected = (i == _selectedPassiveCardIndex);
+
+                _passiveCardTexts[i].text = PassiveHelper.GetName(type);
+                _passiveCardDescs[i].text = PassiveHelper.GetDescription(type);
 
                 // アイコン画像を切り替え
-                if(_passiveCardIcons!=null && i < _passiveCardIcons.Length && _passiveCardIcons[i] != null)
+                if (_passiveCardIcons != null && i < _passiveCardIcons.Length && _passiveCardIcons[i] != null)
                 {
-                    var battleUI = FindAnyObjectByType<BattleUIManager>();
-                    if (battleUI != null)
+                    if (GameDataManager.Instance != null)
                     {
-                        _passiveCardIcons[i].sprite = battleUI.GetPassiveIcon(type);
+                        _passiveCardIcons[i].sprite = GameDataManager.Instance.GetPassiveIcon(type);
                         _passiveCardIcons[i].gameObject.SetActive(true);
                     }
                 }
 
-                //bool isSelected = (i == _selectedPassiveCardIndex);
-                //string highlightTag = isSelected ? "<color=green>【選択中】</color>" : "";
-                //_passiveCardTexts[i].text = PassiveHelper.GetName(type);
-                //_passiveCardDescs[i].text = $"{PassiveHelper.GetDescription(type)}\n{highlightTag}";
+                // 選択中のフレームの色を切り替える
+                if (_passiveCardFrames != null && i < _passiveCardFrames.Length && _passiveCardFrames[i] != null)
+                {
+                    _passiveCardFrames[i].color = isSelected ? Color.yellow : Color.white;
+                }
 
                 _passiveCardButtons[i].gameObject.SetActive(true);
             }
@@ -296,28 +300,25 @@ public class RewardUIManager : MonoBehaviour
     // 次へボタンがクリックされたとき
     private void OnNextStageClicked()
     {
-        _rewardPanel.SetActive(false);
-        //if (_initialSealSetup)
-        //{
-        //    _initialSealSetup = false;
-        //    if (GameDataManager.Instance != null)
-        //    {
-        //        GameDataManager.Instance.HasSetupInitialSeals = true;
-        //    }
+        _nextStageButton.interactable = false;
 
-        //    var battleMgr = FindAnyObjectByType<BattleManager>();
-        //    if (battleMgr != null)
-        //    {
-        //        battleMgr.StartFirstStageBattle();
-        //    }
-        //    return;
-        //}
+        // 初期シール貼り付け完了後はバトルへ
+        if (_initialSealSetup)
+        {
+            _initialSealSetup = false;
+            if (GameDataManager.Instance != null)
+                GameDataManager.Instance.HasSetupInitialSeals = true;
 
+            SceneManager.LoadScene("Scene_Battle");
+
+            return;
+        }
+
+        // 通常報酬時はMapへ移動
         if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.CurrentStageIndex++;
         }
-
         SceneManager.LoadScene("Scene_Map");
     }
 

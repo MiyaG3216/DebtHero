@@ -5,8 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using System.Linq;
-using NUnit.Framework.Internal.Execution;
 
 [System.Serializable]
 public class PassiveSlotUI
@@ -32,7 +30,6 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private DiceManager _diceManager;
     [SerializeField] private BattleManager _battleManager;
     [SerializeField] private CheatingManager _cheatingManager;
-    [SerializeField] private RewardManager _rewardManager;
 
     [Header("画面上部")]
     [SerializeField] private TextMeshProUGUI _stageNameText;    // ステージ名
@@ -100,15 +97,6 @@ public class BattleUIManager : MonoBehaviour
     [Header("敵キャラ画像")]
     [SerializeField] private Image _enemyPortraitImage;
     [SerializeField] private List<Sprite> _enemySpriteList;
-
-    [Header("パッシブアイテム")]
-    [SerializeField] private Sprite _iconGoldCard;
-    [SerializeField] private Sprite _iconVipCard;
-    [SerializeField] private Sprite _iconMagicianSet;
-    [SerializeField] private Sprite _iconPlatinumBank;
-    [SerializeField] private Sprite _iconShowdownMedal;
-    [SerializeField] private Sprite _iconDIceCup;
-    [SerializeField] private Sprite _iconMetalDetector;
 
     private CheatMode _currentCheatMode = CheatMode.None;
     private int _targetDiceIndex = -1;
@@ -544,14 +532,14 @@ public class BattleUIManager : MonoBehaviour
             if (slot == null || slot.RootObject == null) continue;
 
             // i番目のアイテムを持っているか
-            if (passives != null || i < passives.Count)
+            if (passives != null && i < passives.Count)
             {
                 PassiveType type = passives[i];
-                Sprite icon = GetPassiveIcon(type);
 
-                if (slot.ItemImage != null && icon != null)
+                if (slot.ItemImage != null)
                 {
-                    slot.ItemImage.sprite = icon;
+                    slot.ItemImage.sprite = 
+                        (GameDataManager.Instance != null) ? GameDataManager.Instance.GetPassiveIcon(type) : null;
                 }
                 slot.RootObject.SetActive(true);
             }
@@ -714,22 +702,6 @@ public class BattleUIManager : MonoBehaviour
         if (stageIndex == 8) return 6;
 
         return 0;
-    }
-
-    // PassiveTypeに対応する画像を返す
-    public Sprite GetPassiveIcon(PassiveType type)
-    {
-        switch (type)
-        {
-            case PassiveType.GoldCard: return _iconGoldCard;
-            case PassiveType.VipCard: return _iconVipCard;
-            case PassiveType.MagicianSet: return _iconMagicianSet;
-            case PassiveType.PlatinumBank: return _iconPlatinumBank;
-            case PassiveType.ShowdownMedal: return _iconShowdownMedal;
-            case PassiveType.DiceCup: return _iconDIceCup;
-            case PassiveType.MetalDerector: return _iconMetalDetector;
-            default: return null;
-        }
     }
 
     private string GetTraitName(BossTraitType trait)

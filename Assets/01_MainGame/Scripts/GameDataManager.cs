@@ -47,6 +47,13 @@ public class GameDataManager : MonoBehaviour
 
     [Header("パッシブアイテム")]
     public List<PassiveType> AcquiredPassive = new List<PassiveType>();
+    [SerializeField] private Sprite _iconGoldCard;
+    [SerializeField] private Sprite _iconVipCard;
+    [SerializeField] private Sprite _iconMagicianSet;
+    [SerializeField] private Sprite _iconPlatinumBank;
+    [SerializeField] private Sprite _iconShowdownMedal;
+    [SerializeField] private Sprite _iconDIceCup;
+    [SerializeField] private Sprite _iconMetalDetector;
 
     public BossTraitType CurrentFinalBossTrait = BossTraitType.None;
 
@@ -196,5 +203,21 @@ public class GameDataManager : MonoBehaviour
     public bool HasPassive(PassiveType type)
     {
         return AcquiredPassive != null && AcquiredPassive.Contains(type);
+    }
+
+    // パッシブアイテム画像を取得
+    public Sprite GetPassiveIcon(PassiveType type)
+    {
+        switch (type)
+        {
+            case PassiveType.GoldCard: return _iconGoldCard;
+            case PassiveType.VipCard: return _iconVipCard;
+            case PassiveType.MagicianSet: return _iconMagicianSet;
+            case PassiveType.PlatinumBank: return _iconPlatinumBank;
+            case PassiveType.ShowdownMedal: return _iconShowdownMedal;
+            case PassiveType.DiceCup: return _iconDIceCup;
+            case PassiveType.MetalDerector: return _iconMetalDetector;
+            default: return null;
+        }
     }
 }

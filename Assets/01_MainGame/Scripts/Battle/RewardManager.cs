@@ -29,7 +29,18 @@ public class RewardManager : MonoBehaviour
     // ===== Unityメッセージ =====
     private void Start()
     {
-        // 中ボス撃破後か判定
+        // 初期シール未設定なら初期シール選択画面を開く
+        if (GameDataManager.Instance != null && !GameDataManager.Instance.HasSetupInitialSeals)
+        {
+            PrepareRewardSeals();
+            
+            if (_rewardUIManager != null) 
+                _rewardUIManager.OpenInitialSealUI();
+            
+            return;
+        }
+
+        // 通常報酬（中ボス判定）
         int midBossTier = 0;
         if (GameDataManager.Instance != null)
         {
@@ -37,18 +48,14 @@ public class RewardManager : MonoBehaviour
             if (stageIndex == 3) midBossTier = 1;
             else if (stageIndex == 6) midBossTier = 2;
         }
-
         PrepareRewardSeals();
 
         // 中ボス後ならパッシブ選択を先に開く
         if (midBossTier > 0 && _rewardUIManager != null)
-        {
-            _rewardUIManager.OpenPassiveRewardUI(midBossTier);
-        }
-        else
-        {
+            _rewardUIManager.OpenPassiveRewardUI(midBossTier);        
+        else        
             OpenRewardPhaseUI();
-        }
+        
     }
 
     // ===== メソッド =====

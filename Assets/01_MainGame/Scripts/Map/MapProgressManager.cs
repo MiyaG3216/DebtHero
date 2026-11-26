@@ -120,13 +120,13 @@ public class MapProgressManager : MonoBehaviour
         _enterStageButton.interactable = false;
 
         StageData stage = (GameDataManager.Instance != null) ? GameDataManager.Instance.GetCurrentStageData() : null;
-
         if (stage == null) return;
 
         // ステージタイプに応じてシーンをロード
         if (stage.Type == StageType.Battle)
         {
-            SceneManager.LoadScene("Scene_Battle");
+            DialogController.CurrentTiming = DialogTiming.BeforeBattle;
+            SceneManager.LoadScene("Scene_Dialog");
         }
         else if (stage.Type == StageType.Shop)
         {
