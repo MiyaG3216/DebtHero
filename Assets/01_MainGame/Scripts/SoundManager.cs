@@ -163,7 +163,7 @@ public class SoundManager : MonoBehaviour
     }
 
     // BGM停止
-    public void StopBGM(BgmType type)
+    public void StopBGM()
     {
         _bgmSource.Stop();
         _currentBgmType = BgmType.None;

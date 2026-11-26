@@ -129,10 +129,10 @@ public class DialogController : MonoBehaviour
         // 倒れる（沈む）演出 + 透明化
         elapsed = 0f;
         Vector3 sinkEndPos = _originalPortraitPos - new Vector3(0f, _sinkDistance, 0f);
-        while (elapsed< _sinkDuration)
+        while (elapsed < _sinkDuration)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.SmoothStep(0f,1f,elapsed/_sinkDuration);
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / _sinkDuration);
 
             // ゆっくり沈む
             _enemyPortraitRect.localPosition = Vector3.Lerp(_originalPortraitPos, sinkEndPos, t);
@@ -152,17 +152,16 @@ public class DialogController : MonoBehaviour
         switch (CurrentTiming)
         {
             case DialogTiming.Opning:
+            case DialogTiming.AfterBattle:
+                SceneManager.LoadScene("Scene_Reward");
+                break;
+
             case DialogTiming.BeforeBattle:
                 SceneManager.LoadScene("Scene_Battle");
                 break;
 
-            case DialogTiming.AfterBattle:
-                //if (GameDataManager.Instance != null) GameDataManager.Instance.CurrentStageIndex++;
-                SceneManager.LoadScene("Scene_Reward");
-                break;
-
             case DialogTiming.Ending:
-                SceneManager.LoadScene("Scene_Title");
+                SceneManager.LoadScene("Scene_Ending");
                 break;
         }
     }

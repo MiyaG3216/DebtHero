@@ -94,6 +94,13 @@ MonoBehaviour:
   PlayerDiceList: []
   CurrentStageIndex: 0
   AcquiredPassive: 
+  _iconGoldCard: {fileID: 21300000, guid: 98b5348b8b86e8848acec69d3553814d, type: 3}
+  _iconVipCard: {fileID: 21300000, guid: 2c87fbf467c5dee478d2f99e6f3cc59c, type: 3}
+  _iconMagicianSet: {fileID: 21300000, guid: 412e834811b3ff949bc5c0d3f5924d07, type: 3}
+  _iconPlatinumBank: {fileID: 21300000, guid: 960b61d6abf1ad94091f85c98a909a7b, type: 3}
+  _iconShowdownMedal: {fileID: 21300000, guid: 30ce6548d5680e346b81f467041d4690, type: 3}
+  _iconDIceCup: {fileID: 21300000, guid: e283b3e922a60c54b902141569fb9837, type: 3}
+  _iconMetalDetector: {fileID: 21300000, guid: d00eb6c7e711f5242b88ce1eb6a83920, type: 3}
   CurrentFinalBossTrait: 0
   HasSetupInitialSeals: 0
 --- !u!114 &6051770760387687092
@@ -201,7 +208,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u7528\u5FC3\u68D2\u767B\u5834"
     Timing: 1
-    TargetStageIndex: 2
+    TargetStageIndex: 3
     EnemyPortrait: {fileID: 21300000, guid: 4b87652c89b858644b3b8ed3c092d3bc, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -213,7 +220,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u7528\u5FC3\u68D2\u6483\u9000"
     Timing: 2
-    TargetStageIndex: 2
+    TargetStageIndex: 3
     EnemyPortrait: {fileID: 21300000, guid: 4b87652c89b858644b3b8ed3c092d3bc, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -225,7 +232,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u30A8\u30EA\u30FC\u30C8\u767B\u5834"
     Timing: 1
-    TargetStageIndex: 3
+    TargetStageIndex: 4
     EnemyPortrait: {fileID: 21300000, guid: 09be71677621ed143b8228cef22f05ba, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -237,7 +244,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u30A8\u30EA\u30FC\u30C8\u6483\u9000"
     Timing: 2
-    TargetStageIndex: 3
+    TargetStageIndex: 4
     EnemyPortrait: {fileID: 21300000, guid: 09be71677621ed143b8228cef22f05ba, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -249,7 +256,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u30B5\u30A4\u30DC\u30FC\u30B0\u767B\u5834"
     Timing: 1
-    TargetStageIndex: 4
+    TargetStageIndex: 5
     EnemyPortrait: {fileID: 21300000, guid: 5202e55bccd243c4f80bc0a981d6ad3b, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -261,7 +268,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u30B5\u30A4\u30DC\u30FC\u30B0\u6483\u9000"
     Timing: 2
-    TargetStageIndex: 4
+    TargetStageIndex: 5
     EnemyPortrait: {fileID: 21300000, guid: 5202e55bccd243c4f80bc0a981d6ad3b, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -273,7 +280,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u30BD\u30C3\u30AD\u30F3\u767B\u5834"
     Timing: 1
-    TargetStageIndex: 5
+    TargetStageIndex: 6
     EnemyPortrait: {fileID: 21300000, guid: 421d080ad1873434aa3123b8ccdf84c9, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -285,7 +292,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u30BD\u30C3\u30AD\u30F3\u6483\u9000"
     Timing: 2
-    TargetStageIndex: 5
+    TargetStageIndex: 6
     EnemyPortrait: {fileID: 21300000, guid: 421d080ad1873434aa3123b8ccdf84c9, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -297,7 +304,7 @@ MonoBehaviour:
       TriggerEnemyDamage: 0
   - EventName: "\u30DC\u30B9\u767B\u5834"
     Timing: 1
-    TargetStageIndex: 6
+    TargetStageIndex: 8
     EnemyPortrait: {fileID: 21300000, guid: 39a9983cdd3fb984d82db78f545fd544, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:
@@ -308,8 +315,8 @@ MonoBehaviour:
       Message: "\u4E3B\u4EBA\u516C\u30BB\u30EA\u30D5"
       TriggerEnemyDamage: 0
   - EventName: "\u30DC\u30B9\u6483\u9000"
-    Timing: 2
-    TargetStageIndex: 6
+    Timing: 3
+    TargetStageIndex: 8
     EnemyPortrait: {fileID: 21300000, guid: 39a9983cdd3fb984d82db78f545fd544, type: 3}
     BackgroundImage: {fileID: 21300000, guid: 1fb106a02d81e6446b236831e539ac24, type: 3}
     Lines:

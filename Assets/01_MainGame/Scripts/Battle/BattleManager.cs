@@ -6,7 +6,6 @@ public class BattleManager : MonoBehaviour
     [Header("参照")]
     [SerializeField] private DiceManager _diceManager;
     [SerializeField] private BattleUIManager _battleUIManager;
-    [SerializeField] private RewardManager _rewardManager;
     [SerializeField] private CheatingManager _cheatingManager;
 
     [Header("ステージ設定")]
@@ -28,55 +27,35 @@ public class BattleManager : MonoBehaviour
     // ===== Unityメッセージ =====
     private void Start()
     {
+        // 現在のステージデータ取得しバトル開始
         if (GameDataManager.Instance != null)
         {
             StageData stage = GameDataManager.Instance.GetCurrentStageData();
             if (stage != null)
             {
-                //bool isFinalBoss = (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1);
+                bool isFinalBoss = (GameDataManager.Instance.CurrentStageIndex == GameDataManager.Instance.StageRoute.Count - 1);
+                if (!isFinalBoss)
+                {
+                    // ミッションの生成
+                    if(MissionManager.Instance != null)
+                    {
+                        MissionManager.Instance.GenerateMissions(stage.MaxTurns);
+                    }
 
-                //// ラスボス以外はミッションを生成してパネルを開く
-                //if (!isFinalBoss)
-                //{
-                //    _targetQuota = stage.TargetQuota;
-                //    _maxTurn = stage.MaxTurns;
-                //    _currentBossTrait = stage.BossTrait;
-                //    CurrentScore = 0;
-                //    RemainingTurns = _maxTurn;
+                    // バトルデータのセットアップ
+                    _targetQuota = stage.TargetQuota;
+                    _maxTurn = stage.MaxTurns;
+                    _currentBossTrait = stage.BossTrait;
+                    CurrentScore = 0;
+                    RemainingTurns = _maxTurn;
 
-                //    // UIにステージ情報を反映
-                //    if (_battleUIManager != null)
-                //    {
-                //        _battleUIManager.SetupStageInfo(stage.StageName, _currentBossTrait);
-                //        _battleUIManager.UpdateUI();
-                //    }
-
-                //    // ミッションを生成
-                //    if (MissionManager.Instance != null) MissionManager.Instance.GenerateMissions(stage.MaxTurns);
-
-                //    // ミッションパネルを開く
-                //    if (_battleUIManager != null)
-                //    {
-                //        _battleUIManager.OpenMissionPanel(() =>
-                //        {
-                //            // パネルを閉じた後の処理
-                //            if (GameDataManager.Instance.CurrentStageIndex == 0 && !GameDataManager.Instance.HasSetupInitialSeals)
-                //            {
-                //                // ステージ1 かつ 初期シール未設定なら初期シール画面を開く
-                //                OpenInitialSealFlow();
-                //            }
-                //            else
-                //            {
-                //                // それ以外ならバトル開始
-                //                // デバッグモード中も初期シールスキップ
-                //                StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
-                //            }
-                //        });
-                //        return;     // パネルが閉じるまで待機
-                //    }
-                //}
-
-                // ラスボス戦
+                    // UIの更新
+                    if(_battleUIManager != null)
+                    {
+                        _battleUIManager.OpenMissionPanel(() => { StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName); });
+                        return;
+                    }
+                }
                 StartBattle(stage.TargetQuota, stage.MaxTurns, stage.BossTrait, stage.StageName);
                 return;
             }
@@ -86,16 +65,6 @@ public class BattleManager : MonoBehaviour
     }
 
     // ===== メソッド =====
-    private void OpenInitialSealFlow()
-    {
-        if (_rewardManager != null)
-        {
-            _rewardManager.PrepareRewardSeals();
-            var rewardUI = FindAnyObjectByType<RewardUIManager>();
-            if (rewardUI != null) rewardUI.OpenInitialSealUI();
-        }
-    }
-
     public void StartBattle(int quota, int turns, BossTraitType bossTrait = BossTraitType.None, string stageName = "取り立て屋")
     {
         _targetQuota = quota;
